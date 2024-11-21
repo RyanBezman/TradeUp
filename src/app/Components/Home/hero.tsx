@@ -7,8 +7,8 @@ export function Hero() {
         <h1 className="text-7xl relative max-w-5xl text-center text-black dark:text-white font-semibold">
           Trade Smarter, Faster, and Securely with TradeUp
           <img
-            src="/Images/third.png"
-            className="absolute hidden -left-10 tablet:block top-80 h-[471px] w-[296px]"
+            src="/Images/wallahi.png"
+            className="absolute hidden -left-10 tablet:block top-80 h-[471px] w-[246px]"
             alt=""
           />
           <img
