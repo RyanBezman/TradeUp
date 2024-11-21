@@ -48,15 +48,17 @@ export default function SignInForm({
   }
 
   return (
-    <div className="fixed inset-0 flex z-40 items-center bg-black bg-opacity-80 justify-center">
+    <div className="fixed inset-0 flex z-40 items-center bg-gray-400 bg-opacity-50 dark:bg-black dark:bg-opacity-80 justify-center">
       <form
         onSubmit={handleSignIn}
-        className="flex flex-col bg-black border border-gray-600 w-full max-w-xl max-h-[95vh] p-10 rounded-2xl shadow-lg overflow-auto"
+        className="flex flex-col bg-white dark:bg-black border border-gray-300 dark:border-gray-600 w-full max-w-xl max-h-[95vh] p-10 rounded-2xl shadow-lg overflow-auto"
       >
         <div className="flex items-center justify-between pb-8">
-          <h3 className="text-white font-bold text-2xl">Sign In</h3>
+          <h3 className="text-black dark:text-white font-bold text-2xl">
+            Sign In
+          </h3>
           <X
-            className="text-gray-400 hover:text-white h-6 w-6 cursor-pointer"
+            className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-white h-6 w-6 cursor-pointer"
             onClick={() => {
               setIsFormOpen(false);
               setError(null);
@@ -83,7 +85,7 @@ export default function SignInForm({
         {error && <span className="text-red-500 text-sm">{error}</span>}
         <div className="flex justify-end px-2 pt-14 gap-4">
           <button
-            className="text-gray-400 hover:text-white font-semibold"
+            className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-white font-semibold"
             onClick={() => {
               setIsFormOpen(false);
               setError(null);
@@ -93,7 +95,7 @@ export default function SignInForm({
           </button>
           <button
             type="submit"
-            className="bg-white font-semibold text-black py-4 px-8 rounded-xl"
+            className="bg-violet-800 dark:bg-white text-white dark:text-black py-4 px-8 rounded-xl font-semibold hover:bg-violet-700 dark:hover:bg-gray-200"
           >
             {isLoading ? (
               <Loader className="animate-spin h-8 w-8 text-gray-500" />

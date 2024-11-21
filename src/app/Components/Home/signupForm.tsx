@@ -3,6 +3,7 @@ import { Loader, X } from "lucide-react";
 import { FormInput } from "./formInput";
 import { FormEvent, useState } from "react";
 import { addUser } from "@/actions/user/addUser";
+
 type SignupFormProps = {
   setIsFormOpen: (arg: boolean) => void;
 };
@@ -31,17 +32,14 @@ const initialSignupData = {
   zip: "",
 };
 const formFields = [
-  // { label: "First Name", fieldKey: "firstName" },
-  // { label: "Last Name", fieldKey: "lastName" },
   { label: "Email", fieldKey: "email" },
   { label: "Phone", fieldKey: "phone" },
   { label: "Password", fieldKey: "password" },
   { label: "Address 1", fieldKey: "address1" },
   { label: "Address 2 (optional)", fieldKey: "address2" },
   { label: "City", fieldKey: "city" },
-  // { label: "State", fieldKey: "state" },
-  // { label: "Zip", fieldKey: "zip" },
 ];
+
 export function SignupForm({ setIsFormOpen }: SignupFormProps) {
   const [signupData, setSignupData] = useState<SignupData>(initialSignupData);
   const [isLoading, setIsLoading] = useState(false);
@@ -55,21 +53,24 @@ export function SignupForm({ setIsFormOpen }: SignupFormProps) {
       setIsFormOpen(false);
       setIsLoading(false);
     } catch (error) {
-      console.error("I fucked up", error);
+      console.error("Error occurred during signup:", error);
     } finally {
       setIsLoading(false);
     }
   }
+
   return (
-    <div className="fixed inset-0 flex z-40 items-center bg-black bg-opacity-80 justify-center">
+    <div className="fixed inset-0 flex z-40 items-center bg-gray-400 bg-opacity-50 dark:bg-black dark:bg-opacity-80 justify-center">
       <form
         onSubmit={handleSignup}
-        className="flex flex-col bg-black border border-gray-600 w-full max-w-xl max-h-[95vh] p-10 rounded-2xl shadow-lg overflow-auto"
+        className="flex flex-col bg-white dark:bg-black border border-gray-300 dark:border-gray-600 w-full max-w-xl max-h-[95vh] p-10 rounded-2xl shadow-lg overflow-auto"
       >
         <div className="flex items-center justify-between pb-8">
-          <h3 className="text-white font-bold text-2xl">Sign Up Now!</h3>
+          <h3 className="text-black dark:text-white font-bold text-2xl">
+            Sign Up Now!
+          </h3>
           <X
-            className="text-gray-400 hover:text-white h-6 w-6 cursor-pointer"
+            className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-white h-6 w-6 cursor-pointer"
             onClick={() => setIsFormOpen(false)}
           />
         </div>
@@ -96,7 +97,7 @@ export function SignupForm({ setIsFormOpen }: SignupFormProps) {
               key={fieldKey}
               label={label}
               fieldKey={fieldKey}
-              placeholder={`Enter ${label.toLocaleLowerCase()}`}
+              placeholder={`Enter ${label.toLowerCase()}`}
               setSignupData={setSignupData}
             />
           ))}
@@ -120,14 +121,14 @@ export function SignupForm({ setIsFormOpen }: SignupFormProps) {
 
         <div className="flex justify-end px-2 pt-14 gap-4">
           <button
-            className="text-gray-400 hover:text-white font-semibold"
+            className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-white font-semibold"
             onClick={() => setIsFormOpen(false)}
           >
             Close
           </button>
           <button
             type="submit"
-            className="bg-white font-semibold text-black py-4 px-8 rounded-xl"
+            className="bg-violet-800 dark:bg-white text-white dark:text-black py-4 px-8 rounded-xl font-semibold hover:bg-violet-700 dark:hover:bg-gray-200"
           >
             {isLoading ? (
               <Loader className="animate-spin h-8 w-8 text-gray-500" />

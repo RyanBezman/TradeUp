@@ -20,12 +20,15 @@ type AuthContextType = {
   user: User | null;
   setUser: Dispatch<SetStateAction<User | null>>;
   logout: () => void;
+  theme: "light" | "dark";
+  toggleTheme: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
     console.log(document.cookie);
@@ -46,20 +49,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (isValid) {
           setUser(isValid);
         } else {
-          document.cookie = "sessionToken=; path=/; max-age=0";
-          document.cookie = "email=; path=/; max-age=0";
+          `       document.cookie = "sessionToken=; path=/; max-age=0";
+          document.cookie = "email=; path=/; max-age=0";`;
         }
       }
     }
     validateSession();
   }, []);
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark";
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.classList.toggle("dark", savedTheme === "dark");
+    }
+  }, []);
 
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  };
   const logout = () => {
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout }}>
+    <AuthContext.Provider value={{ user, setUser, logout, theme, toggleTheme }}>
       {children}
     </AuthContext.Provider>
   );

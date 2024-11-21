@@ -15,8 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "MaintainMe",
-  description: "The app that keeps you accountable.",
+  title: "TradeUp",
+  description: "Trade safely on a user friendly app.",
 };
 
 export default function RootLayout({
@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-black antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} dark:bg-black antialiased`}
       >
         <AuthProvider>{children}</AuthProvider>
       </body>
