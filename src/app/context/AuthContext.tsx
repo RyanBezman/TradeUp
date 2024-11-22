@@ -17,6 +17,8 @@ type User = {
   city: string;
   state: string;
   phone: string;
+  zip: string;
+  id: number;
 };
 type AuthContextType = {
   user: User | null;

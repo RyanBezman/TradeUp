@@ -1,4 +1,5 @@
 import { SignUpButton } from "./signUpButton";
+import Image from "next/image";
 
 export function Hero() {
   return (
@@ -7,18 +8,20 @@ export function Hero() {
         <h1 className="text-7xl relative max-w-5xl text-center text-black dark:text-white font-semibold">
           Trade Smarter, Faster, and Securely with TradeUp
           <div className="absolute hidden tablet:block top-80 -left-10">
-            <img
+            <Image
               src="/Images/wallahi.png"
-              className="h-[471px] w-[246px] relative"
-              alt=""
+              height={471}
+              width={246}
+              alt="iPhone image tilted left"
             />
             <div className="absolute  bottom-0 left-0 right-0 h-[50%]  bg-gradient-to-b from-transparent via-transparent to-white dark:to-black  "></div>
           </div>
           <div className="absolute hidden tablet:block top-80 -right-10">
-            <img
+            <Image
               src="/Images/MobileUI.png"
-              className="h-[470px] w-[236px] relative"
-              alt=""
+              alt="iPhone image tilted right"
+              height={470}
+              width={236}
             />
             <div className="absolute  bottom-0 left-0 right-0 h-[10%]   bg-gradient-to-b from-transparent via-transparent to-white dark:to-black"></div>
           </div>

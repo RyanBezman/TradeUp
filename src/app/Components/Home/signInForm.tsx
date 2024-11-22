@@ -7,8 +7,10 @@ import { useRouter } from "next/navigation";
 
 export default function SignInForm({
   setIsFormOpen,
+  title,
 }: {
   setIsFormOpen: (arg: boolean) => void;
+  title?: string;
 }) {
   const initialSignInData = {
     email: "",
@@ -55,9 +57,13 @@ export default function SignInForm({
       >
         <div className="flex items-center justify-between pb-8">
           <h3 className="text-black dark:text-white font-bold text-2xl">
-            Sign In
+            {title
+              ? `
+            ${title}`
+              : "Sign In"}
           </h3>
           <X
+            type="button"
             className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-white h-6 w-6 cursor-pointer"
             onClick={() => {
               setIsFormOpen(false);
@@ -85,6 +91,7 @@ export default function SignInForm({
         {error && <span className="text-red-500 text-sm">{error}</span>}
         <div className="flex justify-end px-2 pt-14 gap-4">
           <button
+            type="button"
             className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-white font-semibold"
             onClick={() => {
               setIsFormOpen(false);

@@ -6,6 +6,7 @@ import { addUser } from "@/actions/user/addUser";
 
 type SignupFormProps = {
   setIsFormOpen: (arg: boolean) => void;
+  setIsLoginOpen: (arg: boolean) => void;
 };
 export type SignupData = {
   firstName: string;
@@ -40,7 +41,7 @@ const formFields = [
   { label: "City", fieldKey: "city" },
 ];
 
-export function SignupForm({ setIsFormOpen }: SignupFormProps) {
+export function SignupForm({ setIsFormOpen, setIsLoginOpen }: SignupFormProps) {
   const [signupData, setSignupData] = useState<SignupData>(initialSignupData);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,6 +52,7 @@ export function SignupForm({ setIsFormOpen }: SignupFormProps) {
       await addUser(signupData);
       setSignupData(initialSignupData);
       setIsFormOpen(false);
+      setIsLoginOpen(true);
       setIsLoading(false);
     } catch (error) {
       console.error("Error occurred during signup:", error);
@@ -70,6 +72,7 @@ export function SignupForm({ setIsFormOpen }: SignupFormProps) {
             Sign Up Now!
           </h3>
           <X
+            type="button"
             className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-white h-6 w-6 cursor-pointer"
             onClick={() => setIsFormOpen(false)}
           />
@@ -121,6 +124,7 @@ export function SignupForm({ setIsFormOpen }: SignupFormProps) {
 
         <div className="flex justify-end px-2 pt-14 gap-4">
           <button
+            type="button"
             className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-white font-semibold"
             onClick={() => setIsFormOpen(false)}
           >

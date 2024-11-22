@@ -22,20 +22,28 @@ export const sideBarOptions = [
   { label: "Portfolio", icon: DollarSign },
   { label: "Security Center", icon: Lock },
 ];
-const personalInfoData = [
-  { label: "First Name", value: "Ryan" },
-  { label: "Last Name", value: "Bezman" },
-  { label: "Email address", value: "ryanbezman@icloud.com" },
-  { label: "Phone", value: "(516)-406-4098" },
-  { label: "Bio", value: "Software Engineer" },
-];
-const addressData = [
-  { label: "Country", value: "United States of America" },
-  { label: "City/ State", value: "East Meadow, NY" },
-  { label: "Postal Code", value: "11554" },
-];
+// const personalInfoData = [
+//   { label: "First Name", value: "Ryan" },
+//   { label: "Last Name", value: "Bezman" },
+//   { label: "Email address", value: "ryanbezman@icloud.com" },
+//   { label: "Phone", value: "(516)-406-4098" },
+//   { label: "Bio", value: "Software Engineer" },
+// ];
+// const addressData = [
+//   { label: "Country", value: "United States of America" },
+//   { label: "City/ State", value: "East Meadow, NY" },
+//   { label: "Postal Code", value: "11554" },
+// ];
 
 export default function Account() {
+  // const { user } = useAuth();
+  // const personalInfo: PersonalInfoItem[] = [
+  //   { label: "First Name", value: user?.firstName, column: "firstName" },
+  //   { label: "Last Name", value: user?.lastName, column: "lastName" },
+  //   { label: "Email Address", value: user?.email, column: "email" },
+  //   { label: "Phone", value: user?.phone, column: "phone" },
+  //   { label: "Bio", value: "Software Engineer", column: "job" },
+  // ];
   return (
     <div className="flex flex-col flex-1 min-h-screen">
       <Navbar />
@@ -61,8 +69,7 @@ export default function Account() {
                   My Profile
                 </h2>
                 <ProfileCard />
-                <InfoCard title="Personal Ifnformation" />
-                <InfoCard title="Address" />
+                <InfoCard title="Personal Information" />
               </div>
             </div>
           </div>

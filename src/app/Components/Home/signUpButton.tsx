@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import { SignupForm } from "./signupForm";
+import Image from "next/image";
+import SignInForm from "./signInForm";
 
 export function SignUpButton() {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   return (
     <div className="flex flex-col items-center gap-20 px-10 justify-center">
@@ -14,14 +17,25 @@ export function SignUpButton() {
       >
         Sign up today!
       </button>
-      <img
+      <Image
         src="/Images/middlescreenUI.png"
-        className="h-[516px] w-[260px]"
-        alt=""
+        height={516}
+        width={260}
+        alt="iphone image"
       />
 
       {isFormOpen && (
-        <SignupForm setIsFormOpen={setIsFormOpen} key="signInForm" />
+        <SignupForm
+          setIsFormOpen={setIsFormOpen}
+          setIsLoginOpen={setIsLoginOpen}
+          key="signInForm"
+        />
+      )}
+      {isLoginOpen && (
+        <SignInForm
+          setIsFormOpen={setIsLoginOpen}
+          title="Your account has been made! Please sign in..."
+        />
       )}
     </div>
   );

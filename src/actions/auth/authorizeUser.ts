@@ -30,6 +30,7 @@ export async function authorizeUser(email: string, password: string) {
         phone: schema.users.phone,
         city: schema.users.city,
         state: schema.users.state,
+        zip: schema.users.zip,
       })
       .from(schema.users)
       .where(and(eq(schema.users.email, email)));
@@ -46,6 +47,8 @@ export async function authorizeUser(email: string, password: string) {
       phone,
       city,
       state,
+      zip,
+      id,
     } = user[0];
     console.log(user[0]);
     const hashedPassword = pbkdf2Sync(
@@ -64,7 +67,17 @@ export async function authorizeUser(email: string, password: string) {
     const sessionToken = createRandomString();
 
     await db.insert(schema.activeUsers).values({ email, sessionToken });
-    return { email, sessionToken, firstName, lastName, phone, city, state };
+    return {
+      email,
+      sessionToken,
+      firstName,
+      lastName,
+      phone,
+      city,
+      state,
+      zip,
+      id,
+    };
   } catch (error) {
     console.error("Error authorizing user", error);
     throw error;
