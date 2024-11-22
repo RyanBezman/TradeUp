@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SignupData, SignupForm } from "./signupForm";
-
-type SignUpButtonProps = {
-  onAddUser: (data: SignupData) => Promise<void>;
-};
+import { SignupForm } from "./signupForm";
 
 export function SignUpButton() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -23,6 +19,7 @@ export function SignUpButton() {
         className="h-[516px] w-[260px]"
         alt=""
       />
+
       {isFormOpen && (
         <SignupForm setIsFormOpen={setIsFormOpen} key="signInForm" />
       )}

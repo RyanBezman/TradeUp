@@ -1,5 +1,4 @@
 "use client";
-import { validateUserSession } from "@/actions/auth/validateUserSession";
 import {
   Dispatch,
   createContext,
@@ -15,6 +14,9 @@ type User = {
   lastName: string;
   email: string;
   sessionToken: string;
+  city: string;
+  state: string;
+  phone: string;
 };
 type AuthContextType = {
   user: User | null;
@@ -26,36 +28,16 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider = ({
+  children,
+  initialUser,
+}: {
+  children: ReactNode;
+  initialUser: User | null;
+}) => {
+  const [user, setUser] = useState<User | null>(initialUser);
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  useEffect(() => {
-    console.log(document.cookie);
-    async function validateSession() {
-      const storedCookies = document.cookie
-        .split("; ")
-        .reduce((acc, cookie) => {
-          const [key, value] = cookie.split("=");
-          acc[key] = value;
-          return acc;
-        }, {} as Record<string, string>);
-      const sessionToken = storedCookies.sessionToken;
-      const email = storedCookies.email;
-
-      if (sessionToken && email) {
-        const isValid = await validateUserSession(email, sessionToken);
-        console.log(isValid);
-        if (isValid) {
-          setUser(isValid);
-        } else {
-          `       document.cookie = "sessionToken=; path=/; max-age=0";
-          document.cookie = "email=; path=/; max-age=0";`;
-        }
-      }
-    }
-    validateSession();
-  }, []);
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark";
     if (savedTheme) {

@@ -12,6 +12,9 @@ export async function validateUserSession(email: string, sessionToken: string) {
       email: activeUsers.email,
       firstName: users.firstName,
       lastName: users.lastName,
+      phone: users.phone,
+      city: users.city,
+      state: users.state,
     })
     .from(activeUsers)
     .innerJoin(users, eq(activeUsers.email, users.email))

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
+import { cookies } from "next/headers";
+import { validateUserSession } from "@/actions/auth/validateUserSession";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -19,17 +21,25 @@ export const metadata: Metadata = {
   description: "Trade safely on a user friendly app.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = cookies();
+  const sessionToken = (await cookieStore).get("sessionToken")?.value;
+  const email = (await cookieStore).get("email")?.value;
+
+  const initialUser =
+    sessionToken && email
+      ? await validateUserSession(email, sessionToken)
+      : null;
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} dark:bg-black antialiased`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider initialUser={initialUser}>{children}</AuthProvider>
       </body>
     </html>
   );

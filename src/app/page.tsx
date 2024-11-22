@@ -1,6 +1,5 @@
 import { Hero } from "./Components/Home/hero";
 import { Navbar } from "./Components/Home/navbar";
-import { SignupForm } from "./Components/Home/signupForm";
 
 export default function Home() {
   return (

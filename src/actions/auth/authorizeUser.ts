@@ -6,7 +6,7 @@ import { eq, and } from "drizzle-orm";
 
 const createRandomString = () => {
   let randomString = "";
-  let characters =
+  const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789abcdefghijklmnopqrstuvwxyz";
   const length = 16;
   for (let i = 0; i < length; i++) {
@@ -27,6 +27,9 @@ export async function authorizeUser(email: string, password: string) {
         lastName: schema.users.lastName,
         password: schema.users.password,
         salt: schema.users.salt,
+        phone: schema.users.phone,
+        city: schema.users.city,
+        state: schema.users.state,
       })
       .from(schema.users)
       .where(and(eq(schema.users.email, email)));
@@ -35,7 +38,16 @@ export async function authorizeUser(email: string, password: string) {
       console.log("Invalid email");
       return null;
     }
-    const { id, password: storedHash, salt, firstName, lastName } = user[0];
+    const {
+      password: storedHash,
+      salt,
+      firstName,
+      lastName,
+      phone,
+      city,
+      state,
+    } = user[0];
+    console.log(user[0]);
     const hashedPassword = pbkdf2Sync(
       password,
       salt,
@@ -52,7 +64,7 @@ export async function authorizeUser(email: string, password: string) {
     const sessionToken = createRandomString();
 
     await db.insert(schema.activeUsers).values({ email, sessionToken });
-    return { email, sessionToken, firstName, lastName };
+    return { email, sessionToken, firstName, lastName, phone, city, state };
   } catch (error) {
     console.error("Error authorizing user", error);
     throw error;
