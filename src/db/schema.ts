@@ -22,6 +22,7 @@ export const users = pgTable("users", {
   zip: varchar("zip", { length: 10 }).notNull(),
   salt: varchar("salt").notNull(),
   active: boolean("active").notNull().default(true),
+  job: varchar("job"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()

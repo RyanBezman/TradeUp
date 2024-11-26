@@ -1,27 +1,46 @@
 "use client";
+import { updateUser } from "@/actions/user/updateUser";
 import { useAuth } from "@/app/context/AuthContext";
-import { useClickOutside } from "@/app/hooks/useClickOutside";
-import { Check, Pencil } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Check, Loader, Pencil } from "lucide-react";
+import { FormEvent, useState } from "react";
 export function ProfileCard() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingJob, setIsEditingJob] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [jobInfo, setJobInfo] = useState("");
-  const jobInputRef = useRef<HTMLInputElement | null>(null);
 
-  useClickOutside(jobInputRef, isEditingJob, () => {
-    setIsEditingJob(false);
-    setJobInfo("");
-  });
-  useEffect(() => {
-    if (isEditingJob) {
-      jobInputRef.current?.focus();
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (user) {
+      setIsLoading(true);
+      try {
+        await updateUser(user?.id, "job", jobInfo);
+        setUser((prevUser) =>
+          prevUser ? { ...prevUser, ["job"]: jobInfo } : prevUser
+        );
+      } catch (error) {
+        console.error("trouble updating job info", error);
+      } finally {
+        setJobInfo("");
+        setIsLoading(false);
+        setIsEditingJob(false);
+      }
     }
-  }, [isEditingJob]);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const relatedTarget = e.relatedTarget as HTMLElement | null;
+
+    if (!relatedTarget || relatedTarget.tagName !== "BUTTON") {
+      setIsEditingJob(false);
+      setJobInfo("");
+    }
+  };
+
   return (
-    <div className="w-full p-10 flex justify-between border dark:border-gray-600 border-gray-300 rounded-lg">
+    <div className="w-full p-10 flex justify-between border dark:border-gray-600 border-gray-300 max-w-[1080px] rounded-lg">
       <div className="flex gap-6">
         <button className="flex items-center justify-center bg-violet-300 dark:bg-zinc-900 text-black dark:text-white font-bold rounded-full w-16 h-16 hover:ring-2 hover:ring-violet-600 dark:hover:ring-gray-400">
           {user && user.firstName[0].toUpperCase()}
@@ -31,30 +50,35 @@ export function ProfileCard() {
             {user ? `${user.firstName} ${user.lastName}` : null}
           </h3>
           {isEditingJob ? (
-            <div className="items-center flex">
+            <form onSubmit={handleSubmit} className="items-center flex">
               <input
                 type="text"
                 onChange={(e) => setJobInfo(e.target.value)}
                 value={jobInfo}
-                className="outline-none"
-                ref={jobInputRef}
+                className="outline-none text-sm dark:bg-black"
+                onBlur={handleBlur}
+                autoFocus
               />
               <button
                 type="submit"
+                disabled={jobInfo.length < 1}
                 className="text-black dark:text-white"
                 title="Save"
               >
-                <Check className="w-5 h-5" />
+                {isLoading ? (
+                  <Loader className="animate-spin h-5 w-5 text-gray-500" />
+                ) : (
+                  <Check className="w-5 h-5" />
+                )}
               </button>
-            </div>
+            </form>
           ) : (
             <div className="flex items-center gap-2">
-              <p className="text-sm">Software Engineer</p>
+              <p className="text-sm">{user?.job ? user.job : "Add new job"}</p>
               {isEditing && (
                 <Pencil
                   onClick={() => {
                     setIsEditingJob(true);
-                    jobInputRef.current?.focus();
                   }}
                   className="w-3 h-3 cursor-pointer"
                 />

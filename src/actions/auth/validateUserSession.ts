@@ -17,6 +17,7 @@ export async function validateUserSession(email: string, sessionToken: string) {
       state: users.state,
       zip: users.zip,
       id: users.id,
+      job: users.job,
     })
     .from(activeUsers)
     .innerJoin(users, eq(activeUsers.email, users.email))

@@ -19,6 +19,7 @@ type User = {
   phone: string;
   zip: string;
   id: number;
+  job?: string | null;
 };
 type AuthContextType = {
   user: User | null;
