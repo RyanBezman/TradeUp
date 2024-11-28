@@ -16,6 +16,15 @@ export default {
       screens: {
         tablet: "868px",
       },
+      keyframes: {
+        textFade: {
+          "0%": { color: "var(--text-color)" },
+          "100%": { color: "black" },
+        },
+      },
+      animation: {
+        textFade: "textFade 0.5s ease-in-out",
+      },
     },
   },
   plugins: [],

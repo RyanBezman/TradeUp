@@ -8,16 +8,20 @@ type SideBarOption = {
 };
 type SidebarOptionProps = {
   option: SideBarOption;
+  isActive?: boolean;
 };
-export function SideBarOption({ option }: SidebarOptionProps) {
+export function SideBarOption({ option, isActive }: SidebarOptionProps) {
   const { icon: Icon, label } = option;
   return (
-    <div
+    <li
       key={label}
-      className="dark:text-gray-400 text-black hover:dark:text-white hover:text-violet-600 font-semibold text-lg p-5 px-8 cursor-pointer flex items-center gap-4"
+      className={`dark:text-gray-400 text-black hover:dark:text-white hover:bg-violet-100 hover:text-violet-600 dark:hover:bg-zinc-900 font-semibold  p-5 px-8 cursor-pointer rounded-xl ${
+        isActive &&
+        "bg-violet-100 text-violet-600 dark:bg-zinc-900 dark:text-white"
+      } flex items-center gap-4`}
     >
       <Icon className="w-5 h-5" />
       {label}
-    </div>
+    </li>
   );
 }

@@ -5,7 +5,10 @@ import { ChartNoAxesCombined } from "lucide-react";
 
 const buttons = ["Benefits", "Features", "Pricing", "Testimonials", "FAQ's"];
 
-export function Navbar() {
+type NavbarProps = {
+  pathname?: String;
+};
+export function Navbar({ pathname }: NavbarProps) {
   return (
     <header className="flex w-full items-center  dark:border-gray-600 border-gray-300 justify-between px-1 min-[505px]:px-8 py-6">
       <div className="flex gap-2 items-center">
@@ -18,18 +21,22 @@ export function Navbar() {
         </h1>
       </div>
 
-      <div className="gap-12 min-[1220px]:gap-24 hidden lg:flex">
-        {buttons.map((name) => {
-          return (
-            <button
-              className="dark:text-gray-400 text-black hover:dark:text-white hover:text-violet-600 font-semibold text-xl"
-              key={name}
-            >
-              {name}
-            </button>
-          );
-        })}
-      </div>
+      {pathname ? (
+        <div className="text-4xl font-semibold flex-1 pl-24">{pathname}</div>
+      ) : (
+        <div className="gap-12 min-[1220px]:gap-24 hidden lg:flex">
+          {buttons.map((name) => {
+            return (
+              <button
+                className="dark:text-gray-400 text-black hover:dark:text-white hover:text-violet-600 font-semibold text-xl"
+                key={name}
+              >
+                {name}
+              </button>
+            );
+          })}
+        </div>
+      )}
       <div className="flex items-center gap-4">
         <ToggleTheme />
         <SignInButton />

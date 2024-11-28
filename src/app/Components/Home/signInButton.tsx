@@ -7,7 +7,7 @@ import SignInForm from "./signInForm";
 import { useRouter } from "next/navigation";
 
 export function SignInButton() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isConfirmingSignOut, setIsConfirmingSignOut] = useState(false);
   const router = useRouter();
@@ -18,7 +18,7 @@ export function SignInButton() {
         <div className="flex gap-4 items-center">
           <button
             onClick={() => {
-              router.push("/account");
+              router.push("/profile");
             }}
             className="flex items-center justify-center bg-violet-300 dark:bg-zinc-900 text-black dark:text-white font-bold rounded-full w-12 h-12 hover:ring-2 hover:ring-violet-600 dark:hover:ring-gray-400"
           >

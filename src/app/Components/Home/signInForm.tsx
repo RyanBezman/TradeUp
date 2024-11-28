@@ -46,7 +46,7 @@ export default function SignInForm({
     setIsLoading(false);
     setSignInData(initialSignInData);
 
-    router.push("/account");
+    router.refresh();
   }
 
   return (
