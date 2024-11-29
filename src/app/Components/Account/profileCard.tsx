@@ -77,14 +77,18 @@ export function ProfileCard() {
               </button>
             </form>
           ) : (
-            <div className="flex items-center gap-4 mt-2">
+            <div
+              className={`flex items-center gap-4 mt-2 ${
+                !user?.job && "text-gray-400 dark:text-gray-600 italic"
+              }`}
+            >
               <p className="text-lg">{user?.job ? user.job : "Add new job"}</p>
               {isEditing && (
                 <Pencil
                   onClick={() => {
                     setIsEditingJob(true);
                   }}
-                  className="w-5 h-5 cursor-pointer hover:text-violet-600"
+                  className="w-5 h-5 cursor-pointer text-black hover:text-violet-600 dark:hover:text-white"
                 />
               )}
             </div>

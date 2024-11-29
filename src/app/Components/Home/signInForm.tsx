@@ -31,7 +31,7 @@ export default function SignInForm({
     if (!result) {
       setError("Incorrect Email or password. Please Try again.");
       setIsLoading(false);
-      setSignInData(initialSignInData);
+      // setSignInData(initialSignInData);
       return;
     }
     document.cookie = `sessionToken=${result.sessionToken}; path=/; max-age=${
@@ -79,6 +79,7 @@ export default function SignInForm({
             fieldKey="email"
             placeholder="Enter email"
             setSignInData={setSignInData}
+            signInData={signInData}
           />
           <SignInFormInput
             key={"password"}
@@ -86,6 +87,7 @@ export default function SignInForm({
             fieldKey="password"
             placeholder="Enter password"
             setSignInData={setSignInData}
+            signInData={signInData}
           />
         </div>
         {error && <span className="text-red-500 text-sm">{error}</span>}

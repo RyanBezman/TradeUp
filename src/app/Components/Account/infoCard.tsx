@@ -99,7 +99,7 @@ export function InfoCard({ title }: PersonalInfoCardProps) {
               {info.label}
               {isEditing && activeField !== info.label && (
                 <Pencil
-                  className="w-4 h-4 cursor-pointer hover:text-violet-600"
+                  className="w-4 h-4 cursor-pointer hover:text-violet-600 dark:hover:text-white"
                   onClick={() => setActiveField(info.label)}
                 />
               )}
