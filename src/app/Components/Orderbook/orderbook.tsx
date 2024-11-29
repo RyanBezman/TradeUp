@@ -1,6 +1,6 @@
 "use client";
 
-import { Ref, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ColumnHeader } from "./columnHeader";
 import { LabelHeader } from "./labelheader";
 import { Divider } from "./divider";
@@ -43,7 +43,7 @@ export function OrderBook() {
 
   useEffect(() => {}, [asks, bids]);
   return (
-    <div className="flex w-full flex-col max-w-md border dark:border-gray-300 ">
+    <div className="flex w-full flex-col max-w-md border border-r-0 border-t-0 dark:border-gray-300 ">
       <ColumnHeader title="Order Book" />
       <LabelHeader left="Market Size" right="MySize" />
       <div className="flex flex-col flex-grow overflow-hidden">

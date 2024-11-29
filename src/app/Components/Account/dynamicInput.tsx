@@ -28,7 +28,7 @@ export default function DynamicInput() {
           fontSize: `${fontSize}rem`,
         }}
         onChange={(e) => {
-          let value = e.target.value.replace(/,/g, "");
+          const value = e.target.value.replace(/,/g, "");
           if (value.length > 9) {
             return;
           }

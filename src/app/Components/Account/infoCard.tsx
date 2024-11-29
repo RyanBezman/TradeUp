@@ -1,4 +1,5 @@
 "use client";
+
 import { updateUser } from "@/actions/user/updateUser";
 import { useAuth } from "@/app/context/AuthContext";
 import { Check, Loader, Pencil } from "lucide-react";
@@ -73,39 +74,44 @@ export function InfoCard({ title }: PersonalInfoCardProps) {
   };
 
   return (
-    <div className="w-full p-10 mt-8 flex flex-col justify-between max-w-[1080px] border dark:border-gray-600 border-gray-300 rounded-lg">
+    <div className="w-full p-12 mt-10 flex flex-col justify-between max-w-[1200px] border dark:border-gray-600 border-gray-300 rounded-xl">
       <div className="flex justify-between items-center">
-        <h2 className="dark:text-white text-lg text-black font-semibold">
+        <h2 className="dark:text-white text-2xl text-black font-bold">
           {title}
         </h2>
         <button
-          onClick={() => setIsEditing(!isEditing)}
-          className="flex items-center h-8 px-2 py-4 gap-2 text-black hover:dark:text-white dark:text-gray-400 hover:text-violet-600 border"
+          onClick={() => {
+            setIsEditing(!isEditing);
+            setActiveField("");
+          }}
+          className="flex items-center h-10 px-4 py-6 gap-3 text-black hover:dark:text-white dark:text-gray-400 hover:text-violet-600 border rounded-lg"
         >
-          {!isEditing && <Pencil className="w-4 h-4" />}
-          <span>{isEditing ? "Cancel" : "Edit"}</span>
+          {!isEditing && <Pencil className="w-5 h-5 font-semibold" />}
+          <span className="text-lg font-semibold">
+            {isEditing ? "Cancel" : "Edit"}
+          </span>
         </button>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mt-8">
         {personalInfo.map((info) => (
           <div key={info.column} className="flex flex-col">
-            <label className="text-gray-700 font-semibold dark:text-gray-400 flex gap-3 items-center">
+            <label className="text-gray-700 font-bold text-lg dark:text-gray-400 flex gap-4 items-center">
               {info.label}
               {isEditing && activeField !== info.label && (
                 <Pencil
-                  className="w-3 h-3 cursor-pointer"
+                  className="w-4 h-4 cursor-pointer hover:text-violet-600"
                   onClick={() => setActiveField(info.label)}
                 />
               )}
             </label>
-            {activeField === info.label ? (
+            {activeField === info.label && isEditing ? (
               <form
                 onSubmit={(e) => handleSubmit(info.column, e)}
-                className="flex items-center"
+                className="flex items-center mt-2"
               >
                 <input
                   type="text"
-                  className="outline-none dark:bg-black dark:text-white"
+                  className="outline-none dark:bg-black dark:text-white text-lg"
                   onBlur={handleBlur}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
@@ -114,17 +120,19 @@ export function InfoCard({ title }: PersonalInfoCardProps) {
                 <button
                   type="submit"
                   title="Save"
-                  className="text-black dark:text-white"
+                  className="text-black dark:text-white ml-3"
                 >
                   {isLoading ? (
-                    <Loader className="animate-spin h-5 w-5 text-gray-500" />
+                    <Loader className="animate-spin h-6 w-6 text-gray-500" />
                   ) : (
-                    <Check className="w-5 h-5" />
+                    <Check className="w-6 h-6" />
                   )}
                 </button>
               </form>
             ) : (
-              <span className="text-black dark:text-white">{info.value}</span>
+              <span className="text-black dark:text-white text-lg mt-2">
+                {info.value}
+              </span>
             )}
           </div>
         ))}
