@@ -26,7 +26,7 @@ export function Hero() {
             <div className="absolute  bottom-0 left-0 right-0 h-[10%]   bg-gradient-to-b from-transparent via-transparent to-white dark:to-black"></div>
           </div>
         </h1>
-        <h2 className="text-xl max-w-2xl text-center text-gray-700 dark:text-gray-400 font-semibold">
+        <h2 className="text-xl max-w-2xl text-center dark:text-gray-400 font-semibold">
           Join TradeUp to trade confidently with real-time market data, secure
           transactions, and advanced analytics.
         </h2>

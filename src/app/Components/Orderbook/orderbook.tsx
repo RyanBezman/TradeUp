@@ -17,28 +17,55 @@ export function OrderBook() {
   const asksContainerRef = useRef<HTMLDivElement | null>(null);
   const bidsContainerRef = useRef<HTMLDivElement | null>(null);
 
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const data = addSells();
+  //     const bidsData = addSells();
+
+  //     setAsks((prev) => {
+  //       const newAsks = [data, ...prev];
+  //       if (asksContainerRef.current) {
+  //         asksContainerRef.current.scrollTop = 0;
+  //       }
+  //       return newAsks.slice(0, 100);
+  //     });
+  //     setBids((prev) => {
+  //       const newBids = [bidsData, ...prev];
+  //       if (bidsContainerRef.current) {
+  //         bidsContainerRef.current.scrollTop = 0;
+  //       }
+  //       return newBids.slice(0, 100);
+  //     });
+  //   }, 100);
+
+  //   return () => clearInterval(interval);
+  // }, []);
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      const data = addSells();
-      const bidsData = addSells();
+    const socket = new WebSocket("ws://localhost:8080");
+
+    socket.onmessage = (event) => {
+      const { ask, bid } = JSON.parse(event.data);
 
       setAsks((prev) => {
-        const newAsks = [data, ...prev];
+        const newAsks = [ask, ...prev];
         if (asksContainerRef.current) {
           asksContainerRef.current.scrollTop = 0;
         }
         return newAsks.slice(0, 100);
       });
+
       setBids((prev) => {
-        const newBids = [bidsData, ...prev];
+        const newBids = [bid, ...prev];
         if (bidsContainerRef.current) {
           bidsContainerRef.current.scrollTop = 0;
         }
         return newBids.slice(0, 100);
       });
-    }, 100);
-
-    return () => clearInterval(interval);
+    };
+    return () => {
+      socket.close();
+    };
   }, []);
 
   useEffect(() => {}, [asks, bids]);
@@ -70,7 +97,7 @@ function OrderBookSells({ asks, asksContainerRef }: OrderBookSellsProps) {
         return (
           <Cell
             key={`sell-${index}`}
-            size={size.toFixed(4).toString()}
+            size={size.toString()}
             price={price.toString()}
             type="sell"
           />
@@ -95,7 +122,7 @@ function OrderBookBids({ bids, bidsContainerRef }: OrderBookBidsProps) {
         return (
           <Cell
             key={`bid-${index}`}
-            size={size.toFixed(4).toString()}
+            size={size.toString()}
             price={price.toString()}
             type="bid"
           />
@@ -105,13 +132,13 @@ function OrderBookBids({ bids, bidsContainerRef }: OrderBookBidsProps) {
   );
 }
 
-function getRandomNumber(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+// function getRandomNumber(min: number, max: number) {
+//   return Math.floor(Math.random() * (max - min + 1)) + min;
+// }
 
-function addSells() {
-  const size = 0.1 * Math.random();
-  const price = getRandomNumber(92000, 100000);
+// function addSells() {
+//   const size = (0.1 * Math.random()).toFixed(4);
+//   const price = getRandomNumber(92000, 100000);
 
-  return { size, price };
-}
+//   return { size, price };
+// }

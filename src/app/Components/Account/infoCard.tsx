@@ -130,7 +130,10 @@ export function InfoCard({ title }: PersonalInfoCardProps) {
                 </button>
               </form>
             ) : (
-              <span className="text-black dark:text-white text-lg mt-2">
+              <span
+                className="text-black dark:text-white text-lg mt-2 cursor-pointer"
+                onClick={() => setActiveField(info.label)}
+              >
                 {info.value}
               </span>
             )}
