@@ -1,0 +1,1 @@
+ALTER TABLE "users" ALTER COLUMN "bitcoin_balance" SET DEFAULT '100,000';

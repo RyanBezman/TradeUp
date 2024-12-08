@@ -6,77 +6,55 @@ import { LabelHeader } from "./labelheader";
 import { Divider } from "./divider";
 import { Cell } from "./cell";
 
-type OrderData = {
-  size: number;
-  price: number;
+export type OrderData = {
+  size: string;
+  price: string;
 };
 
-export function OrderBook() {
-  const [asks, setAsks] = useState<OrderData[]>([]);
+type OrderBookProps = {
+  asks: OrderData[];
+};
+
+export function OrderBook({ asks }: OrderBookProps) {
   const [bids, setBids] = useState<OrderData[]>([]);
   const asksContainerRef = useRef<HTMLDivElement | null>(null);
   const bidsContainerRef = useRef<HTMLDivElement | null>(null);
 
   // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     const data = addSells();
-  //     const bidsData = addSells();
+  //   const socket = new WebSocket("ws://localhost:8080");
+
+  //   socket.onmessage = (event) => {
+  //     const { ask, bid } = JSON.parse(event.data);
 
   //     setAsks((prev) => {
-  //       const newAsks = [data, ...prev];
+  //       const newAsks = [ask, ...prev];
   //       if (asksContainerRef.current) {
   //         asksContainerRef.current.scrollTop = 0;
   //       }
   //       return newAsks.slice(0, 100);
   //     });
+
   //     setBids((prev) => {
-  //       const newBids = [bidsData, ...prev];
+  //       const newBids = [bid, ...prev];
   //       if (bidsContainerRef.current) {
   //         bidsContainerRef.current.scrollTop = 0;
   //       }
   //       return newBids.slice(0, 100);
   //     });
-  //   }, 100);
-
-  //   return () => clearInterval(interval);
+  //   };
+  //   return () => {
+  //     socket.close();
+  //   };
   // }, []);
 
-  useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8080");
-
-    socket.onmessage = (event) => {
-      const { ask, bid } = JSON.parse(event.data);
-
-      setAsks((prev) => {
-        const newAsks = [ask, ...prev];
-        if (asksContainerRef.current) {
-          asksContainerRef.current.scrollTop = 0;
-        }
-        return newAsks.slice(0, 100);
-      });
-
-      setBids((prev) => {
-        const newBids = [bid, ...prev];
-        if (bidsContainerRef.current) {
-          bidsContainerRef.current.scrollTop = 0;
-        }
-        return newBids.slice(0, 100);
-      });
-    };
-    return () => {
-      socket.close();
-    };
-  }, []);
-
-  useEffect(() => {}, [asks, bids]);
   return (
     <div className="flex w-full flex-col max-w-md border border-r-0 border-t-0 dark:border-gray-300 ">
       <ColumnHeader title="Order Book" />
       <LabelHeader left="Market Size" right="MySize" />
       <div className="flex flex-col flex-grow overflow-hidden">
-        <OrderBookBids bids={bids} bidsContainerRef={bidsContainerRef} />
+        <OrderBookAsks bids={asks} bidsContainerRef={bidsContainerRef} />
         <Divider />
-        <OrderBookSells asks={asks} asksContainerRef={asksContainerRef} />
+        <OrderBookBids asks={bids} asksContainerRef={asksContainerRef} />
       </div>
     </div>
   );
@@ -86,19 +64,20 @@ type OrderBookSellsProps = {
   asks: OrderData[];
   asksContainerRef: React.RefObject<HTMLDivElement>;
 };
-function OrderBookSells({ asks, asksContainerRef }: OrderBookSellsProps) {
+function OrderBookBids({ asks, asksContainerRef }: OrderBookSellsProps) {
   return (
     <div
       className="flex-grow overflow-y-auto no-scrollbar"
       ref={asksContainerRef}
     >
-      {asks.map((ask: OrderData, index: number) => {
+      {asks.map((ask: OrderData) => {
         const { size, price } = ask;
+        const randomNum = Math.random() * 10000000;
         return (
           <Cell
-            key={`sell-${index}`}
-            size={size.toString()}
-            price={price.toString()}
+            key={`sell-${size + price + randomNum}`}
+            size={size}
+            price={price}
             type="sell"
           />
         );
@@ -111,18 +90,19 @@ type OrderBookBidsProps = {
   bids: OrderData[];
   bidsContainerRef: React.RefObject<HTMLDivElement>;
 };
-function OrderBookBids({ bids, bidsContainerRef }: OrderBookBidsProps) {
+function OrderBookAsks({ bids, bidsContainerRef }: OrderBookBidsProps) {
   return (
     <div
       className="flex-grow overflow-y-auto no-scrollbar rotate-180 "
       ref={bidsContainerRef}
     >
-      {bids.map((bid: OrderData, index: number) => {
+      {bids.map((bid: OrderData) => {
         const { size, price } = bid;
+        const getRandomNum = Math.random() * 10000000;
         return (
           <Cell
-            key={`bid-${index}`}
-            size={size.toString()}
+            key={`bid-${size + price + getRandomNum}`}
+            size={size?.toString()}
             price={price.toString()}
             type="bid"
           />

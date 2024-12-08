@@ -20,6 +20,7 @@ type User = {
   zip: string;
   id: number;
   job?: string | null;
+  bitcoinBalance: string;
 };
 type AuthContextType = {
   user: User | null;

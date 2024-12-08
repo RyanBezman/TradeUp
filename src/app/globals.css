@@ -36,3 +36,36 @@ body {
     margin: 0;
   }
 }
+@keyframes fadeToBlack {
+  from {
+    color: var(--start-color);
+  }
+  to {
+    color: black;
+  }
+}
+
+@keyframes fadeToWhite {
+  from {
+    color: var(--start-color);
+  }
+  to {
+    color: white;
+  }
+}
+
+.fade-to-color {
+  animation: fadeToBlack 0.6s ease-in-out;
+}
+
+.dark .fade-to-color {
+  animation: fadeToWhite 0.6s ease-in-out;
+}
+
+.start-green {
+  --start-color: #10b981;
+}
+
+.start-red {
+  --start-color: #ef4444;
+}

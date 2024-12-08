@@ -1,6 +1,7 @@
 import DynamicInput from "@/app/Components/Account/dynamicInput";
 import Account from "../page";
 import { ChevronRight } from "lucide-react";
+import { BitcoinBalance } from "@/app/Components/Account/bitcoinBalance";
 
 export default function Home() {
   return (
@@ -46,6 +47,7 @@ export function HomeLayout() {
             <ChevronRight />
           </span>
         </div>
+        <BitcoinBalance />
       </div>
     </div>
   );

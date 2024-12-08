@@ -1,9 +1,10 @@
 "use client";
 import Account from "../page";
-import { OrderBook } from "@/app/Components/Orderbook/orderbook";
+import { OrderBook, OrderData } from "@/app/Components/Orderbook/orderbook";
 import StaticInput from "@/app/Components/Orderbook/staticInput";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ColumnHeader } from "@/app/Components/Orderbook/columnHeader";
+import { BitcoinBalance } from "@/app/Components/Account/bitcoinBalance";
 
 export default function Trade() {
   return (
@@ -16,6 +17,57 @@ export default function Trade() {
 export function TradeLayout() {
   const [isSelected, setIsSelected] = useState("buy");
   const [purchaseType, setPurchaseType] = useState("market");
+  const [amount, setAmount] = useState("");
+  const [asks, setAsks] = useState<OrderData[]>([]);
+  const [whenPriceIs, setWhenPriceIs] = useState("");
+
+  const socketRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    const ws = new WebSocket("ws://localhost:8080");
+    ws.onopen = () => console.log("ws open");
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "order_book") {
+        setAsks(data.asks);
+      }
+    };
+
+    socketRef.current = ws;
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
+  }, []);
+
+  const placeOrder = () => {
+    const socket = socketRef.current;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+    const numericPrice = Number(whenPriceIs.replace(/,/g, ""));
+    const numericSize = Number(amount.replace(/,/g, ""));
+    const orderData = {
+      type: "new_order",
+      side: isSelected,
+      price: numericPrice,
+      size: numericSize,
+    };
+
+    socket.send(JSON.stringify(orderData));
+  };
+
+  const handleInputNumber = (value: number | string): string => {
+    if (!value) return "";
+
+    const stringVal = value.toString().replace(/,/g, "");
+    const numberValue = +stringVal;
+
+    if (isNaN(numberValue)) return "";
+
+    return numberValue.toLocaleString("en-US");
+  };
   return (
     <div className="bg-white dark:bg-black rounded-xl flex flex-col h-full">
       <div className="max-h-full h-full flex justify-between">
@@ -72,23 +124,61 @@ export function TradeLayout() {
               <span className="font-semibold dark:text-white text-black">
                 Amount
               </span>
-              <StaticInput />
+              <StaticInput amount={amount} setAmount={setAmount} />
+              <span className="ml-2">
+                USD =
+                {amount && whenPriceIs && amount.length > 1
+                  ? " $" +
+                    (
+                      Number(amount.replace(/,/g, "")) *
+                      Number(whenPriceIs.replace(/,/g, ""))
+                    ).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  : ""}
+              </span>
             </div>
             {purchaseType === "limit" && (
               <div className="flex flex-col gap-2">
                 <span className="font-semibold dark:text-white text-black">
                   When price reaches
                 </span>
-                <StaticInput />
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    className="bg-transparent text-black dark:text-white outline-none text-xl border rounded-md p-2"
+                    value={whenPriceIs}
+                    placeholder="0"
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/,/g, "");
+                      if (value.length > 9) {
+                        return;
+                      }
+                      const newValue = handleInputNumber(value);
+                      setWhenPriceIs(newValue);
+                    }}
+                  />
+                  <span className="dark:text-white text-gray-400 ml-2 text-xl">
+                    USD
+                  </span>
+                </div>
               </div>
             )}
 
-            <button className="py-3 px-6 rounded-full font-semibold w-full transition-all bg-violet-800 dark:bg-green-700 text-white hover:bg-violet-700">
+            <button
+              onClick={() => {
+                placeOrder();
+                setAmount("");
+              }}
+              className="py-3 px-6 rounded-full font-semibold w-full transition-all bg-violet-800 dark:bg-green-700 text-white hover:bg-violet-700"
+            >
               Place {isSelected === "buy" ? "Buy" : "Sell"} Order
             </button>
+            <BitcoinBalance />
           </div>
         </div>
-        <OrderBook />
+        <OrderBook asks={asks} />
       </div>
     </div>
   );
