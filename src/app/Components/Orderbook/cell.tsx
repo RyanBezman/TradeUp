@@ -1,5 +1,5 @@
 type CellProps = {
-  size: string;
+  size: number;
   price: string;
   type: "sell" | "bid";
 };

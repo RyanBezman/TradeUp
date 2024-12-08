@@ -2,10 +2,8 @@ import { WebSocketServer } from "ws";
 
 const wss = new WebSocketServer({ port: 8080 });
 
-let asks = [{ side: "sell", price: "100,000", size: "0.10" }];
-let bids = [{ side: "buy", price: "101,000", size: "0.0012" }];
-
-let userBalances = {};
+let asks = [{ side: "sell", price: 100000, size: 0.0249 }];
+let bids = [{ side: "buy", price: 101000, size: 0.145 }];
 
 wss.on("connection", (ws) => {
   ws.send(JSON.stringify({ type: "order_book", asks, bids }));
@@ -16,9 +14,27 @@ wss.on("connection", (ws) => {
 
       if (data.type === "new_order") {
         const { side, price, size } = data;
+        const numericPrice = parseFloat(price);
+        const numericSize = parseFloat(size);
 
         if (side === "sell") {
-          asks.unshift({ price, size });
+          asks.push({ price: numericPrice, size: numericSize });
+          sortAsks();
+        } else if (side === "buy") {
+          let remainingSize = numericSize;
+
+          while (remainingSize > 0 && asks.length) {
+            let lowestAsk = asks[0];
+
+            if (lowestAsk.size > remainingSize) {
+              lowestAsk.size -= remainingSize;
+              remainingSize = 0;
+            } else {
+              remainingSize -= lowestAsk.size;
+              asks.shift();
+            }
+          }
+          sortAsks();
         }
         showOrderBook();
       }
@@ -27,28 +43,33 @@ wss.on("connection", (ws) => {
     }
   });
 });
+function sortAsks() {
+  asks.sort((a, b) => a.price - b.price);
+}
 
+function sortBids() {
+  bids.sort((a, b) => a.price - b.price);
+}
 function showOrderBook() {
-  const message = JSON.stringify({ type: "order_book", asks, bids });
+  const formattedAsks = asks.map((ask) => ({
+    ...ask,
+    size: ask.size.toFixed(4),
+  }));
+
+  const formattedBids = bids.map((bid) => ({
+    ...bid,
+    size: bid.size.toFixed(4),
+  }));
+
+  const message = JSON.stringify({
+    type: "order_book",
+    asks: formattedAsks,
+    bids: formattedBids,
+  });
+
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(message);
     }
   });
 }
-// function generateMockOrder() {
-//   const size = (0.1 * Math.random()).toFixed(4);
-//   const price = Math.floor(Math.random() * (100000 - 92000 + 1)) + 92000;
-//   return { size: size, price };
-// }
-// setInterval(() => {
-//   const ask = generateMockOrder();
-//   const bid = generateMockOrder();
-//   const message = JSON.stringify({ ask, bid });
-
-//   wss.clients.forEach((client) => {
-//     if (client.readyState === WebSocket.OPEN) {
-//       client.send(message);
-//     }
-//   });
-// }, 100);

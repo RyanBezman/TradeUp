@@ -19,6 +19,7 @@ export function TradeLayout() {
   const [purchaseType, setPurchaseType] = useState("market");
   const [amount, setAmount] = useState("");
   const [asks, setAsks] = useState<OrderData[]>([]);
+  const [bids, setBids] = useState<OrderData[]>([]);
   const [whenPriceIs, setWhenPriceIs] = useState("");
 
   const socketRef = useRef<WebSocket | null>(null);
@@ -30,6 +31,7 @@ export function TradeLayout() {
       const data = JSON.parse(event.data);
       if (data.type === "order_book") {
         setAsks(data.asks);
+        setBids(data.bids);
       }
     };
 
@@ -42,7 +44,7 @@ export function TradeLayout() {
     };
   }, []);
 
-  const placeOrder = () => {
+  const placeLimitSell = () => {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
@@ -53,6 +55,21 @@ export function TradeLayout() {
       side: isSelected,
       price: numericPrice,
       size: numericSize,
+    };
+
+    socket.send(JSON.stringify(orderData));
+    setAmount("");
+    setWhenPriceIs("");
+  };
+
+  const placeMarketBuy = () => {
+    const socket = socketRef.current;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+    const orderData = {
+      type: "new_order",
+      side: isSelected,
+      size: amount,
     };
 
     socket.send(JSON.stringify(orderData));
@@ -71,7 +88,7 @@ export function TradeLayout() {
   return (
     <div className="bg-white dark:bg-black rounded-xl flex flex-col h-full">
       <div className="max-h-full h-full flex justify-between">
-        <div className="border dark:border-gray-300 border-t-0 border-l-0 flex flex-col gap-4 ">
+        <div className="border dark:border-gray-300 border-t-0 border-l-0 flex min-w-[320px] flex-col gap-4 ">
           <ColumnHeader title="Order Form" />
           <div className="p-4 flex flex-col gap-16">
             <div className="flex w-full gap-2">
@@ -168,8 +185,13 @@ export function TradeLayout() {
 
             <button
               onClick={() => {
-                placeOrder();
-                setAmount("");
+                if (isSelected === "sell") {
+                  placeLimitSell();
+                } else if (isSelected === "buy") {
+                  console.log("we are here");
+                  placeMarketBuy();
+                  setAmount("");
+                }
               }}
               className="py-3 px-6 rounded-full font-semibold w-full transition-all bg-violet-800 dark:bg-green-700 text-white hover:bg-violet-700"
             >
@@ -178,7 +200,7 @@ export function TradeLayout() {
             <BitcoinBalance />
           </div>
         </div>
-        <OrderBook asks={asks} />
+        <OrderBook asks={asks} bids={bids} />
       </div>
     </div>
   );

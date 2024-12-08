@@ -7,16 +7,16 @@ import { Divider } from "./divider";
 import { Cell } from "./cell";
 
 export type OrderData = {
-  size: string;
+  size: number;
   price: string;
 };
 
 type OrderBookProps = {
   asks: OrderData[];
+  bids: OrderData[];
 };
 
-export function OrderBook({ asks }: OrderBookProps) {
-  const [bids, setBids] = useState<OrderData[]>([]);
+export function OrderBook({ asks, bids }: OrderBookProps) {
   const asksContainerRef = useRef<HTMLDivElement | null>(null);
   const bidsContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -73,6 +73,7 @@ function OrderBookBids({ asks, asksContainerRef }: OrderBookSellsProps) {
       {asks.map((ask: OrderData) => {
         const { size, price } = ask;
         const randomNum = Math.random() * 10000000;
+        console.log(size, price);
         return (
           <Cell
             key={`sell-${size + price + randomNum}`}
@@ -98,12 +99,13 @@ function OrderBookAsks({ bids, bidsContainerRef }: OrderBookBidsProps) {
     >
       {bids.map((bid: OrderData) => {
         const { size, price } = bid;
+        console.log(size, price);
         const getRandomNum = Math.random() * 10000000;
         return (
           <Cell
             key={`bid-${size + price + getRandomNum}`}
-            size={size?.toString()}
-            price={price.toString()}
+            size={size}
+            price={price}
             type="bid"
           />
         );
