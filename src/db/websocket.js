@@ -40,7 +40,7 @@ wss.on("connection", (ws) => {
         showOrderBook();
       }
     } catch (err) {
-      console.error("order faile", err);
+      console.error("order failed", err);
     }
   });
 });
