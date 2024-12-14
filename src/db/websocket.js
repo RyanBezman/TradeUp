@@ -16,7 +16,7 @@ wss.on("connection", (ws) => {
         const { side, price, size } = data;
         const numericPrice = parseFloat(price);
         const numericSize = parseFloat(size);
-        console.log(data);
+        console.log(data, numericPrice);
 
         if (side === "sell") {
           asks.push({ price: numericPrice, size: numericSize });
