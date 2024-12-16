@@ -31,17 +31,49 @@ wss.on("connection", (ws) => {
           });
           sortAsks();
         } else if (side === "buy") {
+          // need to check if the limit sells have something available for a limit buy at their price or cheaper
+          // if they do, we need to do the same thing as a normal buy, contingent upon the buyers asking price
+          // when fulfilled, we need to add the limit buy to the order book with the remaining size it wants to purchase
           let remainingSize = numericSize;
           if (orderType === "limit") {
-            bids.push({
-              side,
-              price: numericPrice,
-              size: numericSize,
-              formattedSize,
-            });
-            sortBids();
-            showOrderBook();
-            return;
+            if (asks[0].price <= price) {
+              while (
+                remainingSize > 0 &&
+                asks.length &&
+                asks[0].price <= price
+              ) {
+                let lowestAsk = asks[0];
+
+                if (lowestAsk.size > remainingSize) {
+                  lowestAsk.size -= remainingSize;
+                  lowestAsk.formattedSize = lowestAsk.size.toFixed(4);
+                  remainingSize = 0;
+                  console.log(asks);
+                } else {
+                  remainingSize -= lowestAsk.size;
+                  bids.push({
+                    side,
+                    price: numericPrice,
+                    size: remainingSize,
+                    formattedSize: remainingSize.toFixed(4),
+                  });
+                  asks.shift();
+                  sortBids();
+                  showOrderBook();
+                  return;
+                }
+              }
+            } else {
+              bids.push({
+                side,
+                price: numericPrice,
+                size: numericSize,
+                formattedSize,
+              });
+              sortBids();
+              showOrderBook();
+              return;
+            }
           }
 
           while (remainingSize > 0 && asks.length) {
