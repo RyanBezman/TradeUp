@@ -16,7 +16,7 @@ export default function Trade() {
 
 export function TradeLayout() {
   const [isSelected, setIsSelected] = useState("buy");
-  const [purchaseType, setPurchaseType] = useState("market");
+  const [orderType, setOrderType] = useState("market");
   const [amount, setAmount] = useState("");
   const [asks, setAsks] = useState<OrderData[]>([]);
   const [bids, setBids] = useState<OrderData[]>([]);
@@ -53,6 +53,7 @@ export function TradeLayout() {
     const orderData = {
       type: "new_order",
       side: isSelected,
+      orderType,
       price: numericPrice,
       size: numericSize,
       formattedSize: numericSize.toFixed(4),
@@ -66,14 +67,21 @@ export function TradeLayout() {
   const placeMarketBuy = () => {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    const numericPrice = Number(whenPriceIs.replace(/,/g, ""));
+    const numericSize = Number(amount.replace(/,/g, ""));
 
     const orderData = {
       type: "new_order",
       side: isSelected,
-      size: amount,
+      orderType,
+      size: numericSize,
+      price: numericPrice,
+      formattedSize: numericSize.toFixed(4),
     };
 
     socket.send(JSON.stringify(orderData));
+    setAmount("");
+    setWhenPriceIs("");
   };
 
   const handleInputNumber = (value: number | string): string => {
@@ -117,9 +125,9 @@ export function TradeLayout() {
 
             <div className="flex w-full justify-center gap-4">
               <span
-                onClick={() => setPurchaseType("market")}
+                onClick={() => setOrderType("market")}
                 className={`cursor-pointer text-2xl ${
-                  purchaseType === "market"
+                  orderType === "market"
                     ? "border-b-2 text-black border-black dark:text-white dark:border-white font-semibold"
                     : "text-gray-500 dark:text-gray-400"
                 }`}
@@ -127,9 +135,9 @@ export function TradeLayout() {
                 Market
               </span>
               <span
-                onClick={() => setPurchaseType("limit")}
+                onClick={() => setOrderType("limit")}
                 className={`cursor-pointer text-2xl ${
-                  purchaseType === "limit"
+                  orderType === "limit"
                     ? "border-b-2 text-black border-black dark:text-white dark:border-white font-semibold "
                     : "text-gray-500 dark:text-gray-400"
                 }`}
@@ -157,7 +165,7 @@ export function TradeLayout() {
                   : ""}
               </span>
             </div>
-            {purchaseType === "limit" && (
+            {orderType === "limit" && (
               <div className="flex flex-col gap-2">
                 <span className="font-semibold dark:text-white text-black">
                   When price reaches

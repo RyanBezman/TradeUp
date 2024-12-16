@@ -17,7 +17,7 @@ wss.on("connection", (ws) => {
       const data = JSON.parse(message);
 
       if (data.type === "new_order") {
-        const { side, price, size, formattedSize } = data;
+        const { side, price, size, formattedSize, orderType } = data;
         const numericPrice = parseFloat(price);
         const numericSize = parseFloat(size);
         console.log(data);
@@ -32,6 +32,17 @@ wss.on("connection", (ws) => {
           sortAsks();
         } else if (side === "buy") {
           let remainingSize = numericSize;
+          if (orderType === "limit") {
+            bids.push({
+              side,
+              price: numericPrice,
+              size: numericSize,
+              formattedSize,
+            });
+            sortBids();
+            showOrderBook();
+            return;
+          }
 
           while (remainingSize > 0 && asks.length) {
             let lowestAsk = asks[0];
