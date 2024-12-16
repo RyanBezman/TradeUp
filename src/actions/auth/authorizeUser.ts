@@ -32,6 +32,7 @@ export async function authorizeUser(email: string, password: string) {
         state: schema.users.state,
         zip: schema.users.zip,
         job: schema.users.job,
+        bitcoinBalance: schema.users.bitcoinBalance,
       })
       .from(schema.users)
       .where(and(eq(schema.users.email, email)));
@@ -51,6 +52,7 @@ export async function authorizeUser(email: string, password: string) {
       zip,
       id,
       job,
+      bitcoinBalance,
     } = user[0];
     console.log(user[0]);
     const hashedPassword = pbkdf2Sync(
@@ -80,6 +82,7 @@ export async function authorizeUser(email: string, password: string) {
       zip,
       id,
       job,
+      bitcoinBalance,
     };
   } catch (error) {
     console.error("Error authorizing user", error);
