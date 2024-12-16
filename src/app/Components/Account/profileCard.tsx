@@ -88,7 +88,7 @@ export function ProfileCard() {
                   onClick={() => {
                     setIsEditingJob(true);
                   }}
-                  className="w-5 h-5 cursor-pointer text-black hover:text-violet-600 dark:hover:text-white"
+                  className="w-5 h-5 cursor-pointer text-black dark:text-gray-400 hover:text-violet-600 dark:hover:text-white"
                 />
               )}
             </div>

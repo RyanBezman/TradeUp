@@ -102,7 +102,12 @@ export function TradeLayout() {
           <div className="p-4 flex flex-col gap-16">
             <div className="flex w-full gap-2">
               <button
-                onClick={() => setIsSelected("buy")}
+                onClick={() => {
+                  setIsSelected("buy");
+                  setOrderType("market");
+                  setAmount("");
+                  setWhenPriceIs("");
+                }}
                 className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all ${
                   isSelected === "buy"
                     ? "bg-violet-800 dark:bg-green-700 text-white shadow-md"
@@ -112,7 +117,12 @@ export function TradeLayout() {
                 Buy
               </button>
               <button
-                onClick={() => setIsSelected("sell")}
+                onClick={() => {
+                  setIsSelected("sell");
+                  setOrderType("market");
+                  setAmount("");
+                  setWhenPriceIs("");
+                }}
                 className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all ${
                   isSelected === "sell"
                     ? "bg-violet-800 dark:bg-green-700 text-white shadow-md"
@@ -125,7 +135,11 @@ export function TradeLayout() {
 
             <div className="flex w-full justify-center gap-4">
               <span
-                onClick={() => setOrderType("market")}
+                onClick={() => {
+                  setOrderType("market");
+                  setAmount("");
+                  setWhenPriceIs("");
+                }}
                 className={`cursor-pointer text-2xl ${
                   orderType === "market"
                     ? "border-b-2 text-black border-black dark:text-white dark:border-white font-semibold"
@@ -135,7 +149,10 @@ export function TradeLayout() {
                 Market
               </span>
               <span
-                onClick={() => setOrderType("limit")}
+                onClick={() => {
+                  setOrderType("limit");
+                  setAmount("");
+                }}
                 className={`cursor-pointer text-2xl ${
                   orderType === "limit"
                     ? "border-b-2 text-black border-black dark:text-white dark:border-white font-semibold "
@@ -151,19 +168,24 @@ export function TradeLayout() {
                 Amount
               </span>
               <StaticInput amount={amount} setAmount={setAmount} />
-              <span className="ml-2">
-                USD =
-                {amount && whenPriceIs && amount.length > 1
-                  ? " $" +
-                    (
-                      Number(amount.replace(/,/g, "")) *
-                      Number(whenPriceIs.replace(/,/g, ""))
-                    ).toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  : ""}
-              </span>
+              {orderType === "limit" && (
+                <span className="ml-2">
+                  USD =
+                  {amount &&
+                  whenPriceIs &&
+                  orderType === "limit" &&
+                  amount.length > 1
+                    ? " $" +
+                      (
+                        Number(amount.replace(/,/g, "")) *
+                        Number(whenPriceIs.replace(/,/g, ""))
+                      ).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : ""}
+                </span>
+              )}
             </div>
             {orderType === "limit" && (
               <div className="flex flex-col gap-2">

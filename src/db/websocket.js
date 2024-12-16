@@ -22,12 +22,53 @@ wss.on("connection", (ws) => {
         const numericSize = parseFloat(size);
 
         if (side === "sell") {
-          asks.push({
-            side: side,
-            price: numericPrice,
-            size: numericSize,
-            formattedSize: formattedSize,
-          });
+          let remainingSize = numericSize;
+          if (orderType === "limit") {
+            if (bids[0].price >= price) {
+              while (
+                remainingSize > 0 &&
+                bids.length > 0 &&
+                bids[0].price >= price
+              ) {
+                let lowestBid = bids[0];
+                if (lowestBid.size > remainingSize) {
+                  lowestBid.size -= remainingSize;
+                  lowestBid.formattedSize = lowestBid.size.toFixed(4);
+                  remainingSize = 0;
+                } else {
+                  remainingSize -= lowestBid.size;
+                  bids.shift();
+                }
+              }
+              if (remainingSize > 0) {
+                asks.push({
+                  side,
+                  price: numericPrice,
+                  size: remainingSize,
+                  formattedSize: remainingSize.toFixed(4),
+                });
+              }
+            } else {
+              asks.push({
+                side,
+                price: numericPrice,
+                size: numericSize,
+                formattedSize,
+              });
+            }
+          } else {
+            while (remainingSize > 0 && bids.length) {
+              let lowestBid = bids[0];
+              if (lowestBid.size > remainingSize) {
+                lowestBid.size -= remainingSize;
+                lowestBid.formattedSize = lowestBid.size.toFixed(4);
+                remainingSize = 0;
+              } else {
+                remainingSize -= lowestBid.size;
+                bids.shift();
+              }
+            }
+          }
         } else if (side === "buy") {
           let remainingSize = numericSize;
 
