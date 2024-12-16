@@ -16,10 +16,10 @@ export function BitcoinBalance() {
         <span className="text-ssm text-gray-500">BTC</span>
       </div>
       <span className="pl-10 cursor-pointer dark:text-white"></span>
-      <div>
+      <div className="dark:text-white">
         <span>Balance</span>
         {user && (
-          <div className="">
+          <div className="dark:text-gray-500">
             ${Number(user.bitcoinBalance).toLocaleString("en-us")}
           </div>
         )}

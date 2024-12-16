@@ -7,7 +7,7 @@ export function Hero() {
       <div className="flex flex-col items-center justify-center gap-10 p-10">
         <h1 className="text-7xl relative max-w-5xl text-center text-black dark:text-white font-semibold">
           Trade Smarter, Faster, and Securely with TradeUp
-          <div className="absolute hidden tablet:block top-80 -left-10">
+          <div className="absolute hidden min-[900px]:inline top-80 -left-10">
             <Image
               src="/Images/wallahi.png"
               height={471}
@@ -16,7 +16,7 @@ export function Hero() {
             />
             <div className="absolute  bottom-0 left-0 right-0 h-[50%]  bg-gradient-to-b from-transparent via-transparent to-white dark:to-black  "></div>
           </div>
-          <div className="absolute hidden tablet:block top-80 -right-10">
+          <div className="absolute hidden min-[900px]:inline top-80 -right-10">
             <Image
               src="/Images/MobileUI.png"
               alt="iPhone image tilted right"

@@ -21,37 +21,10 @@ export function OrderBook({ asks, bids }: OrderBookProps) {
   const asksContainerRef = useRef<HTMLDivElement | null>(null);
   const bidsContainerRef = useRef<HTMLDivElement | null>(null);
 
-  // useEffect(() => {
-  //   const socket = new WebSocket("ws://localhost:8080");
-
-  //   socket.onmessage = (event) => {
-  //     const { ask, bid } = JSON.parse(event.data);
-
-  //     setAsks((prev) => {
-  //       const newAsks = [ask, ...prev];
-  //       if (asksContainerRef.current) {
-  //         asksContainerRef.current.scrollTop = 0;
-  //       }
-  //       return newAsks.slice(0, 100);
-  //     });
-
-  //     setBids((prev) => {
-  //       const newBids = [bid, ...prev];
-  //       if (bidsContainerRef.current) {
-  //         bidsContainerRef.current.scrollTop = 0;
-  //       }
-  //       return newBids.slice(0, 100);
-  //     });
-  //   };
-  //   return () => {
-  //     socket.close();
-  //   };
-  // }, []);
-
   return (
     <div className="flex w-full flex-col max-w-md border border-r-0 border-t-0 dark:border-gray-300 ">
       <ColumnHeader title="Order Book" />
-      <LabelHeader left="Market Size" right="MySize" />
+      <LabelHeader left="Amount (BTC)" right="MySize" />
       <div className="flex flex-col flex-grow overflow-hidden">
         <OrderBookAsks bids={asks} bidsContainerRef={bidsContainerRef} />
         <Divider />
