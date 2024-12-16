@@ -2,8 +2,12 @@ import { WebSocketServer } from "ws";
 
 const wss = new WebSocketServer({ port: 8080 });
 
-let asks = [{ side: "sell", price: 100000, size: 0.0249 }];
-let bids = [{ side: "buy", price: 101000, size: 0.145 }];
+let asks = [
+  { side: "sell", price: 100000, size: 0.0249, formattedSize: 0.0249 },
+];
+let bids = [
+  { side: "buy", price: 101000, size: 0.1452, formattedSize: 0.1452 },
+];
 
 wss.on("connection", (ws) => {
   ws.send(JSON.stringify({ type: "order_book", asks, bids }));
@@ -13,13 +17,18 @@ wss.on("connection", (ws) => {
       const data = JSON.parse(message);
 
       if (data.type === "new_order") {
-        const { side, price, size } = data;
+        const { side, price, size, formattedSize } = data;
         const numericPrice = parseFloat(price);
         const numericSize = parseFloat(size);
         console.log(data);
 
         if (side === "sell") {
-          asks.push({ price: numericPrice, size: numericSize });
+          asks.push({
+            side: side,
+            price: numericPrice,
+            size: numericSize,
+            formattedSize: formattedSize,
+          });
           sortAsks();
         } else if (side === "buy") {
           let remainingSize = numericSize;
@@ -29,7 +38,9 @@ wss.on("connection", (ws) => {
 
             if (lowestAsk.size > remainingSize) {
               lowestAsk.size -= remainingSize;
+              lowestAsk.formattedSize = lowestAsk.size.toFixed(4);
               remainingSize = 0;
+              console.log(asks);
             } else {
               remainingSize -= lowestAsk.size;
               asks.shift();

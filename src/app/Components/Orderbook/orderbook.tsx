@@ -9,6 +9,7 @@ import { Cell } from "./cell";
 export type OrderData = {
   size: number;
   price: string;
+  formattedSize: number;
 };
 
 type OrderBookProps = {
@@ -71,13 +72,13 @@ function OrderBookBids({ asks, asksContainerRef }: OrderBookSellsProps) {
       ref={asksContainerRef}
     >
       {asks.map((ask: OrderData) => {
-        const { size, price } = ask;
+        const { size, price, formattedSize } = ask;
         const randomNum = Math.random() * 10000000;
         console.log(size, price);
         return (
           <Cell
             key={`sell-${size + price + randomNum}`}
-            size={size}
+            size={formattedSize}
             price={price}
             type="sell"
           />
@@ -98,13 +99,13 @@ function OrderBookAsks({ bids, bidsContainerRef }: OrderBookBidsProps) {
       ref={bidsContainerRef}
     >
       {bids.map((bid: OrderData) => {
-        const { size, price } = bid;
+        const { size, price, formattedSize } = bid;
         console.log(size, price);
         const getRandomNum = Math.random() * 10000000;
         return (
           <Cell
             key={`bid-${size + price + getRandomNum}`}
-            size={size}
+            size={formattedSize}
             price={price}
             type="bid"
           />

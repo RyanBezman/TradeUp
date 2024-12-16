@@ -55,6 +55,7 @@ export function TradeLayout() {
       side: isSelected,
       price: numericPrice,
       size: numericSize,
+      formattedSize: numericSize.toFixed(4),
     };
 
     socket.send(JSON.stringify(orderData));
