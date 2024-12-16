@@ -168,7 +168,7 @@ export function TradeLayout() {
                     value={whenPriceIs}
                     placeholder="0"
                     onChange={(e) => {
-                      let value = e.target.value.replace(/,/g, "");
+                      const value = e.target.value.replace(/,/g, "");
                       if (value.length > 9) {
                         return;
                       }
