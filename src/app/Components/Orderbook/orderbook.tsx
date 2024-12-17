@@ -22,7 +22,7 @@ export function OrderBook({ asks, bids }: OrderBookProps) {
   const bidsContainerRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className="flex w-full flex-col max-w-md border border-r-0 border-t-0 dark:border-gray-600 ">
+    <div className="flex flex-col w-1/4 border border-r-0 border-t-0 dark:border-gray-600 ">
       <ColumnHeader title="Order Book" />
       <LabelHeader left="Amount (BTC)" right="MySize" />
       <div className="flex flex-col flex-grow overflow-hidden">
@@ -87,14 +87,3 @@ function OrderBookAsks({ bids, bidsContainerRef }: OrderBookBidsProps) {
     </div>
   );
 }
-
-// function getRandomNumber(min: number, max: number) {
-//   return Math.floor(Math.random() * (max - min + 1)) + min;
-// }
-
-// function addSells() {
-//   const size = (0.1 * Math.random()).toFixed(4);
-//   const price = getRandomNumber(92000, 100000);
-
-//   return { size, price };
-// }

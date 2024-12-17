@@ -21,6 +21,8 @@ export function TradeLayout() {
   const [asks, setAsks] = useState<OrderData[]>([]);
   const [bids, setBids] = useState<OrderData[]>([]);
   const [whenPriceIs, setWhenPriceIs] = useState("");
+  const [buyError, setBuyError] = useState<string | null>(null);
+  const [sellError, setSellError] = useState<string | null>(null);
 
   const socketRef = useRef<WebSocket | null>(null);
 
@@ -44,7 +46,7 @@ export function TradeLayout() {
     };
   }, []);
 
-  const placeLimitSell = () => {
+  const placeSell = () => {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
@@ -64,7 +66,7 @@ export function TradeLayout() {
     setWhenPriceIs("");
   };
 
-  const placeMarketBuy = () => {
+  const placeBuy = () => {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
     const numericPrice = Number(whenPriceIs.replace(/,/g, ""));
@@ -97,7 +99,7 @@ export function TradeLayout() {
   return (
     <div className="bg-white dark:bg-black rounded-xl flex flex-col h-full">
       <div className="max-h-full h-full flex justify-between">
-        <div className="border dark:border-gray-600  border-t-0 border-l-0 flex min-w-[320px] flex-col gap-4 ">
+        <div className="border dark:border-gray-600  border-t-0 border-l-0 flex min-w-[320px] w-1/4 flex-col gap-4 ">
           <ColumnHeader title="Order Form" />
           <div className="p-4 flex flex-col gap-16">
             <div className="flex w-full gap-2">
@@ -107,6 +109,8 @@ export function TradeLayout() {
                   setOrderType("market");
                   setAmount("");
                   setWhenPriceIs("");
+                  setSellError(null);
+                  setBuyError(null);
                 }}
                 className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all ${
                   isSelected === "buy"
@@ -122,6 +126,8 @@ export function TradeLayout() {
                   setOrderType("market");
                   setAmount("");
                   setWhenPriceIs("");
+                  setSellError(null);
+                  setBuyError(null);
                 }}
                 className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all ${
                   isSelected === "sell"
@@ -167,7 +173,16 @@ export function TradeLayout() {
               <span className="font-semibold dark:text-white text-black">
                 Amount
               </span>
-              <StaticInput amount={amount} setAmount={setAmount} />
+              <StaticInput
+                amount={amount}
+                setAmount={setAmount}
+                setSellError={setSellError}
+                setBuyError={setBuyError}
+              />
+              <span className="text-red-500 text-sm">
+                {orderType === "market" && isSelected === "buy" && buyError}
+                {orderType === "market" && isSelected === "sell" && sellError}
+              </span>
               {orderType === "limit" && (
                 <span className="ml-2">
                   USD =
@@ -217,10 +232,17 @@ export function TradeLayout() {
             <button
               onClick={() => {
                 if (isSelected === "sell") {
-                  placeLimitSell();
+                  if (!bids.length && orderType === "market") {
+                    setSellError("There are no current bids available.");
+                    return;
+                  }
+                  placeSell();
                 } else if (isSelected === "buy") {
-                  console.log("we are here");
-                  placeMarketBuy();
+                  if (!asks.length && orderType === "market") {
+                    setBuyError("There are no current asks available.");
+                    return;
+                  }
+                  placeBuy();
                   setAmount("");
                 }
               }}

@@ -3,9 +3,16 @@
 type StaticInputProps = {
   amount: string;
   setAmount: (value: string) => void;
+  setSellError: (value: string | null) => void;
+  setBuyError: (value: string | null) => void;
 };
 
-export default function StaticInput({ amount, setAmount }: StaticInputProps) {
+export default function StaticInput({
+  amount,
+  setAmount,
+  setSellError,
+  setBuyError,
+}: StaticInputProps) {
   const decimalRegex = /^\d*\.?\d*$/;
 
   return (
@@ -20,6 +27,8 @@ export default function StaticInput({ amount, setAmount }: StaticInputProps) {
           if (val === "" || decimalRegex.test(val)) {
             setAmount(val);
           }
+          setSellError(null);
+          setBuyError(null);
         }}
         onBlur={() => {
           if (amount) {
