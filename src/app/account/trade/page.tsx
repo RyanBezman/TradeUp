@@ -97,7 +97,7 @@ export function TradeLayout() {
   return (
     <div className="bg-white dark:bg-black rounded-xl flex flex-col h-full">
       <div className="max-h-full h-full flex justify-between">
-        <div className="border dark:border-gray-300 border-t-0 border-l-0 flex min-w-[320px] flex-col gap-4 ">
+        <div className="border dark:border-gray-600  border-t-0 border-l-0 flex min-w-[320px] flex-col gap-4 ">
           <ColumnHeader title="Order Form" />
           <div className="p-4 flex flex-col gap-16">
             <div className="flex w-full gap-2">

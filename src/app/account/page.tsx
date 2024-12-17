@@ -29,8 +29,8 @@ export default function Account({ children }: { children?: React.ReactNode }) {
   return (
     <div className="flex flex-col  h-screen max-h-screen overflow-hidden">
       <Navbar />
-      <div className="flex flex-grow overflow-hidden">
-        <ul className="hidden flex-col gap-2 min-w-[300px] border border-r-0  py-2 px-2 min-[705px]:flex">
+      <div className="flex flex-grow overflow-hidden  ">
+        <ul className="hidden flex-col gap-2 min-w-[300px] border-t dark:border-gray-600  py-2 px-2 min-[705px]:flex ">
           {sideBarOptions.map((option) => (
             <Link key={option.label} href={option.url}>
               <SideBarOption
@@ -40,7 +40,9 @@ export default function Account({ children }: { children?: React.ReactNode }) {
             </Link>
           ))}
         </ul>
-        <div className="flex flex-col flex-1 border">{children}</div>
+        <div className="flex flex-col flex-1 border dark:border-gray-600">
+          {children}
+        </div>
       </div>
     </div>
   );

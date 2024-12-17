@@ -24,7 +24,7 @@ wss.on("connection", (ws) => {
         if (side === "sell") {
           let remainingSize = numericSize;
           if (orderType === "limit") {
-            if (bids[0].price >= price) {
+            if (bids[0] && bids[0].price >= price) {
               while (
                 remainingSize > 0 &&
                 bids.length > 0 &&
@@ -69,11 +69,12 @@ wss.on("connection", (ws) => {
               }
             }
           }
+          updateOrderBook();
         } else if (side === "buy") {
           let remainingSize = numericSize;
 
           if (orderType === "limit") {
-            if (asks[0].price <= price) {
+            if (asks[0] && asks[0].price <= price) {
               while (
                 remainingSize > 0 &&
                 asks.length &&
@@ -120,10 +121,8 @@ wss.on("connection", (ws) => {
               }
             }
           }
-          sortAsks();
-          sortBids();
+          updateOrderBook();
         }
-        showOrderBook();
       }
     } catch (err) {
       console.error("order failed", err);
@@ -135,7 +134,7 @@ function sortAsks() {
 }
 
 function sortBids() {
-  bids.sort((a, b) => a.price - b.price);
+  bids.sort((a, b) => b.price - a.price);
 }
 function showOrderBook() {
   const formattedAsks = asks.map((ask) => ({
@@ -159,4 +158,10 @@ function showOrderBook() {
       client.send(message);
     }
   });
+}
+
+function updateOrderBook() {
+  sortAsks();
+  sortBids();
+  showOrderBook();
 }
