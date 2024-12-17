@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "bitcoin_balance" numeric DEFAULT '1.0' NOT NULL;

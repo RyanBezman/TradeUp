@@ -22,7 +22,7 @@ export function OrderBook({ asks, bids }: OrderBookProps) {
   const bidsContainerRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className="flex flex-col w-1/4 border border-r-0 border-t-0 dark:border-gray-600 ">
+    <div className="flex flex-col w-1/4 min-w-[320px] border border-r-0 border-t-0 dark:border-gray-600 ">
       <ColumnHeader title="Order Book" />
       <LabelHeader left="Amount (BTC)" right="MySize" />
       <div className="flex flex-col flex-grow overflow-hidden">

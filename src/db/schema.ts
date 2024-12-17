@@ -4,6 +4,7 @@ import {
   varchar,
   boolean,
   timestamp,
+  numeric,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -21,7 +22,7 @@ export const users = pgTable("users", {
   salt: varchar("salt").notNull(),
   active: boolean("active").notNull().default(true),
   job: varchar("job"),
-  bitcoinBalance: varchar("bitcoin_balance").notNull().default("100,000"),
+  bitcoinBalance: numeric("bitcoin_balance").notNull().default("1.0"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
