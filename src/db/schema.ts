@@ -35,7 +35,7 @@ export const balances = pgTable("balances", {
     .references(() => users.id)
     .notNull(),
   asset: varchar("asset").notNull(),
-  balance: numeric("balance").notNull().default("0.0"),
+  balance: numeric("balance").notNull(),
 });
 
 export const orders = pgTable("orders", {

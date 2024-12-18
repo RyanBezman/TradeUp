@@ -37,20 +37,34 @@ export async function addUser({
       "sha512"
     ).toString("hex");
 
-    await db.insert(schema.users).values({
-      firstName: firstName,
-      lastName: lastName,
-      password: hashedPassword,
-      email: email.toString(),
-      phone: phone.toString(),
-      address1: address1.toString(),
-      address2: address2,
-      city: city,
-      state: state,
-      zip: zip.toString(),
-      salt: salt,
-    });
+    const [user] = await db
+      .insert(schema.users)
+      .values({
+        firstName: firstName,
+        lastName: lastName,
+        password: hashedPassword,
+        email: email.toString(),
+        phone: phone.toString(),
+        address1: address1.toString(),
+        address2: address2,
+        city: city,
+        state: state,
+        zip: zip.toString(),
+        salt: salt,
+      })
+      .returning({ id: schema.users.id });
     console.log("user added succesfully");
+
+    if (user) {
+      await db.insert(schema.balances).values({
+        userId: user.id,
+        asset: "BTC",
+        balance: "1.0",
+      });
+      console.log("Bitcoin balance added succesfully");
+    } else {
+      throw new Error("Falied to insert user");
+    }
   } catch (error) {
     console.error("Error adding user", error);
     throw error;

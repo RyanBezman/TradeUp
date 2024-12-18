@@ -3,7 +3,7 @@
 import { useAuth } from "@/app/context/AuthContext";
 
 export function BitcoinBalance() {
-  const { user } = useAuth();
+  const { user, balance } = useAuth();
 
   return (
     <div className="p-2 mt-6 flex items-center gap-2 w-full">
@@ -13,12 +13,12 @@ export function BitcoinBalance() {
       />
       <div className="flex flex-col cursor-pointer dark:text-white">
         <span>Bitcoin</span>
-        <span className="text-ssm text-gray-500">BTC</span>
+        <span className="text-ssm text-gray-500">{balance?.asset}</span>
       </div>
       <span className="pl-10 cursor-pointer dark:text-white"></span>
       <div className="dark:text-white">
         <span>Balance</span>
-        {user && <div className="dark:text-gray-500">1.0</div>}
+        {user && <div className="dark:text-gray-500">{balance?.balance}</div>}
       </div>
     </div>
   );

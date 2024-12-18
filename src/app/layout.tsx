@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { cookies } from "next/headers";
 import { validateUserSession } from "@/actions/auth/validateUserSession";
+import { getBalances } from "@/actions/balance/getBalances";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,12 +35,21 @@ export default async function RootLayout({
     sessionToken && email
       ? await validateUserSession(email, sessionToken)
       : null;
+
+  const initialBalances = initialUser
+    ? await getBalances(initialUser.id)
+    : null;
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-white text-black dark:bg-black antialiased`}
       >
-        <AuthProvider initialUser={initialUser}>{children}</AuthProvider>
+        <AuthProvider
+          initialUser={initialUser}
+          initialBalances={initialBalances}
+        >
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

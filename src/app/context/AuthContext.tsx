@@ -20,7 +20,10 @@ type User = {
   zip: string;
   id: number;
   job?: string | null;
-  bitcoinBalance: string;
+};
+type Balance = {
+  asset: string;
+  balance: string;
 };
 type AuthContextType = {
   user: User | null;
@@ -28,6 +31,7 @@ type AuthContextType = {
   logout: () => void;
   theme: "light" | "dark";
   toggleTheme: () => void;
+  balance: Balance | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,11 +39,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({
   children,
   initialUser,
+  initialBalances,
 }: {
   children: ReactNode;
   initialUser: User | null;
+  initialBalances: Balance | null;
 }) => {
   const [user, setUser] = useState<User | null>(initialUser);
+  const [balance, setBalance] = useState<Balance | null>(initialBalances);
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
@@ -61,7 +68,9 @@ export const AuthProvider = ({
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, theme, toggleTheme }}>
+    <AuthContext.Provider
+      value={{ user, setUser, logout, theme, toggleTheme, balance }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,0 +1,1 @@
+ALTER TABLE "balances" ALTER COLUMN "balance" DROP DEFAULT;
