@@ -16,7 +16,6 @@ const coinPics: Record<CoinType, string> = {
   SOL: "https://asset-metadata-service-production.s3.amazonaws.com/asset_icons/b658adaf7913c1513c8d120bcb41934a5a4bf09b6adbcb436085e2fbf6eb128c.png",
   USD: "https://dynamic-assets.coinbase.com/3c15df5e2ac7d4abbe9499ed9335041f00c620f28e8de2f93474a9f432058742cdf4674bd43f309e69778a26969372310135be97eb183d91c492154176d455b8/asset_icons/9d67b728b6c8f457717154b3a35f9ddc702eae7e76c4684ee39302c4d7fd0bb8.png",
 };
-
 const coinNames: Record<CoinType, string> = {
   BTC: "Bitcoin",
   ETH: "Ethereum",
@@ -48,7 +47,7 @@ export function TradeLayout() {
   const displayPic = coinPics[selectedCoin as CoinType];
   const displayName = coinNames[selectedCoin as CoinType];
   const socketRef = useRef<WebSocket | null>(null);
-  const { balances } = useAuth();
+  const { balances, user } = useAuth();
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8080");
     ws.onopen = () => console.log("ws open");
@@ -73,22 +72,32 @@ export function TradeLayout() {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-    const numericPrice = Number(whenPriceIs.replace(/,/g, ""));
-    const numericSize = Number(amount.replace(/,/g, ""));
+    const numericPrice = Number(whenPriceIs.replace(/,/g, "")).toString();
+    const numericSize = Number(amount.replace(/,/g, "")).toString();
+    if (!user) {
+      return;
+    }
     const orderData = {
       type: "new_order",
+      id: user.id,
       side: isSelected,
       orderType,
+      baseAsset: selectedCoin,
+      quoteAsset: "USDC",
       price: numericPrice,
-      size: numericSize,
-      formattedSize: numericSize.toFixed(4),
+      amount: numericSize,
+      filledAmount: "0",
+      status: "pending",
     };
 
-    socket.send(JSON.stringify(orderData));
+    try {
+      socket.send(JSON.stringify(orderData));
+    } catch (error) {
+      console.error("Failed to send order:", error);
+    }
     setAmount("");
     setWhenPriceIs("");
   };
-
   const placeBuy = () => {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
@@ -109,6 +118,22 @@ export function TradeLayout() {
     setWhenPriceIs("");
   };
 
+  const handleBuyButtonClick = () => {
+    setIsSelected("buy");
+    setOrderType("market");
+    setAmount("");
+    setWhenPriceIs("");
+    setSellError(null);
+    setBuyError(null);
+  };
+  const handleSellButtonClick = () => {
+    setIsSelected("sell");
+    setOrderType("market");
+    setAmount("");
+    setWhenPriceIs("");
+    setSellError(null);
+    setBuyError(null);
+  };
   const handleInputNumber = (value: number | string): string => {
     if (!value) return "";
 
@@ -127,14 +152,7 @@ export function TradeLayout() {
           <div className="p-4 flex flex-col gap-16">
             <div className="flex w-full gap-2">
               <button
-                onClick={() => {
-                  setIsSelected("buy");
-                  setOrderType("market");
-                  setAmount("");
-                  setWhenPriceIs("");
-                  setSellError(null);
-                  setBuyError(null);
-                }}
+                onClick={handleBuyButtonClick}
                 className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all ${
                   isSelected === "buy"
                     ? "bg-violet-800 dark:bg-green-700 text-white shadow-md"
@@ -144,14 +162,7 @@ export function TradeLayout() {
                 Buy
               </button>
               <button
-                onClick={() => {
-                  setIsSelected("sell");
-                  setOrderType("market");
-                  setAmount("");
-                  setWhenPriceIs("");
-                  setSellError(null);
-                  setBuyError(null);
-                }}
+                onClick={handleSellButtonClick}
                 className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all ${
                   isSelected === "sell"
                     ? "bg-violet-800 dark:bg-green-700 text-white shadow-md"
@@ -203,13 +214,57 @@ export function TradeLayout() {
                 setSellError={setSellError}
                 setBuyError={setBuyError}
               />
+              {orderType === "limit" && (
+                <span className="ml-2 text-xs">
+                  USD =
+                  {amount &&
+                  whenPriceIs &&
+                  orderType === "limit" &&
+                  amount.length > 1
+                    ? " $" +
+                      (
+                        Number(amount.replace(/,/g, "")) *
+                        Number(whenPriceIs.replace(/,/g, ""))
+                      ).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : ""}
+                </span>
+              )}
+              {orderType === "limit" && (
+                <div className="flex flex-col gap-2 ">
+                  <span className="font-semibold dark:text-white text-black">
+                    When price reaches
+                  </span>
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      className="bg-transparent text-black dark:text-white outline-none text-xl border rounded-md p-2"
+                      value={whenPriceIs}
+                      placeholder="0"
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/,/g, "");
+                        if (value.length > 9) {
+                          return;
+                        }
+                        const newValue = handleInputNumber(value);
+                        setWhenPriceIs(newValue);
+                      }}
+                    />
+                    <span className="dark:text-white text-gray-400 ml-2 text-xl">
+                      USD
+                    </span>
+                  </div>
+                </div>
+              )}
               <div className="flex flex-col gap-2">
                 <span className="font-semibold dark:text-white text-black">
                   Asset
                 </span>
                 <div className="relative">
                   <button
-                    className="flex items-center justify-between w-full p-4 border rounded-md   dark:text-white"
+                    className="flex items-center justify-between w-full p-3 border rounded-md   dark:text-white"
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   >
                     <div className="flex items-center gap-2">
@@ -255,51 +310,7 @@ export function TradeLayout() {
                 {orderType === "market" && isSelected === "buy" && buyError}
                 {orderType === "market" && isSelected === "sell" && sellError}
               </span>
-              {orderType === "limit" && (
-                <span className="ml-2">
-                  USD =
-                  {amount &&
-                  whenPriceIs &&
-                  orderType === "limit" &&
-                  amount.length > 1
-                    ? " $" +
-                      (
-                        Number(amount.replace(/,/g, "")) *
-                        Number(whenPriceIs.replace(/,/g, ""))
-                      ).toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })
-                    : ""}
-                </span>
-              )}
             </div>
-            {orderType === "limit" && (
-              <div className="flex flex-col gap-2">
-                <span className="font-semibold dark:text-white text-black">
-                  When price reaches
-                </span>
-                <div className="flex items-center">
-                  <input
-                    type="text"
-                    className="bg-transparent text-black dark:text-white outline-none text-xl border rounded-md p-2"
-                    value={whenPriceIs}
-                    placeholder="0"
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/,/g, "");
-                      if (value.length > 9) {
-                        return;
-                      }
-                      const newValue = handleInputNumber(value);
-                      setWhenPriceIs(newValue);
-                    }}
-                  />
-                  <span className="dark:text-white text-gray-400 ml-2 text-xl">
-                    USD
-                  </span>
-                </div>
-              </div>
-            )}
 
             <button
               onClick={() => {

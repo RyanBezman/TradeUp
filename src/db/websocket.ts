@@ -1,26 +1,68 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+"use server";
 import { WebSocketServer } from "ws";
-
+import { addNewOrder } from "../actions/orders/addNewOrder";
+import { getAllOrders } from "@/actions/orders/getAllOrders";
 const wss = new WebSocketServer({ port: 8080 });
 
-let asks = [
-  { side: "sell", price: 100000, size: 0.0249, formattedSize: 0.0249 },
-];
-let bids = [
-  { side: "buy", price: 101000, size: 0.1452, formattedSize: 0.1452 },
-];
+// let asks = [
+//   { side: "sell", price: 100000, size: 0.0249, formattedSize: 0.0249 },
+// ];
+// let bids = [
+//   { side: "buy", price: 101000, size: 0.1452, formattedSize: 0.1452 },
+// ];
+let asks: any = [];
+let bids: any = [];
 
-wss.on("connection", (ws) => {
+async function initializeOrderBook() {
+  try {
+    const allOrders = await getAllOrders();
+    asks = allOrders.filter((order) => order.side === "sell");
+    bids = allOrders.filter((order) => order.side === "buy");
+    console.log("succefully initialzed orderbook");
+  } catch (error) {
+    console.error("falied to initialize orderbook ", error);
+  }
+}
+
+initializeOrderBook();
+
+wss.on("connection", (ws: any) => {
   ws.send(JSON.stringify({ type: "order_book", asks, bids }));
 
-  ws.on("message", (message) => {
+  ws.on("message", async (message: any) => {
     try {
       const data = JSON.parse(message);
+      const {
+        id,
+        side,
+        price,
+        amount,
+        orderType,
+        baseAsset,
+        quoteAsset,
+        filledAmount,
+        status,
+        pending,
+      } = data;
 
       if (data.type === "new_order") {
-        const { side, price, size, formattedSize, orderType } = data;
         const numericPrice = parseFloat(price);
-        const numericSize = parseFloat(size);
+        const numericSize = parseFloat(amount);
 
+        await addNewOrder({
+          id,
+          side,
+          orderType,
+          baseAsset,
+          quoteAsset,
+          price,
+          amount,
+          filledAmount,
+          status,
+          pending,
+        });
         if (side === "sell") {
           let remainingSize = numericSize;
           if (orderType === "limit") {
@@ -53,7 +95,6 @@ wss.on("connection", (ws) => {
                 side,
                 price: numericPrice,
                 size: numericSize,
-                formattedSize,
               });
             }
           } else {
@@ -104,7 +145,6 @@ wss.on("connection", (ws) => {
                 side,
                 price: numericPrice,
                 size: numericSize,
-                formattedSize,
               });
             }
           } else {

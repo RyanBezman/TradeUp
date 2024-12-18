@@ -7,7 +7,7 @@ import { Divider } from "./divider";
 import { Cell } from "./cell";
 
 export type OrderData = {
-  size: number;
+  amount: string;
   price: string;
   formattedSize: number;
 };
@@ -45,7 +45,8 @@ function OrderBookBids({ asks, asksContainerRef }: OrderBookSellsProps) {
       ref={asksContainerRef}
     >
       {asks.map((ask: OrderData) => {
-        const { size, price, formattedSize } = ask;
+        const { price, amount } = ask;
+
         const randomNum = Math.random() * 10000000;
         console.log(size, price);
         return (
@@ -72,13 +73,14 @@ function OrderBookAsks({ bids, bidsContainerRef }: OrderBookBidsProps) {
       ref={bidsContainerRef}
     >
       {bids.map((bid: OrderData) => {
-        const { size, price, formattedSize } = bid;
-        console.log(size, price);
+        const { price, amount } = bid;
+        const size = parseFloat(amount).toFixed(4);
+        console.log(bid);
         const getRandomNum = Math.random() * 10000000;
         return (
           <Cell
             key={`bid-${size + price + getRandomNum}`}
-            size={formattedSize}
+            size={amount}
             price={price}
             type="bid"
           />
