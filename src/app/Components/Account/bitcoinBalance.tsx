@@ -18,9 +18,7 @@ export function BitcoinBalance() {
       <span className="pl-10 cursor-pointer dark:text-white"></span>
       <div className="dark:text-white">
         <span>Balance</span>
-        {user && (
-          <div className="dark:text-gray-500">{user.bitcoinBalance}</div>
-        )}
+        {user && <div className="dark:text-gray-500">1.0</div>}
       </div>
     </div>
   );
