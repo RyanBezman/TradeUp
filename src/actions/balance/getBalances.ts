@@ -9,5 +9,5 @@ export async function getBalances(id: number) {
     .from(balances)
     .where(eq(balances.userId, id));
 
-  return balance.length > 0 ? balance[0] : null;
+  return balance.length > 0 ? balance : null;
 }

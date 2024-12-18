@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { SignInFormInput } from "./signInFormInput";
 import { Loader, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { getBalances } from "@/actions/balance/getBalances";
 
 export default function SignInForm({
   setIsFormOpen,
@@ -19,7 +20,7 @@ export default function SignInForm({
   const [isLoading, setIsLoading] = useState(false);
   const [signInData, setSignInData] = useState(initialSignInData);
   const [error, setError] = useState<string | null>(null);
-  const { setUser } = useAuth();
+  const { setUser, setBalances } = useAuth();
   const router = useRouter();
 
   async function handleSignIn(e: FormEvent) {
@@ -27,7 +28,7 @@ export default function SignInForm({
     setIsLoading(true);
 
     const result = await authorizeUser(signInData.email, signInData.password);
-    console.log(result);
+
     if (!result) {
       setError("Incorrect Email or password. Please Try again.");
       setIsLoading(false);
@@ -40,7 +41,12 @@ export default function SignInForm({
     document.cookie = `email=${result.email}; path=/; max-age=${
       3 * 24 * 60 * 60
     }`;
-
+    if (result) {
+      const balances = await getBalances(result.id);
+      if (balances) {
+        setBalances(balances);
+      }
+    }
     setUser(result);
     setIsFormOpen(false);
     setIsLoading(false);

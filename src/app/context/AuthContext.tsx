@@ -21,7 +21,7 @@ type User = {
   id: number;
   job?: string | null;
 };
-type Balance = {
+export type Balance = {
   asset: string;
   balance: string;
 };
@@ -31,7 +31,8 @@ type AuthContextType = {
   logout: () => void;
   theme: "light" | "dark";
   toggleTheme: () => void;
-  balance: Balance | null;
+  balances: Balance[] | null;
+  setBalances: (balances: Balance[]) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,10 +44,10 @@ export const AuthProvider = ({
 }: {
   children: ReactNode;
   initialUser: User | null;
-  initialBalances: Balance | null;
+  initialBalances: Balance[] | null;
 }) => {
   const [user, setUser] = useState<User | null>(initialUser);
-  const [balance, setBalance] = useState<Balance | null>(initialBalances);
+  const [balances, setBalances] = useState<Balance[]>(initialBalances || []);
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
@@ -69,7 +70,15 @@ export const AuthProvider = ({
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser, logout, theme, toggleTheme, balance }}
+      value={{
+        user,
+        setUser,
+        logout,
+        theme,
+        toggleTheme,
+        balances,
+        setBalances,
+      }}
     >
       {children}
     </AuthContext.Provider>

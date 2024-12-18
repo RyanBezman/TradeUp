@@ -5,6 +5,7 @@ type StaticInputProps = {
   setAmount: (value: string) => void;
   setSellError: (value: string | null) => void;
   setBuyError: (value: string | null) => void;
+  selectedCoin: string;
 };
 
 export default function StaticInput({
@@ -12,6 +13,7 @@ export default function StaticInput({
   setAmount,
   setSellError,
   setBuyError,
+  selectedCoin,
 }: StaticInputProps) {
   const decimalRegex = /^\d*\.?\d*$/;
 
@@ -45,7 +47,9 @@ export default function StaticInput({
           }
         }}
       />
-      <span className="dark:text-white text-gray-400 ml-2 text-xl">BTC</span>
+      <span className="dark:text-white text-gray-400 ml-2 text-xl">
+        {selectedCoin}
+      </span>
     </div>
   );
 }
