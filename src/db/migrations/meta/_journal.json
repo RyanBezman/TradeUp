@@ -120,6 +120,13 @@
       "when": 1734540132462,
       "tag": "0016_curved_sumo",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1734573558349,
+      "tag": "0017_regular_zemo",
+      "breakpoints": true
     }
   ]
 }

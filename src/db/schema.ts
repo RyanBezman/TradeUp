@@ -50,11 +50,11 @@ export const orders = pgTable("orders", {
   price: numeric("price").notNull(),
   amount: numeric("amount").notNull(),
   filledAmount: numeric("filled_amount").notNull().default("0.0"), // how much has been filled
-  status: varchar("status", { length: 10 }).default("pending"),
+  status: varchar("status", { length: 10 }).default("pending").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-const historicalOrders = pgTable("historicalOrders", {
+export const historicalOrders = pgTable("historicalOrders", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
     .references(() => users.id)

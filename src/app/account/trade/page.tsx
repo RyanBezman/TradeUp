@@ -101,19 +101,28 @@ export function TradeLayout() {
   const placeBuy = () => {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
-    const numericPrice = Number(whenPriceIs.replace(/,/g, ""));
-    const numericSize = Number(amount.replace(/,/g, ""));
-
+    const numericPrice = Number(whenPriceIs.replace(/,/g, "")).toString();
+    const numericSize = Number(amount.replace(/,/g, "")).toString();
+    if (!user) {
+      return;
+    }
     const orderData = {
       type: "new_order",
+      id: user.id,
       side: isSelected,
       orderType,
-      size: numericSize,
+      baseAsset: selectedCoin,
+      quoteAsset: "USDC",
       price: numericPrice,
-      formattedSize: numericSize.toFixed(4),
+      amount: numericSize,
+      filledAmount: "0",
+      status: "pending",
     };
-
-    socket.send(JSON.stringify(orderData));
+    try {
+      socket.send(JSON.stringify(orderData));
+    } catch (error) {
+      console.error("Failed to send order:", error);
+    }
     setAmount("");
     setWhenPriceIs("");
   };

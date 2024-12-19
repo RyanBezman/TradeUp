@@ -1,25 +1,39 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 "use server";
+//check if theres a limit sell for my limit ask
+// check if theres a limit buy for my limit sell
+//markey buys eat the lowest limit sell and keep going until fulfilled
+//market sells eat the highest limit buys and keep going until fulfilled
+// @ts-expect-error
 import { WebSocketServer } from "ws";
 import { addNewOrder } from "../actions/orders/addNewOrder";
 import { getAllOrders } from "@/actions/orders/getAllOrders";
+import { lowerFilledAmount } from "@/actions/orders/lowerFilledAmount";
 const wss = new WebSocketServer({ port: 8080 });
-
-// let asks = [
-//   { side: "sell", price: 100000, size: 0.0249, formattedSize: 0.0249 },
-// ];
-// let bids = [
-//   { side: "buy", price: 101000, size: 0.1452, formattedSize: 0.1452 },
-// ];
-let asks: any = [];
-let bids: any = [];
+type InitialOrder = {
+  id: number;
+  side: string;
+  orderType: string;
+  baseAsset: string;
+  quoteAsset: string;
+  price: string;
+  amount: string;
+  filledAmount: string;
+  status: string;
+};
+let asks: InitialOrder[] = [];
+let bids: InitialOrder[] = [];
 
 async function initializeOrderBook() {
   try {
     const allOrders = await getAllOrders();
-    asks = allOrders.filter((order) => order.side === "sell");
-    bids = allOrders.filter((order) => order.side === "buy");
+    asks = allOrders
+      .filter((order) => order.side === "sell")
+      .sort((a, b) => +a.price - +b.price);
+
+    bids = allOrders
+      .filter((order) => order.side === "buy")
+      .sort((a, b) => +b.price - +a.price);
+
     console.log("succefully initialzed orderbook");
   } catch (error) {
     console.error("falied to initialize orderbook ", error);
@@ -44,7 +58,6 @@ wss.on("connection", (ws: any) => {
         quoteAsset,
         filledAmount,
         status,
-        pending,
       } = data;
 
       if (data.type === "new_order") {
@@ -61,139 +74,55 @@ wss.on("connection", (ws: any) => {
           amount,
           filledAmount,
           status,
-          pending,
         });
         if (side === "sell") {
-          let remainingSize = numericSize;
-          if (orderType === "limit") {
-            if (bids[0] && bids[0].price >= price) {
-              while (
-                remainingSize > 0 &&
-                bids.length > 0 &&
-                bids[0].price >= price
-              ) {
-                let lowestBid = bids[0];
-                if (lowestBid.size > remainingSize) {
-                  lowestBid.size -= remainingSize;
-                  lowestBid.formattedSize = lowestBid.size.toFixed(4);
-                  remainingSize = 0;
-                } else {
-                  remainingSize -= lowestBid.size;
-                  bids.shift();
-                }
-              }
-              if (remainingSize > 0) {
-                asks.push({
-                  side,
-                  price: numericPrice,
-                  size: remainingSize,
-                  formattedSize: remainingSize.toFixed(4),
-                });
-              }
+          let remainingSize = amount;
+          let availableAmount = +bids[0].amount - +bids[0].filledAmount;
+          while (bids[0] && bids[0].price >= price && remainingSize > 0) {
+            if (availableAmount > amount) {
+              let newFilledAmount = +bids[0].amount - amount;
+              await lowerFilledAmount(bids[0].id, newFilledAmount);
+              bids[0].filledAmount = newFilledAmount.toString();
+              remainingSize = 0;
             } else {
-              asks.push({
-                side,
-                price: numericPrice,
-                size: numericSize,
-              });
-            }
-          } else {
-            while (remainingSize > 0 && bids.length) {
-              let lowestBid = bids[0];
-              if (lowestBid.size > remainingSize) {
-                lowestBid.size -= remainingSize;
-                lowestBid.formattedSize = lowestBid.size.toFixed(4);
-                remainingSize = 0;
-              } else {
-                remainingSize -= lowestBid.size;
-                bids.shift();
-              }
+              remainingSize -= +bids[0].amount;
+              await completeSale(
+                bids[0].id,
+                bids[0].baseAsset,
+                bids[0].quoteAsset,
+                availableAmount,
+                price,
+                id
+              );
+              bids.shift();
             }
           }
-          updateOrderBook();
+          asks.push(data);
         } else if (side === "buy") {
-          let remainingSize = numericSize;
-
-          if (orderType === "limit") {
-            if (asks[0] && asks[0].price <= price) {
-              while (
-                remainingSize > 0 &&
-                asks.length &&
-                asks[0].price <= price
-              ) {
-                let lowestAsk = asks[0];
-
-                if (lowestAsk.size > remainingSize) {
-                  lowestAsk.size -= remainingSize;
-                  lowestAsk.formattedSize = lowestAsk.size.toFixed(4);
-                  remainingSize = 0;
-                } else {
-                  remainingSize -= lowestAsk.size;
-                  asks.shift();
-                }
-              }
-              if (remainingSize > 0) {
-                bids.push({
-                  side,
-                  price: numericPrice,
-                  size: remainingSize,
-                  formattedSize: remainingSize.toFixed(4),
-                });
-              }
-            } else {
-              bids.push({
-                side,
-                price: numericPrice,
-                size: numericSize,
-              });
-            }
-          } else {
-            while (remainingSize > 0 && asks.length) {
-              let lowestAsk = asks[0];
-
-              if (lowestAsk.size > remainingSize) {
-                lowestAsk.size -= remainingSize;
-                lowestAsk.formattedSize = lowestAsk.size.toFixed(4);
-                remainingSize = 0;
-              } else {
-                remainingSize -= lowestAsk.size;
-                asks.shift();
-              }
-            }
-          }
-          updateOrderBook();
+          bids.push(data);
         }
+        updateOrderBook();
       }
     } catch (err) {
       console.error("order failed", err);
     }
   });
 });
-function sortAsks() {
-  asks.sort((a, b) => a.price - b.price);
-}
 
+function sortAsks() {
+  asks.sort((a, b) => +a.price - +b.price);
+}
 function sortBids() {
-  bids.sort((a, b) => b.price - a.price);
+  bids.sort((a, b) => +b.price - +a.price);
 }
 function showOrderBook() {
-  const formattedAsks = asks.map((ask) => ({
-    ...ask,
-    size: ask.size.toFixed(4),
-  }));
-
-  const formattedBids = bids.map((bid) => ({
-    ...bid,
-    size: bid.size.toFixed(4),
-  }));
-
   const message = JSON.stringify({
     type: "order_book",
-    asks: formattedAsks,
-    bids: formattedBids,
+    asks,
+    bids,
   });
 
-  wss.clients.forEach((client) => {
+  wss.clients.forEach((client: WebSocket) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(message);
     }
