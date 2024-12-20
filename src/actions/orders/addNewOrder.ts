@@ -25,15 +25,19 @@ export async function addNewOrder({
   filledAmount,
   status,
 }: AddNewOrderProps) {
-  await db.insert(orders).values({
-    userId: id,
-    side: side,
-    orderType: orderType,
-    baseAsset: baseAsset,
-    quoteAsset: quoteAsset,
-    price: price,
-    amount: amount,
-    filledAmount: filledAmount,
-    status: status,
-  });
+  const order = await db
+    .insert(orders)
+    .values({
+      userId: id,
+      side: side,
+      orderType: orderType,
+      baseAsset: baseAsset,
+      quoteAsset: quoteAsset,
+      price: price,
+      amount: amount,
+      filledAmount: filledAmount,
+      status: status,
+    })
+    .returning({ id: orders.id });
+  return order[0].id;
 }

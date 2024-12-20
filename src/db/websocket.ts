@@ -3,14 +3,19 @@
 // check if theres a limit buy for my limit sell
 //markey buys eat the lowest limit sell and keep going until fulfilled
 //market sells eat the highest limit buys and keep going until fulfilled
-// @ts-expect-error
+// @ts-expect-error websoket improt is broken
 import { WebSocketServer } from "ws";
 import { addNewOrder } from "../actions/orders/addNewOrder";
 import { getAllOrders } from "@/actions/orders/getAllOrders";
 import { lowerFilledAmount } from "@/actions/orders/lowerFilledAmount";
+import { completeSale } from "@/actions/orders/completeSale";
+import { handleFills } from "@/actions/orders/handleFills";
+import { addHistoricalOrder } from "@/actions/orders/addHistoricalOrder";
+import { updateBalance } from "@/actions/balance/updateBalance";
 const wss = new WebSocketServer({ port: 8080 });
 type InitialOrder = {
   id: number;
+  userId: number;
   side: string;
   orderType: string;
   baseAsset: string;
@@ -61,10 +66,7 @@ wss.on("connection", (ws: any) => {
       } = data;
 
       if (data.type === "new_order") {
-        const numericPrice = parseFloat(price);
-        const numericSize = parseFloat(amount);
-
-        await addNewOrder({
+        const newOrderId = await addNewOrder({
           id,
           side,
           orderType,
@@ -75,25 +77,48 @@ wss.on("connection", (ws: any) => {
           filledAmount,
           status,
         });
+        console.log(newOrderId);
         if (side === "sell") {
           let remainingSize = amount;
-          let availableAmount = +bids[0].amount - +bids[0].filledAmount;
+          const availableAmount = +bids[0].amount - +bids[0].filledAmount;
           while (bids[0] && bids[0].price >= price && remainingSize > 0) {
+            console.log(bids[0].id);
             if (availableAmount > amount) {
-              let newFilledAmount = +bids[0].amount - amount;
+              const newFilledAmount = +bids[0].amount - amount;
               await lowerFilledAmount(bids[0].id, newFilledAmount);
+              await handleFills(bids[0].id, amount, price);
+              await handleFills(newOrderId, amount, price);
+              await addHistoricalOrder(
+                id,
+                orderType,
+                side,
+                baseAsset,
+                quoteAsset,
+                price,
+                amount,
+                "completed"
+              );
+              await updateBalance(id, baseAsset, quoteAsset, amount, side);
+              await updateBalance(
+                bids[0].userId,
+                bids[0].baseAsset,
+                bids[0].quoteAsset,
+                bids[0].amount,
+                bids[0].side
+              );
+
               bids[0].filledAmount = newFilledAmount.toString();
               remainingSize = 0;
             } else {
               remainingSize -= +bids[0].amount;
-              await completeSale(
-                bids[0].id,
-                bids[0].baseAsset,
-                bids[0].quoteAsset,
-                availableAmount,
-                price,
-                id
-              );
+              // await completeSale(
+              //   bids[0].id,
+              //   bids[0].baseAsset,
+              //   bids[0].quoteAsset,
+              //   availableAmount.toString(),
+              //   price,
+              //   id
+              // );
               bids.shift();
             }
           }

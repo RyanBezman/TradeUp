@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "seed": "bun ./src/db/seed.ts",
+    "trial": "bun ./src/db/tests.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

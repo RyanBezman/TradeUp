@@ -2,6 +2,7 @@
 
 import { db } from "@/db";
 import { fills } from "@/db/schema";
+import { handleFills } from "./handleFills";
 
 export async function completeSale(
   orderId: number,
@@ -11,7 +12,5 @@ export async function completeSale(
   price: string,
   userId: number
 ) {
-  await db
-    .insert(fills)
-    .values({ orderId: orderId, filledAmount: filledAmount, price: price });
+  await handleFills(orderId, filledAmount, price);
 }
