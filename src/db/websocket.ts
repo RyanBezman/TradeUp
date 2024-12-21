@@ -11,6 +11,7 @@ import { updateFilledAmount } from "@/actions/orders/updateFilledAmount";
 import { handleFills } from "@/actions/orders/handleFills";
 import { addHistoricalOrder } from "@/actions/orders/addHistoricalOrder";
 import { updateBalance } from "@/actions/balance/updateBalance";
+import { completeOrder } from "@/actions/orders/completeOrder";
 const wss = new WebSocketServer({ port: 8080 });
 type InitialOrder = {
   id: number;
@@ -31,11 +32,11 @@ async function initializeOrderBook() {
   try {
     const allOrders = await getAllOrders();
     asks = allOrders
-      .filter((order) => order.side === "sell")
+      .filter((order) => order.side === "sell" && order.status === "pending")
       .sort((a, b) => +a.price - +b.price);
 
     bids = allOrders
-      .filter((order) => order.side === "buy")
+      .filter((order) => order.side === "buy" && order.status === "pending")
       .sort((a, b) => +b.price - +a.price);
 
     console.log("succefully initialzed orderbook");
@@ -83,12 +84,11 @@ wss.on("connection", (ws: any) => {
             parseFloat(bids[0].amount) - parseFloat(bids[0].filledAmount);
           const bidsPrice = parseFloat(bids[0].price);
           const sellPrice = parseFloat(price);
-          const sellAmount = parseFloat(amount);
           while (bids[0] && bidsPrice >= sellPrice && remainingSize > 0) {
             console.log(bids[0].id);
-            if (availableAmount >= sellAmount) {
+            if (availableAmount > remainingSize) {
               const newFilledAmount =
-                parseFloat(bids[0].filledAmount) + sellAmount;
+                parseFloat(bids[0].filledAmount) + remainingSize;
               await updateFilledAmount(bids[0].id, newFilledAmount);
               await handleFills(bids[0].id, amount, price);
               await handleFills(newOrder.id, amount, price);
@@ -115,13 +115,40 @@ wss.on("connection", (ws: any) => {
 
               remainingSize = 0;
             } else {
+              const newFilledAmount = remainingSize - availableAmount;
               remainingSize -= availableAmount;
+              await handleFills(bids[0].id, availableAmount.toString(), price);
+              await handleFills(newOrder.id, availableAmount.toString(), price);
+              await updateFilledAmount(newOrder.id, newFilledAmount);
+              await addHistoricalOrder(
+                bids[0].userId,
+                bids[0].orderType,
+                bids[0].side,
+                bids[0].baseAsset,
+                bids[0].quoteAsset,
+                bids[0].price,
+                bids[0].amount,
+                "completed"
+              );
+              await completeOrder(bids[0].id);
+              for (const ask of asks) {
+                if (ask.id === newOrder.id) {
+                  ask.filledAmount = newFilledAmount.toString();
+                  break;
+                }
+              }
 
               bids.shift();
             }
           }
           if (remainingSize > 0) {
-            asks.push({ ...newOrder, amount: remainingSize.toString() });
+            const updatedFillAmount =
+              parseFloat(newOrder.filledAmount) +
+              (parseFloat(newOrder.amount) - remainingSize);
+            newOrder.filledAmount = updatedFillAmount.toString();
+            asks.push(newOrder);
+          } else {
+            await completeOrder(newOrder.id);
           }
         } else if (side === "buy") {
           bids.push(newOrder);

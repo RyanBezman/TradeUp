@@ -163,7 +163,7 @@ export function TradeLayout() {
       <div className="max-h-full h-full flex flex-row justify-between">
         <div className="border dark:border-gray-600  border-t-0 border-l-0 flex min-w-[320px] w-1/4 flex-col gap-4 ">
           <ColumnHeader title="Order Form" />
-          <div className="p-4 flex flex-col gap-16">
+          <div className="p-4 flex flex-col gap-8">
             <div className="flex w-full gap-2">
               <button
                 onClick={handleBuyButtonClick}
