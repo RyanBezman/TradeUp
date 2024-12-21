@@ -66,16 +66,7 @@ export async function addUserWithBalances({
         { userId: user.id, asset: "XRP", balance: "4.0" },
         { userId: user.id, asset: "SOL", balance: "2.0" },
       ]);
-      await db.insert(schema.orders).values({
-        userId: user.id,
-        side: "buy",
-        orderType: "limit",
-        baseAsset: "BTC",
-        quoteAsset: "USD",
-        price: "98000",
-        amount: "2.0",
-        status: "pending",
-      });
+
       console.log(`Balances for ${email} added successfully`);
     } else {
       throw new Error(`Failed to insert user ${email}`);

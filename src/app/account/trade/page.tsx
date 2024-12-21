@@ -43,9 +43,14 @@ export function TradeLayout() {
   const [sellError, setSellError] = useState<string | null>(null);
   const [selectedCoin, setSelectedCoin] = useState("BTC");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedQuoteAsset, setSelectedQuoteAsset] = useState("USD");
+  const [isQuoteAssetDropdownOpen, setIsQuoteAssetDropdownOpen] =
+    useState(false);
 
   const displayPic = coinPics[selectedCoin as CoinType];
   const displayName = coinNames[selectedCoin as CoinType];
+  const quoteAssetDiplayPic = coinPics[selectedQuoteAsset as CoinType];
+  const quoteAssetDisplayName = coinNames[selectedQuoteAsset as CoinType];
   const socketRef = useRef<WebSocket | null>(null);
   const { balances, user } = useAuth();
   useEffect(() => {
@@ -83,7 +88,7 @@ export function TradeLayout() {
       side: isSelected,
       orderType,
       baseAsset: selectedCoin,
-      quoteAsset: "USDC",
+      quoteAsset: selectedQuoteAsset,
       price: numericPrice,
       amount: numericSize,
       filledAmount: "0",
@@ -112,7 +117,7 @@ export function TradeLayout() {
       side: isSelected,
       orderType,
       baseAsset: selectedCoin,
-      quoteAsset: "USDC",
+      quoteAsset: selectedQuoteAsset,
       price: numericPrice,
       amount: numericSize,
       filledAmount: "0",
@@ -267,7 +272,7 @@ export function TradeLayout() {
                   </div>
                 </div>
               )}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 mt-2">
                 <span className="font-semibold dark:text-white text-black">
                   Asset
                 </span>
@@ -298,6 +303,56 @@ export function TradeLayout() {
                             onClick={() => {
                               setSelectedCoin(coin);
                               setIsDropdownOpen(false);
+                            }}
+                          >
+                            <img
+                              src={displayPic}
+                              alt={coin}
+                              className="w-6 h-6"
+                            />
+                            <span className="dark:text-white">
+                              {displayName}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 mt-2">
+                <span className="font-semibold dark:text-white text-black">
+                  {isSelected === "buy" ? "Purchase with" : "Sell for"}
+                </span>
+                <div className="relative">
+                  <button
+                    className="flex items-center justify-between w-full p-3 border rounded-md   dark:text-white"
+                    onClick={() =>
+                      setIsQuoteAssetDropdownOpen(!isQuoteAssetDropdownOpen)
+                    }
+                  >
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={quoteAssetDiplayPic}
+                        alt={selectedQuoteAsset}
+                        className="w-6 h-6"
+                      />
+                      <span>{quoteAssetDisplayName}</span>
+                    </div>
+                    <span className=" dark:text-gray-400">&gt;</span>
+                  </button>
+                  {isQuoteAssetDropdownOpen && (
+                    <ul className="absolute z-10 mt-2 w-full dark:bg-black bg-white dark:border rounded-md shadow-md">
+                      {Object.keys(coinPics).map((coin) => {
+                        const displayPic = coinPics[coin as CoinType];
+                        const displayName = coinNames[coin as CoinType];
+                        return (
+                          <li
+                            key={coin}
+                            className="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
+                            onClick={() => {
+                              setSelectedQuoteAsset(coin);
+                              setIsQuoteAssetDropdownOpen(false);
                             }}
                           >
                             <img

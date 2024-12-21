@@ -38,6 +38,17 @@ export async function addNewOrder({
       filledAmount: filledAmount,
       status: status,
     })
-    .returning({ id: orders.id });
-  return order[0].id;
+    .returning({
+      id: orders.id,
+      userId: orders.userId,
+      side: orders.side,
+      orderType: orders.orderType,
+      baseAsset: orders.baseAsset,
+      quoteAsset: orders.quoteAsset,
+      price: orders.price,
+      amount: orders.amount,
+      filledAmount: orders.filledAmount,
+      status: orders.status,
+    });
+  return order[0];
 }

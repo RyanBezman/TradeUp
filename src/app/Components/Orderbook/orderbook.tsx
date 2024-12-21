@@ -74,7 +74,7 @@ function OrderBookAsks({ bids, bidsContainerRef }: OrderBookBidsProps) {
     >
       {bids.map((bid: OrderData) => {
         const { price, amount, filledAmount } = bid;
-        const size = (+amount - +filledAmount).toFixed(4);
+        const size = (parseFloat(amount) - parseFloat(filledAmount)).toFixed(4);
         console.log(bid);
         const getRandomNum = Math.random() * 10000000;
         return (

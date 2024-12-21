@@ -19,9 +19,11 @@ export async function updateBalance(
     .select({ balance: balances.balance })
     .from(balances)
     .where(and(eq(balances.userId, userId), eq(balances.asset, quoteAsset)));
+  console.log(currentBalance, balanceToUpdate);
 
   if (currentBalance.length === 0 && side === "buy") {
-    const newBalance = +balanceToUpdate - +amount;
+    const newBalance =
+      parseFloat(balanceToUpdate[0].balance) - parseFloat(amount);
     await db.insert(balances).values({
       userId: userId,
       asset: baseAsset,
@@ -34,8 +36,10 @@ export async function updateBalance(
     return;
   }
   if (side === "buy") {
-    const newBalance = +currentBalance + +amount;
-    const newQuoteAssetBalance = +balanceToUpdate - +amount;
+    const newBalance =
+      parseFloat(currentBalance[0].balance) + parseFloat(amount);
+    const newQuoteAssetBalance =
+      parseFloat(balanceToUpdate[0].balance) - parseFloat(amount);
     await db
       .update(balances)
       .set({ balance: newBalance.toString() })
@@ -45,8 +49,10 @@ export async function updateBalance(
       .set({ balance: newQuoteAssetBalance.toString() })
       .where(and(eq(balances.userId, userId), eq(balances.asset, quoteAsset)));
   } else {
-    const newBalance = +currentBalance - +amount;
-    const newQuoteAssetBalance = +balanceToUpdate + +amount;
+    const newBalance =
+      parseFloat(currentBalance[0].balance) - parseFloat(amount);
+    const newQuoteAssetBalance =
+      parseFloat(balanceToUpdate[0].balance) + parseFloat(amount);
     await db
       .update(balances)
       .set({ balance: newBalance.toString() })

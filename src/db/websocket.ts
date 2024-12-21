@@ -7,8 +7,7 @@
 import { WebSocketServer } from "ws";
 import { addNewOrder } from "../actions/orders/addNewOrder";
 import { getAllOrders } from "@/actions/orders/getAllOrders";
-import { lowerFilledAmount } from "@/actions/orders/lowerFilledAmount";
-import { completeSale } from "@/actions/orders/completeSale";
+import { updateFilledAmount } from "@/actions/orders/updateFilledAmount";
 import { handleFills } from "@/actions/orders/handleFills";
 import { addHistoricalOrder } from "@/actions/orders/addHistoricalOrder";
 import { updateBalance } from "@/actions/balance/updateBalance";
@@ -66,7 +65,7 @@ wss.on("connection", (ws: any) => {
       } = data;
 
       if (data.type === "new_order") {
-        const newOrderId = await addNewOrder({
+        const newOrder = await addNewOrder({
           id,
           side,
           orderType,
@@ -77,17 +76,22 @@ wss.on("connection", (ws: any) => {
           filledAmount,
           status,
         });
-        console.log(newOrderId);
+        console.log(newOrder.id);
         if (side === "sell") {
-          let remainingSize = amount;
-          const availableAmount = +bids[0].amount - +bids[0].filledAmount;
-          while (bids[0] && bids[0].price >= price && remainingSize > 0) {
+          let remainingSize = parseFloat(amount);
+          const availableAmount =
+            parseFloat(bids[0].amount) - parseFloat(bids[0].filledAmount);
+          const bidsPrice = parseFloat(bids[0].price);
+          const sellPrice = parseFloat(price);
+          const sellAmount = parseFloat(amount);
+          while (bids[0] && bidsPrice >= sellPrice && remainingSize > 0) {
             console.log(bids[0].id);
-            if (availableAmount > amount) {
-              const newFilledAmount = +bids[0].amount - amount;
-              await lowerFilledAmount(bids[0].id, newFilledAmount);
+            if (availableAmount >= sellAmount) {
+              const newFilledAmount =
+                parseFloat(bids[0].filledAmount) + sellAmount;
+              await updateFilledAmount(bids[0].id, newFilledAmount);
               await handleFills(bids[0].id, amount, price);
-              await handleFills(newOrderId, amount, price);
+              await handleFills(newOrder.id, amount, price);
               await addHistoricalOrder(
                 id,
                 orderType,
@@ -103,28 +107,24 @@ wss.on("connection", (ws: any) => {
                 bids[0].userId,
                 bids[0].baseAsset,
                 bids[0].quoteAsset,
-                bids[0].amount,
+                amount,
                 bids[0].side
               );
 
               bids[0].filledAmount = newFilledAmount.toString();
+
               remainingSize = 0;
             } else {
-              remainingSize -= +bids[0].amount;
-              // await completeSale(
-              //   bids[0].id,
-              //   bids[0].baseAsset,
-              //   bids[0].quoteAsset,
-              //   availableAmount.toString(),
-              //   price,
-              //   id
-              // );
+              remainingSize -= availableAmount;
+
               bids.shift();
             }
           }
-          asks.push(data);
+          if (remainingSize > 0) {
+            asks.push({ ...newOrder, amount: remainingSize.toString() });
+          }
         } else if (side === "buy") {
-          bids.push(data);
+          bids.push(newOrder);
         }
         updateOrderBook();
       }
