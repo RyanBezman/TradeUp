@@ -25,7 +25,7 @@ export function BitcoinBalance({ balance }: BitcoinBalanceProps) {
   const displayPic = coinPics[asset as CoinType];
   const displayName = coinNames[asset as CoinType];
   return (
-    <div className="p-2 mt-6 flex items-center justify-between w-full">
+    <div className="px-4 py-2 flex items-center justify-between w-full">
       <div className="flex gap-2 cursor-pointer dark:text-white">
         <img className="max-h-8" src={displayPic} />
         <div className="flex flex-col">
@@ -33,9 +33,11 @@ export function BitcoinBalance({ balance }: BitcoinBalanceProps) {
           <span className="text-ssm text-gray-500">{balance?.asset}</span>
         </div>
       </div>
-      <div className="dark:text-white">
-        <span className="font-semibold">Balance</span>
-        <div className="dark:text-gray-500">{balance?.balance}</div>
+      <div className="dark:text-white flex flex-col">
+        <span className="font-semibold text-end">Balance</span>
+        <div className="dark:text-gray-500 text-end">
+          {parseFloat(balance?.balance).toFixed(4)}
+        </div>
       </div>
     </div>
   );
