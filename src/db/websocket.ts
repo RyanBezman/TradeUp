@@ -81,16 +81,73 @@ wss.on("connection", (ws: any) => {
         if (side === "sell") {
           let remainingSize = parseFloat(amount);
 
-          const bidsPrice = parseFloat(bids[0].price);
-          const sellPrice = parseFloat(price);
-          while (bids[0] && bidsPrice >= sellPrice && remainingSize > 0) {
+          while (
+            bids[0] &&
+            parseFloat(bids[0].price) >= parseFloat(price) &&
+            remainingSize > 0
+          ) {
             const availableAmount =
               parseFloat(bids[0].amount) - parseFloat(bids[0].filledAmount);
-            if (availableAmount > remainingSize) {
+            if (availableAmount === remainingSize) {
+              await addHistoricalOrder(
+                bids[0].userId,
+                bids[0].orderType,
+                bids[0].side,
+                bids[0].baseAsset,
+                bids[0].quoteAsset,
+                bids[0].price,
+                bids[0].amount,
+                "completed"
+              );
+
+              await addHistoricalOrder(
+                newOrder.userId,
+                newOrder.orderType,
+                newOrder.side,
+                newOrder.baseAsset,
+                newOrder.quoteAsset,
+                newOrder.price,
+                newOrder.amount,
+                "completed"
+              );
+              await handleFills(bids[0].id, amount, price);
+              await handleFills(newOrder.id, amount, price);
+              await updateFilledAmount(
+                newOrder.id,
+                parseFloat(newOrder.amount)
+              );
+              await updateFilledAmount(bids[0].id, parseFloat(bids[0].amount));
+
+              await updateBalance(
+                bids[0].userId,
+                bids[0].baseAsset,
+                bids[0].quoteAsset,
+                availableAmount.toFixed(4),
+                bids[0].side
+              );
+
+              await updateBalance(
+                newOrder.userId,
+                newOrder.baseAsset,
+                newOrder.quoteAsset,
+                availableAmount.toFixed(4),
+                newOrder.side
+              );
+
+              await completeOrder(bids[0].id);
+              await completeOrder(newOrder.id);
+
+              bids.shift();
+              remainingSize = 0;
+            } else if (availableAmount > remainingSize) {
               const newFilledAmount = (
                 parseFloat(bids[0].filledAmount) + remainingSize
               ).toFixed(4);
               await updateFilledAmount(bids[0].id, parseFloat(newFilledAmount));
+              await updateFilledAmount(
+                newOrder.id,
+                parseFloat(newOrder.amount)
+              );
               await handleFills(bids[0].id, amount, price);
               await handleFills(newOrder.id, amount, price);
               await addHistoricalOrder(
@@ -103,12 +160,18 @@ wss.on("connection", (ws: any) => {
                 amount,
                 "completed"
               );
-              await updateBalance(id, baseAsset, quoteAsset, amount, side);
+              await updateBalance(
+                id,
+                baseAsset,
+                quoteAsset,
+                parseFloat(amount).toFixed(4),
+                side
+              );
               await updateBalance(
                 bids[0].userId,
                 bids[0].baseAsset,
                 bids[0].quoteAsset,
-                amount,
+                parseFloat(amount).toFixed(4),
                 bids[0].side
               );
 
@@ -126,14 +189,14 @@ wss.on("connection", (ws: any) => {
                 id,
                 baseAsset,
                 quoteAsset,
-                availableAmount.toString(),
+                availableAmount.toFixed(4),
                 side
               );
               await updateBalance(
                 bids[0].userId,
                 bids[0].baseAsset,
                 bids[0].quoteAsset,
-                availableAmount.toString(),
+                availableAmount.toFixed(4),
                 bids[0].side
               );
               await updateFilledAmount(
@@ -172,7 +235,161 @@ wss.on("connection", (ws: any) => {
             await completeOrder(newOrder.id);
           }
         } else if (side === "buy") {
-          bids.push(newOrder);
+          let remainingSize = parseFloat(amount);
+
+          while (
+            asks[0] &&
+            parseFloat(asks[0].price) <= parseFloat(price) &&
+            remainingSize > 0
+          ) {
+            const availableAmount =
+              parseFloat(asks[0].amount) - parseFloat(asks[0].filledAmount);
+            if (availableAmount === remainingSize) {
+              await addHistoricalOrder(
+                asks[0].userId,
+                asks[0].orderType,
+                asks[0].side,
+                asks[0].baseAsset,
+                asks[0].quoteAsset,
+                asks[0].price,
+                asks[0].amount,
+                "completed"
+              );
+
+              await addHistoricalOrder(
+                newOrder.userId,
+                newOrder.orderType,
+                newOrder.side,
+                newOrder.baseAsset,
+                newOrder.quoteAsset,
+                newOrder.price,
+                newOrder.amount,
+                "completed"
+              );
+
+              await updateBalance(
+                asks[0].userId,
+                asks[0].baseAsset,
+                asks[0].quoteAsset,
+                availableAmount.toFixed(4),
+                asks[0].side
+              );
+
+              await updateBalance(
+                newOrder.userId,
+                newOrder.baseAsset,
+                newOrder.quoteAsset,
+                availableAmount.toFixed(4),
+                newOrder.side
+              );
+              await handleFills(asks[0].id, amount, price);
+              await handleFills(newOrder.id, amount, price);
+              await updateFilledAmount(
+                newOrder.id,
+                parseFloat(newOrder.amount)
+              );
+              await updateFilledAmount(asks[0].id, parseFloat(asks[0].amount));
+
+              await completeOrder(asks[0].id);
+              await completeOrder(newOrder.id);
+
+              asks.shift();
+              remainingSize = 0;
+            } else if (availableAmount > remainingSize) {
+              const newFilledAmount = (
+                parseFloat(asks[0].filledAmount) + remainingSize
+              ).toFixed(4);
+              await updateFilledAmount(asks[0].id, parseFloat(newFilledAmount));
+              await updateFilledAmount(
+                newOrder.id,
+                parseFloat(newOrder.amount)
+              );
+              await handleFills(asks[0].id, amount, price);
+              await handleFills(newOrder.id, amount, price);
+              await addHistoricalOrder(
+                id,
+                orderType,
+                side,
+                baseAsset,
+                quoteAsset,
+                price,
+                amount,
+                "completed"
+              );
+              await updateBalance(
+                id,
+                baseAsset,
+                quoteAsset,
+                parseFloat(amount).toFixed(4),
+                side
+              );
+              await updateBalance(
+                asks[0].userId,
+                asks[0].baseAsset,
+                asks[0].quoteAsset,
+                parseFloat(amount).toFixed(4),
+                asks[0].side
+              );
+
+              asks[0].filledAmount = newFilledAmount;
+
+              remainingSize = 0;
+            } else {
+              remainingSize -= availableAmount;
+              const newFilledAmount = (
+                parseFloat(newOrder.amount) - remainingSize
+              ).toFixed(4);
+              await handleFills(asks[0].id, availableAmount.toString(), price);
+              await handleFills(newOrder.id, availableAmount.toString(), price);
+              await updateBalance(
+                id,
+                baseAsset,
+                quoteAsset,
+                availableAmount.toFixed(4),
+                side
+              );
+              await updateBalance(
+                asks[0].userId,
+                asks[0].baseAsset,
+                asks[0].quoteAsset,
+                availableAmount.toFixed(4),
+                asks[0].side
+              );
+              await updateFilledAmount(
+                newOrder.id,
+                parseFloat(newFilledAmount)
+              );
+              await updateFilledAmount(asks[0].id, parseFloat(asks[0].amount));
+              await addHistoricalOrder(
+                asks[0].userId,
+                asks[0].orderType,
+                asks[0].side,
+                asks[0].baseAsset,
+                asks[0].quoteAsset,
+                asks[0].price,
+                asks[0].amount,
+                "completed"
+              );
+              await completeOrder(asks[0].id);
+              for (const bid of bids) {
+                if (bid.id === newOrder.id) {
+                  bid.filledAmount = newFilledAmount.toString();
+                  break;
+                }
+              }
+
+              asks.shift();
+            }
+          }
+          if (remainingSize > 0) {
+            const updatedFillAmount =
+              parseFloat(newOrder.filledAmount) +
+              (parseFloat(newOrder.amount) - remainingSize);
+            newOrder.filledAmount = updatedFillAmount.toString();
+            bids.push(newOrder);
+          } else {
+            await completeOrder(newOrder.id);
+          }
         }
         updateOrderBook();
       }
