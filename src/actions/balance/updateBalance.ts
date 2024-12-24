@@ -2,6 +2,7 @@
 
 import { db } from "@/db";
 import { balances } from "@/db/schema";
+import { preciseAddition, preciseSubtraction } from "@/db/websocket";
 import { and, eq } from "drizzle-orm";
 
 export async function updateBalance(
@@ -22,8 +23,7 @@ export async function updateBalance(
   console.log(currentBalance, balanceToUpdate);
 
   if (currentBalance.length === 0 && side === "buy") {
-    const newBalance =
-      parseFloat(balanceToUpdate[0].balance) - parseFloat(amount);
+    const newBalance = preciseSubtraction(balanceToUpdate[0].balance, amount);
     await db.insert(balances).values({
       userId: userId,
       asset: baseAsset,
@@ -31,35 +31,37 @@ export async function updateBalance(
     });
     await db
       .update(balances)
-      .set({ balance: newBalance.toString() })
+      .set({ balance: newBalance })
       .where(and(eq(balances.userId, userId), eq(balances.asset, quoteAsset)));
     return;
   }
   if (side === "buy") {
-    const newBalance =
-      parseFloat(currentBalance[0].balance) + parseFloat(amount);
-    const newQuoteAssetBalance =
-      parseFloat(balanceToUpdate[0].balance) - parseFloat(amount);
+    const newBalance = preciseAddition(currentBalance[0].balance, amount);
+    const newQuoteAssetBalance = preciseSubtraction(
+      balanceToUpdate[0].balance,
+      amount
+    );
     await db
       .update(balances)
-      .set({ balance: newBalance.toString() })
+      .set({ balance: newBalance })
       .where(and(eq(balances.userId, userId), eq(balances.asset, baseAsset)));
     await db
       .update(balances)
-      .set({ balance: newQuoteAssetBalance.toString() })
+      .set({ balance: newQuoteAssetBalance })
       .where(and(eq(balances.userId, userId), eq(balances.asset, quoteAsset)));
   } else {
-    const newBalance =
-      parseFloat(currentBalance[0].balance) - parseFloat(amount);
-    const newQuoteAssetBalance =
-      parseFloat(balanceToUpdate[0].balance) + parseFloat(amount);
+    const newBalance = preciseSubtraction(currentBalance[0].balance, amount);
+    const newQuoteAssetBalance = preciseAddition(
+      balanceToUpdate[0].balance,
+      amount
+    );
     await db
       .update(balances)
-      .set({ balance: newBalance.toString() })
+      .set({ balance: newBalance })
       .where(and(eq(balances.userId, userId), eq(balances.asset, baseAsset)));
     await db
       .update(balances)
-      .set({ balance: newQuoteAssetBalance.toString() })
+      .set({ balance: newQuoteAssetBalance })
       .where(and(eq(balances.userId, userId), eq(balances.asset, quoteAsset)));
   }
 }

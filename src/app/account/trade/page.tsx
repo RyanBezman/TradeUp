@@ -56,6 +56,11 @@ export function TradeLayout() {
   const quoteAssetDiplayPic = coinPics[selectedQuoteAsset as CoinType];
   const quoteAssetDisplayName = coinNames[selectedQuoteAsset as CoinType];
   const socketRef = useRef<WebSocket | null>(null);
+
+  const updateBalances = async (userId: number) => {
+    const newBalances = await getBalances(userId);
+    setDisplayedBalances(newBalances);
+  };
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8080");
     ws.onopen = () => console.log("ws open");
@@ -75,6 +80,12 @@ export function TradeLayout() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (user?.id) {
+      updateBalances(user.id);
+    }
+  }, [asks, bids]);
 
   const placeSell = async () => {
     const socket = socketRef.current;
