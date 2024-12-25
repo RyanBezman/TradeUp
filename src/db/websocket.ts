@@ -429,6 +429,7 @@ wss.on("connection", (ws: any) => {
               newOrder.amount,
               remainingSize
             );
+            console.log(amountToAdd);
             const updatedFillAmount = preciseAddition(
               newOrder.filledAmount,
               amountToAdd
