@@ -433,6 +433,7 @@ wss.on("connection", (ws: any) => {
               newOrder.filledAmount,
               amountToAdd
             );
+            console.log(amountToAdd);
 
             newOrder.filledAmount = updatedFillAmount;
             bids.push(newOrder);
