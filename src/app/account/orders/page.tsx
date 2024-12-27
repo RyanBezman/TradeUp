@@ -69,7 +69,7 @@ export function OrdersLayout() {
                 <span className="font-semibold">Amount:</span> {order.amount}
               </div>
               <div>
-                <span className="font-semibold">Price:</span> {order.price}
+                <span className="font-semibold">Price:</span> ${order.price}
               </div>
               <div>
                 <span className="font-semibold">Status:</span> {order.status}
