@@ -169,7 +169,6 @@ wss.on("connection", (ws: any) => {
               bids.shift();
               remainingSize = 0;
             } else if (availableAmount > remainingSize) {
-              //.4 selling .8 avaialble
               const newFilledAmount = preciseAddition(
                 bid.filledAmount,
                 remainingSize
