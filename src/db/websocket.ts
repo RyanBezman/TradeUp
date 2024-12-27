@@ -212,7 +212,6 @@ wss.on("connection", (ws: any) => {
 
               remainingSize = 0;
             } else {
-              // .8 selling .6 available
               let newRemainingSize = preciseSubtraction(
                 remainingSize,
                 availableAmount

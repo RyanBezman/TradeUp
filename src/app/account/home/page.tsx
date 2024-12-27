@@ -1,6 +1,5 @@
 import DynamicInput from "@/app/Components/Account/dynamicInput";
 import Account from "../page";
-import { BitcoinBalance } from "@/app/Components/Account/bitcoinBalance";
 
 export default function Home() {
   return (
@@ -32,7 +31,6 @@ export function HomeLayout() {
             Convert
           </button>
         </div>
-        <BitcoinBalance />
       </div>
     </div>
   );
