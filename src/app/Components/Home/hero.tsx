@@ -9,7 +9,7 @@ export function Hero() {
           Trade Smarter, Faster, and Securely with TradeUp
           <div className="absolute hidden min-[900px]:inline top-80 -left-10">
             <Image
-              src="/Images/wallahi.png"
+              src="/Images/leftTilt.png"
               height={471}
               width={246}
               alt="iPhone image tilted left"
