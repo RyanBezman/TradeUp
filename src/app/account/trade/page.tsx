@@ -174,8 +174,8 @@ export function TradeLayout() {
   };
   return (
     <div className="bg-white dark:bg-black rounded-xl flex flex-col h-full">
-      <div className="max-h-full h-full flex flex-row justify-between">
-        <div className="border dark:border-gray-600  border-t-0 border-l-0 flex min-w-[320px] w-1/4 flex-col gap-4 overflow-y-auto ">
+      <div className="max-h-full h-full flex justify-between">
+        <div className="border dark:border-gray-600  border-t-0 border-l-0 flex min-w-[320px] w-1/4 flex-col gap-4">
           <ColumnHeader title="Order Form" />
           <div className="p-4 flex flex-col gap-8">
             <div className="flex w-full gap-2">
@@ -356,7 +356,7 @@ export function TradeLayout() {
                     <span className=" dark:text-gray-400">&gt;</span>
                   </button>
                   {isQuoteAssetDropdownOpen && (
-                    <ul className="absolute z-10 mt-2 w-full dark:bg-black bg-white dark:border rounded-md shadow-md">
+                    <ul className="absolute z-10 mt-2 w-full dark:bg-black bg-white dark:border overflow-y-auto rounded-md shadow-md">
                       {Object.keys(coinPics).map((coin) => {
                         const displayPic = coinPics[coin as CoinType];
                         const displayName = coinNames[coin as CoinType];
@@ -420,7 +420,12 @@ export function TradeLayout() {
             </div>
           </div>
         </div>
-        <OrderBook asks={asks} bids={bids} />
+        <OrderBook
+          selectedCoin={selectedCoin}
+          selectedQuoteAsset={selectedQuoteAsset}
+          asks={asks}
+          bids={bids}
+        />
       </div>
     </div>
   );

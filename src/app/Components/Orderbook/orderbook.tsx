@@ -15,16 +15,26 @@ export type OrderData = {
 type OrderBookProps = {
   asks: OrderData[];
   bids: OrderData[];
+  selectedCoin: string;
+  selectedQuoteAsset: string;
 };
 
-export function OrderBook({ asks, bids }: OrderBookProps) {
+export function OrderBook({
+  asks,
+  bids,
+  selectedCoin,
+  selectedQuoteAsset,
+}: OrderBookProps) {
   const asksContainerRef = useRef<HTMLDivElement | null>(null);
   const bidsContainerRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <div className="flex flex-col w-1/4 min-w-[320px] border border-r-0 border-t-0 dark:border-gray-600 ">
       <ColumnHeader title="Order Book" />
-      <LabelHeader left="Amount (BTC)" right="MySize" />
+      <LabelHeader
+        left={`Amount (${selectedCoin})`}
+        right={`Price (${selectedQuoteAsset})`}
+      />
       <div className="flex flex-col flex-grow overflow-hidden">
         <OrderBookAsks bids={asks} bidsContainerRef={bidsContainerRef} />
         <Divider />

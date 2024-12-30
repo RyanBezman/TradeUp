@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 type Order = {
   id: number;
-  createdAt: Date;
+  createdAt: string;
   userId: number;
   orderType: string;
   side: string;
@@ -17,9 +17,22 @@ type Order = {
   status: string;
 };
 type Filter = "buy" | "sell" | "all" | "completed" | "pending";
+
 function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default function Orders() {
   return (
     <Account>
@@ -55,25 +68,21 @@ export function OrdersLayout() {
   const changeFilter = (newFilter: Filter) => {
     setSelected(newFilter);
     if (newFilter === "buy") {
-      let newOrders = orders.filter((order) => order.side === "buy");
-      setFilteredOrders(newOrders);
+      setFilteredOrders(orders.filter((order) => order.side === "buy"));
     } else if (newFilter === "sell") {
-      let newOrders = orders.filter((order) => order.side === "sell");
-      setFilteredOrders(newOrders);
+      setFilteredOrders(orders.filter((order) => order.side === "sell"));
     } else {
       setFilteredOrders(orders);
     }
   };
 
   const changeStatusColor = (status: string) => {
-    if (status === "completed") {
-      return "text-green-500";
-    } else if (status === "pending") {
-      return "text-orange-500";
-    } else if (status === "cancelled") {
-      return "text-red-500";
-    }
+    if (status === "completed") return "text-green-500";
+    if (status === "pending") return "text-orange-500";
+    if (status === "cancelled") return "text-red-500";
+    return "";
   };
+
   return (
     <div className="bg-white dark:bg-black rounded-xl flex flex-col p-8 flex-1 overflow-auto">
       <h1 className="text-3xl font-bold mb-6 dark:text-white">Order History</h1>
@@ -96,54 +105,77 @@ export function OrdersLayout() {
         </button>
         <button
           onClick={() => changeFilter("sell")}
-          className={`p-2 rounded-md px-4 transit tranisition-colors ${
+          className={`p-2 rounded-md px-4 transition-colors ${
             selected === "sell" && "bg-violet-800 dark:bg-violet-600 text-white"
           }`}
         >
           Sells
         </button>
       </div>
-      {orders.length === 0 ? (
+      {loading ? (
+        <p>Loading...</p>
+      ) : filteredOrders.length === 0 ? (
         <p>No orders found.</p>
       ) : (
-        <ul className="flex flex-col gap-8 dark:text-white">
-          {loading ? (
-            <div>loading..</div>
-          ) : (
-            filteredOrders.map((order: Order) => (
-              <li key={order.id} className="p-2 border-b flex justify-between">
-                <div className="flex flex-col items-center">
-                  <span className="font-semibold">Order ID</span>
-                  <span>{order.id}</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="font-semibold">Amount</span>
-                  <span>{order.amount}</span>
-                </div>
-                <div className="flex flex-col itemsce`">
-                  <span className="font-semibold">Price</span>
-                  <span>${order.price}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-semibold pr-1">Status</span>
-                  <span className={`${changeStatusColor(order.status)}`}>
-                    {order.status}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-semibold pr-1 flex flex-col">Side</span>
-                  <span
-                    className={` font-semibold ${
-                      order.side === "buy" ? "text-green-500" : "text-red-500"
-                    }`}
-                  >
-                    {capitalizeFirstLetter(order.side)}
-                  </span>
-                </div>
-              </li>
-            ))
-          )}
-        </ul>
+        <table className="table-auto w-full border-collapse border border-gray-200 dark:border-zinc-700">
+          <thead>
+            <tr className="bg-violet-800 text-white dark:bg-zinc-900">
+              <th className="border border-gray-200 dark:border-gray-700 p-2">
+                Order ID
+              </th>
+              <th className="border border-gray-200 dark:border-gray-700 p-2">
+                Created At
+              </th>
+              <th className="border border-gray-200 dark:border-gray-700 p-2">
+                Amount
+              </th>
+              <th className="border border-gray-200 dark:border-gray-700 p-2">
+                Price
+              </th>
+              <th className="border border-gray-200 dark:border-gray-700 p-2">
+                Status
+              </th>
+              <th className="border border-gray-200 dark:border-gray-700 p-2">
+                Side
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOrders.map((order) => (
+              <tr
+                key={order.id}
+                className="text-center dark:text-white odd:bg-gray-50 even:bg-white dark:odd:bg-zinc-700 dark:even:bg-zinc-800"
+              >
+                <td className="border border-gray-200 dark:border-gray-700 p-2">
+                  {order.id}
+                </td>
+                <td className="border border-gray-200 dark:border-gray-700 p-2">
+                  {formatDate(order.createdAt)}
+                </td>
+                <td className="border border-gray-200 dark:border-gray-700 p-2">
+                  {order.amount}
+                </td>
+                <td className="border border-gray-200 dark:border-gray-700 p-2">
+                  ${order.price}
+                </td>
+                <td
+                  className={`border border-gray-200 dark:border-gray-700 p-2 ${changeStatusColor(
+                    order.status
+                  )}`}
+                >
+                  {capitalizeFirstLetter(order.status)}
+                </td>
+                <td
+                  className={`border border-gray-200 dark:border-gray-700 p-2 ${
+                    order.side === "buy" ? "text-green-500" : "text-red-500"
+                  }`}
+                >
+                  {capitalizeFirstLetter(order.side)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
