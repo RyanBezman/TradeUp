@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 type Order = {
   id: number;
-  createdAt: string;
+  createdAt: Date;
   userId: number;
   orderType: string;
   side: string;
@@ -22,7 +22,7 @@ function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function formatDate(dateString: string): string {
+function formatDate(dateString: Date): string {
   const date = new Date(dateString);
   return date.toLocaleString("en-US", {
     year: "numeric",
