@@ -84,7 +84,7 @@ export function OrdersLayout() {
   };
 
   return (
-    <div className="bg-white dark:bg-black rounded-xl flex flex-col p-8 flex-1 overflow-auto">
+    <div className="bg-white dark:bg-black rounded-xl flex flex-col min-[455px]:p-8 flex-1 overflow-auto">
       <h1 className="text-3xl font-bold mb-6 dark:text-white">Order History</h1>
       <div className="bg-gray-300 text-gray-700 dark:bg-zinc-700 dark:text-gray-300 font-semibold mb-6 flex rounded-md max-w-fit">
         <button
@@ -119,7 +119,7 @@ export function OrdersLayout() {
       ) : (
         <table className="table-auto w-full border-collapse border border-gray-200 dark:border-zinc-700">
           <thead>
-            <tr className="bg-violet-800 text-white dark:bg-zinc-900">
+            <tr className="bg-violet-800 text-white dark:bg-gray-800">
               <th className="border border-gray-200 dark:border-gray-700 p-2">
                 Order ID
               </th>
@@ -129,7 +129,7 @@ export function OrdersLayout() {
               <th className="border border-gray-200 dark:border-gray-700 p-2">
                 Amount
               </th>
-              <th className="border border-gray-200 dark:border-gray-700 p-2">
+              <th className="border hidden sm:table-cell border-gray-200 dark:border-gray-700 p-2">
                 Price
               </th>
               <th className="border border-gray-200 dark:border-gray-700 p-2">
@@ -144,7 +144,7 @@ export function OrdersLayout() {
             {filteredOrders.map((order) => (
               <tr
                 key={order.id}
-                className="text-center dark:text-white odd:bg-gray-50 even:bg-white dark:odd:bg-zinc-700 dark:even:bg-zinc-800"
+                className="text-center odd:bg-gray-50 even:bg-white dark:odd:bg-gray-900 dark:even:bg-gray-800"
               >
                 <td className="border border-gray-200 dark:border-gray-700 p-2">
                   {order.id}
@@ -155,7 +155,7 @@ export function OrdersLayout() {
                 <td className="border border-gray-200 dark:border-gray-700 p-2">
                   {order.amount}
                 </td>
-                <td className="border border-gray-200 dark:border-gray-700 p-2">
+                <td className="border hidden sm:table-cell border-gray-200 dark:border-gray-700 p-2">
                   ${order.price}
                 </td>
                 <td

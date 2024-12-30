@@ -18,7 +18,7 @@ export function SignInButton() {
         <div className="flex gap-4 items-center">
           <button
             onClick={() => {
-              router.push("/profile");
+              router.push("/account/profile");
             }}
             className="flex items-center justify-center bg-violet-300 dark:bg-zinc-900 text-black dark:text-white font-bold rounded-full w-12 h-12 hover:ring-2 hover:ring-violet-600 dark:hover:ring-gray-400"
           >

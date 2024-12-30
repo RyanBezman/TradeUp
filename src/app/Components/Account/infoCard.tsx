@@ -74,7 +74,7 @@ export function InfoCard({ title }: PersonalInfoCardProps) {
   };
 
   return (
-    <div className="w-full p-12 mt-10 flex flex-col justify-between max-w-[1200px] border dark:border-gray-600 border-gray-300 rounded-xl">
+    <div className="w-full p-6 min-[455px]:p-12 mt-10 flex flex-col justify-between max-w-[1200px] border dark:border-gray-600 border-gray-300 rounded-xl">
       <div className="flex justify-between items-center">
         <h2 className="dark:text-white text-2xl text-black font-bold">
           {title}

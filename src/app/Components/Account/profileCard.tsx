@@ -41,9 +41,9 @@ export function ProfileCard() {
   };
 
   return (
-    <div className="w-full p-12 flex justify-between border dark:border-gray-600 border-gray-300 max-w-[1200px] rounded-xl">
-      <div className="flex gap-8">
-        <button className="flex items-center justify-center bg-violet-300 dark:bg-zinc-900 text-black dark:text-white font-bold rounded-full w-20 h-20 hover:ring-4 hover:ring-violet-600 dark:hover:ring-gray-400 text-2xl">
+    <div className="w-full p-6 min-[455px]:p-12 flex justify-between border dark:border-gray-600 border-gray-300 max-w-[1200px] rounded-xl">
+      <div className="flex gap-6">
+        <button className="flex items-center justify-center bg-violet-300 dark:bg-zinc-900 text-black dark:text-white font-bold rounded-full w-16 h-16 hover:ring-4 hover:ring-violet-600 dark:hover:ring-gray-400 text-2xl">
           {user && user.firstName[0].toUpperCase()}
         </button>
         <div className="dark:text-gray-400 text-black">
@@ -100,7 +100,7 @@ export function ProfileCard() {
       </div>
       <button
         onClick={() => setIsEditing(!isEditing)}
-        className="flex items-center h-12 px-4 py-6 gap-3 text-black hover:dark:text-white dark:text-gray-400 hover:text-violet-600 border rounded-lg"
+        className="flex items-center max-h-12 px-4 py-6 gap-3 text-black hover:dark:text-white dark:text-gray-400 hover:text-violet-600 border rounded-lg"
       >
         {!isEditing && <Pencil className="w-5 h-5 font-semibold" />}
         <span className="text-lg font-semibold">
