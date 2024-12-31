@@ -1,6 +1,6 @@
 import { authorizeUser } from "@/actions/auth/authorizeUser";
 import { useAuth } from "@/app/context/AuthContext";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { SignInFormInput } from "./signInFormInput";
 import { Loader, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,13 @@ export default function SignInForm({
   const [error, setError] = useState<string | null>(null);
   const { setUser, setBalances } = useAuth();
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [inputRef]);
 
   async function handleSignIn(e: FormEvent) {
     e.preventDefault();
@@ -32,7 +39,6 @@ export default function SignInForm({
     if (!result) {
       setError("Incorrect Email or password. Please Try again.");
       setIsLoading(false);
-      // setSignInData(initialSignInData);
       return;
     }
     document.cookie = `sessionToken=${result.sessionToken}; path=/; max-age=${
@@ -80,6 +86,7 @@ export default function SignInForm({
 
         <div className="flex flex-col gap-2">
           <SignInFormInput
+            ref={inputRef}
             key={"email"}
             label={"Email"}
             fieldKey="email"

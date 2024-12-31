@@ -1,12 +1,13 @@
 "use client";
 import { Loader, X } from "lucide-react";
 import { FormInput } from "./formInput";
-import { FormEvent, useState } from "react";
+import { FormEvent, HTMLInputTypeAttribute, useState } from "react";
 import { addUser } from "@/actions/user/addUser";
 
 type SignupFormProps = {
   setIsFormOpen: (arg: boolean) => void;
   setIsLoginOpen: (arg: boolean) => void;
+  inputRef: React.RefObject<HTMLInputElement>;
 };
 export type SignupData = {
   firstName: string;
@@ -41,7 +42,11 @@ const formFields = [
   { label: "City", fieldKey: "city" },
 ];
 
-export function SignupForm({ setIsFormOpen, setIsLoginOpen }: SignupFormProps) {
+export function SignupForm({
+  setIsFormOpen,
+  setIsLoginOpen,
+  inputRef,
+}: SignupFormProps) {
   const [signupData, setSignupData] = useState<SignupData>(initialSignupData);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -81,6 +86,7 @@ export function SignupForm({ setIsFormOpen, setIsLoginOpen }: SignupFormProps) {
         <div className="flex flex-col gap-2">
           <div className="flex sm:flex-row flex-col gap-4">
             <FormInput
+              inputRef={inputRef}
               key={"firstName"}
               label={"First Name"}
               fieldKey="firstName"
