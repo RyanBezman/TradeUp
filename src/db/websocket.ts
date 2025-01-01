@@ -118,7 +118,7 @@ wss.on("connection", (ws: any) => {
               "Available Amoung:",
               availableAmount
             );
-
+            console.log("we are here");
             console.log(availableAmount, remainingSize);
             if (availableAmount === remainingSize) {
               await addHistoricalOrder(
