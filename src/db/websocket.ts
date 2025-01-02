@@ -118,7 +118,6 @@ wss.on("connection", (ws: any) => {
               "Available Amoung:",
               availableAmount
             );
-            console.log("we are here");
             console.log(availableAmount, remainingSize);
             if (availableAmount === remainingSize) {
               await addHistoricalOrder(
@@ -475,12 +474,61 @@ function updateOrderBook() {
 
 async function marketBuy(newOrder: InitialOrder) {
   let remainingSize = newOrder.amount;
-
   while (asks.length > 0 && remainingSize > 0) {
     const ask = asks[0];
     const availableAmount = preciseSubtraction(ask.amount, ask.filledAmount);
 
-    if (availableAmount <= remainingSize) {
+    if (availableAmount === remainingSize) {
+      await handleFills(ask.id, availableAmount, ask.price);
+      await handleFills(newOrder.id, availableAmount, ask.price);
+
+      await updateFilledAmount(ask.id, ask.amount);
+      await updateFilledAmount(newOrder.id, newOrder.amount);
+
+      await updateBalance(
+        ask.userId,
+        ask.baseAsset,
+        ask.quoteAsset,
+        availableAmount,
+        ask.side
+      );
+
+      await updateBalance(
+        newOrder.userId,
+        newOrder.baseAsset,
+        newOrder.quoteAsset,
+        availableAmount,
+        newOrder.side
+      );
+
+      await addHistoricalOrder(
+        ask.userId,
+        ask.orderType,
+        ask.side,
+        ask.baseAsset,
+        ask.quoteAsset,
+        ask.price,
+        ask.amount,
+        "completed"
+      );
+
+      await addHistoricalOrder(
+        newOrder.userId,
+        newOrder.orderType,
+        newOrder.side,
+        newOrder.baseAsset,
+        newOrder.quoteAsset,
+        ask.price,
+        newOrder.amount,
+        "completed"
+      );
+
+      await completeOrder(ask.id);
+      await completeMarketOrder(newOrder.id, ask.price);
+
+      asks.shift();
+      remainingSize = 0;
+    } else if (availableAmount < remainingSize) {
       await handleFills(ask.id, availableAmount, ask.price);
       await handleFills(newOrder.id, availableAmount, ask.price);
 
@@ -520,6 +568,23 @@ async function marketBuy(newOrder: InitialOrder) {
         remainingSize,
         availableAmount
       );
+      if (asks.length === 0) {
+        const marketFilledAmount = preciseSubtraction(
+          newOrder.amount,
+          newRemainingSize
+        );
+        await addHistoricalOrder(
+          newOrder.userId,
+          newOrder.orderType,
+          newOrder.side,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          ask.price,
+          marketFilledAmount,
+          "completed"
+        );
+        await completeMarketOrder(newOrder.id, ask.price);
+      }
       remainingSize = newRemainingSize;
     } else {
       const newFilledAmount = preciseAddition(ask.filledAmount, remainingSize);
@@ -545,6 +610,18 @@ async function marketBuy(newOrder: InitialOrder) {
         remainingSize,
         newOrder.side
       );
+
+      await addHistoricalOrder(
+        newOrder.userId,
+        newOrder.orderType,
+        newOrder.side,
+        newOrder.baseAsset,
+        newOrder.quoteAsset,
+        ask.price,
+        newOrder.amount,
+        "completed"
+      );
+
       await completeMarketOrder(newOrder.id, ask.price);
       ask.filledAmount = newFilledAmount;
       remainingSize = 0;
@@ -572,7 +649,56 @@ async function marketSell(newOrder: InitialOrder) {
     const bid = bids[0];
     const availableAmount = preciseSubtraction(bid.amount, bid.filledAmount);
 
-    if (availableAmount <= remainingSize) {
+    if (availableAmount === remainingSize) {
+      await handleFills(bid.id, availableAmount, bid.price);
+      await handleFills(newOrder.id, availableAmount, bid.price);
+
+      await updateFilledAmount(bid.id, bid.amount);
+      await updateFilledAmount(newOrder.id, newOrder.amount);
+
+      await updateBalance(
+        bid.userId,
+        bid.baseAsset,
+        bid.quoteAsset,
+        availableAmount,
+        bid.side
+      );
+      await updateBalance(
+        newOrder.userId,
+        newOrder.baseAsset,
+        newOrder.quoteAsset,
+        availableAmount,
+        newOrder.side
+      );
+
+      await addHistoricalOrder(
+        bid.userId,
+        bid.orderType,
+        bid.side,
+        bid.baseAsset,
+        bid.quoteAsset,
+        bid.price,
+        bid.amount,
+        "completed"
+      );
+      await addHistoricalOrder(
+        newOrder.userId,
+        newOrder.orderType,
+        newOrder.side,
+        newOrder.baseAsset,
+        newOrder.quoteAsset,
+        bid.price,
+        newOrder.amount,
+        "completed"
+      );
+
+      await completeOrder(bid.id);
+      await completeMarketOrder(newOrder.id, bid.price);
+
+      bids.shift();
+
+      remainingSize = "0";
+    } else if (availableAmount < remainingSize) {
       await handleFills(bid.id, availableAmount, bid.price);
       await handleFills(newOrder.id, availableAmount, bid.price);
 
@@ -585,7 +711,6 @@ async function marketSell(newOrder: InitialOrder) {
         availableAmount,
         bid.side
       );
-
       await updateBalance(
         newOrder.userId,
         newOrder.baseAsset,
@@ -606,12 +731,30 @@ async function marketSell(newOrder: InitialOrder) {
       );
 
       await completeOrder(bid.id);
-      if (availableAmount === remainingSize) {
-        await completeMarketOrder(newOrder.id, bid.price);
-        remainingSize = 0;
-      }
+
       bids.shift();
-      let newRemainingSize = preciseSubtraction(remainingSize, availableAmount);
+
+      const newRemainingSize = preciseSubtraction(
+        remainingSize,
+        availableAmount
+      );
+      if (bids.length === 0) {
+        const marketFilledAmount = preciseSubtraction(
+          newOrder.amount,
+          newRemainingSize
+        );
+        await addHistoricalOrder(
+          newOrder.userId,
+          newOrder.orderType,
+          newOrder.side,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          bid.price,
+          marketFilledAmount,
+          "completed"
+        );
+        await completeMarketOrder(newOrder.id, bid.price);
+      }
       remainingSize = newRemainingSize;
     } else {
       const newFilledAmount = preciseAddition(bid.filledAmount, remainingSize);
@@ -629,7 +772,6 @@ async function marketSell(newOrder: InitialOrder) {
         remainingSize,
         bid.side
       );
-
       await updateBalance(
         newOrder.userId,
         newOrder.baseAsset,
@@ -638,11 +780,25 @@ async function marketSell(newOrder: InitialOrder) {
         newOrder.side
       );
 
+      await addHistoricalOrder(
+        newOrder.userId,
+        newOrder.orderType,
+        newOrder.side,
+        newOrder.baseAsset,
+        newOrder.quoteAsset,
+        bid.price,
+        newOrder.amount,
+        "completed"
+      );
+
       await completeMarketOrder(newOrder.id, bid.price);
+
       bid.filledAmount = newFilledAmount;
-      remainingSize = 0;
+
+      remainingSize = "0";
     }
   }
+
   if (remainingSize >= "0") {
     const finalFilledAmount = preciseSubtraction(
       newOrder.amount,
@@ -651,7 +807,7 @@ async function marketSell(newOrder: InitialOrder) {
     await updateFilledAmount(newOrder.id, finalFilledAmount);
   }
 
-  if (remainingSize > 0) {
+  if (parseFloat(remainingSize) > 0) {
     throw new Error("Market sell could not be fully fulfilled");
   }
 
