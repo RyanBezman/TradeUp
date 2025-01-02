@@ -457,6 +457,7 @@ function showOrderBook() {
     type: "order_book",
     asks,
     bids,
+    orderMessage,
   });
 
   wss.clients.forEach((client: WebSocket) => {
@@ -584,6 +585,7 @@ async function marketBuy(newOrder: InitialOrder) {
           "completed"
         );
         await completeMarketOrder(newOrder.id, ask.price);
+        updateOrderBook();
       }
       remainingSize = newRemainingSize;
     } else {
@@ -754,6 +756,7 @@ async function marketSell(newOrder: InitialOrder) {
           "completed"
         );
         await completeMarketOrder(newOrder.id, bid.price);
+        updateOrderBook();
       }
       remainingSize = newRemainingSize;
     } else {
