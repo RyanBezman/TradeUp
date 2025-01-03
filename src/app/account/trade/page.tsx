@@ -137,7 +137,7 @@ export function TradeLayout() {
         }
       }
     }
-    if (orderType === "market" && asks.length === 0) {
+    if (orderType === "market" && bids.length === 0) {
       setSellError("There are no current bids available.");
       return;
     }

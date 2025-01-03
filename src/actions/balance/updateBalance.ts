@@ -2,7 +2,11 @@
 
 import { db } from "@/db";
 import { balances } from "@/db/schema";
-import { preciseAddition, preciseSubtraction } from "@/db/websocket";
+import {
+  preciseAddition,
+  preciseMultiplication,
+  preciseSubtraction,
+} from "@/db/websocket";
 import { and, eq } from "drizzle-orm";
 
 export async function updateBalance(
@@ -10,7 +14,8 @@ export async function updateBalance(
   baseAsset: string,
   quoteAsset: string,
   amount: string,
-  side: string
+  side: string,
+  price: string
 ) {
   const currentBalance = await db
     .select({ balance: balances.balance })
@@ -20,7 +25,6 @@ export async function updateBalance(
     .select({ balance: balances.balance })
     .from(balances)
     .where(and(eq(balances.userId, userId), eq(balances.asset, quoteAsset)));
-  console.log(currentBalance, balanceToUpdate);
 
   if (currentBalance.length === 0 && side === "buy") {
     const newBalance = preciseSubtraction(balanceToUpdate[0].balance, amount);
@@ -37,9 +41,10 @@ export async function updateBalance(
   }
   if (side === "buy") {
     const newBalance = preciseAddition(currentBalance[0].balance, amount);
+    const amountToSubract = preciseMultiplication(price, amount);
     const newQuoteAssetBalance = preciseSubtraction(
       balanceToUpdate[0].balance,
-      amount
+      amountToSubract
     );
     await db
       .update(balances)
@@ -51,9 +56,10 @@ export async function updateBalance(
       .where(and(eq(balances.userId, userId), eq(balances.asset, quoteAsset)));
   } else {
     const newBalance = preciseSubtraction(currentBalance[0].balance, amount);
+    const amountToAdd = preciseMultiplication(amount, price);
     const newQuoteAssetBalance = preciseAddition(
       balanceToUpdate[0].balance,
-      amount
+      amountToAdd
     );
     await db
       .update(balances)

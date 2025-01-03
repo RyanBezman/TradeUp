@@ -1,8 +1,4 @@
 "use server";
-//check if theres a limit sell for my limit ask
-// check if theres a limit buy for my limit sell
-//markey buys eat the lowest limit sell and keep going until fulfilled
-//market sells eat the highest limit buys and keep going until fulfilled
 // @ts-expect-error websoket improt is broken
 import { WebSocketServer } from "ws";
 import { addNewOrder } from "../actions/orders/addNewOrder";
@@ -14,7 +10,6 @@ import { updateBalance } from "@/actions/balance/updateBalance";
 import { completeOrder } from "@/actions/orders/completeOrder";
 import { completeMarketOrder } from "@/actions/orders/completeMarketOrder";
 import { getOneBalance } from "@/actions/balance/getOneBalance";
-import { Init } from "v8";
 const wss = new WebSocketServer({ port: 8080 });
 type InitialOrder = {
   id: number;
@@ -31,6 +26,7 @@ type InitialOrder = {
 };
 let asks: InitialOrder[] = [];
 let bids: InitialOrder[] = [];
+
 const orderBooks: Record<
   string,
   { asks: InitialOrder[]; bids: InitialOrder[] }
@@ -97,19 +93,19 @@ export function preciseAddition(value1: string, value2: string): string {
 
   return answer.toString();
 }
+export function preciseMultiplication(value1: string, value2: string): string {
+  const scaleNumber = Math.pow(10, 8);
+  const answer =
+    (Math.round(parseFloat(value1) * scaleNumber) *
+      Math.round(parseFloat(value2) * scaleNumber)) /
+    Math.pow(scaleNumber, 2);
+
+  return answer.toString();
+}
 
 initializeOrderBook();
 
 wss.on("connection", (ws: any) => {
-  // const defaultPair = "BTC-USD";
-  // ws.send(
-  //   JSON.stringify({
-  //     type: "order_book",
-  //     asks: orderBooks[defaultPair].asks,
-  //     bids: orderBooks[defaultPair].bids,
-  //   })
-  // );
-
   ws.on("message", async (message: any) => {
     try {
       const data = JSON.parse(message);
@@ -164,6 +160,7 @@ wss.on("connection", (ws: any) => {
           let remainingSize = amount;
           const currBook = clientConnection[id];
           const currBids = orderBooks[currBook].bids;
+
           while (
             currBids[0] &&
             currBids[0].price >= price &&
@@ -207,7 +204,8 @@ wss.on("connection", (ws: any) => {
                 bid.baseAsset,
                 bid.quoteAsset,
                 availableAmount,
-                bid.side
+                bid.side,
+                bid.price
               );
 
               await updateBalance(
@@ -215,7 +213,8 @@ wss.on("connection", (ws: any) => {
                 newOrder.baseAsset,
                 newOrder.quoteAsset,
                 availableAmount,
-                newOrder.side
+                newOrder.side,
+                bid.price
               );
 
               await completeOrder(bid.id);
@@ -248,14 +247,16 @@ wss.on("connection", (ws: any) => {
                 baseAsset,
                 quoteAsset,
                 remainingSize,
-                side
+                side,
+                bid.price
               );
               await updateBalance(
                 bid.userId,
                 bid.baseAsset,
                 bid.quoteAsset,
                 remainingSize,
-                bid.side
+                bid.side,
+                bid.price
               );
 
               bid.filledAmount = newFilledAmount;
@@ -279,14 +280,16 @@ wss.on("connection", (ws: any) => {
                 baseAsset,
                 quoteAsset,
                 availableAmount,
-                side
+                side,
+                bid.price
               );
               await updateBalance(
                 bid.userId,
                 bid.baseAsset,
                 bid.quoteAsset,
                 availableAmount,
-                bid.side
+                bid.side,
+                bid.price
               );
               await updateFilledAmount(newOrder.id, newFilledAmount);
               await updateFilledAmount(bid.id, bid.amount);
@@ -370,7 +373,8 @@ wss.on("connection", (ws: any) => {
                 ask.baseAsset,
                 ask.quoteAsset,
                 availableAmount,
-                ask.side
+                ask.side,
+                newOrder.price
               );
 
               await updateBalance(
@@ -378,7 +382,8 @@ wss.on("connection", (ws: any) => {
                 newOrder.baseAsset,
                 newOrder.quoteAsset,
                 availableAmount,
-                newOrder.side
+                newOrder.side,
+                newOrder.price
               );
               await handleFills(ask.id, amount, price);
               await handleFills(newOrder.id, amount, price);
@@ -415,14 +420,16 @@ wss.on("connection", (ws: any) => {
                 baseAsset,
                 quoteAsset,
                 remainingSize,
-                side
+                side,
+                newOrder.price
               );
               await updateBalance(
                 ask.userId,
                 ask.baseAsset,
                 ask.quoteAsset,
                 remainingSize,
-                ask.side
+                ask.side,
+                newOrder.price
               );
 
               ask.filledAmount = newFilledAmount;
@@ -446,14 +453,16 @@ wss.on("connection", (ws: any) => {
                 baseAsset,
                 quoteAsset,
                 availableAmount,
-                side
+                side,
+                newOrder.price
               );
               await updateBalance(
                 ask.userId,
                 ask.baseAsset,
                 ask.quoteAsset,
                 availableAmount,
-                ask.side
+                ask.side,
+                newOrder.price
               );
               await updateFilledAmount(newOrder.id, newFilledAmount);
               await updateFilledAmount(ask.id, ask.amount);
@@ -554,7 +563,8 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
         ask.baseAsset,
         ask.quoteAsset,
         availableAmount,
-        ask.side
+        ask.side,
+        ask.price
       );
 
       await updateBalance(
@@ -562,7 +572,8 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
         newOrder.baseAsset,
         newOrder.quoteAsset,
         availableAmount,
-        newOrder.side
+        newOrder.side,
+        ask.price
       );
 
       await addHistoricalOrder(
@@ -603,7 +614,8 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
         ask.baseAsset,
         ask.quoteAsset,
         availableAmount,
-        ask.side
+        ask.side,
+        ask.price
       );
 
       await updateBalance(
@@ -611,7 +623,8 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
         newOrder.baseAsset,
         newOrder.quoteAsset,
         availableAmount,
-        newOrder.side
+        newOrder.side,
+        ask.price
       );
 
       await addHistoricalOrder(
@@ -665,7 +678,8 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
         ask.baseAsset,
         ask.quoteAsset,
         remainingSize,
-        ask.side
+        ask.side,
+        ask.price
       );
 
       await updateBalance(
@@ -673,7 +687,8 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
         newOrder.baseAsset,
         newOrder.quoteAsset,
         remainingSize,
-        newOrder.side
+        newOrder.side,
+        ask.price
       );
 
       await addHistoricalOrder(
@@ -727,14 +742,16 @@ async function marketSell(newOrder: InitialOrder, id: number) {
         bid.baseAsset,
         bid.quoteAsset,
         availableAmount,
-        bid.side
+        bid.side,
+        bid.price
       );
       await updateBalance(
         newOrder.userId,
         newOrder.baseAsset,
         newOrder.quoteAsset,
         availableAmount,
-        newOrder.side
+        newOrder.side,
+        bid.price
       );
 
       await addHistoricalOrder(
@@ -775,14 +792,16 @@ async function marketSell(newOrder: InitialOrder, id: number) {
         bid.baseAsset,
         bid.quoteAsset,
         availableAmount,
-        bid.side
+        bid.side,
+        bid.price
       );
       await updateBalance(
         newOrder.userId,
         newOrder.baseAsset,
         newOrder.quoteAsset,
         availableAmount,
-        newOrder.side
+        newOrder.side,
+        bid.price
       );
 
       await addHistoricalOrder(
@@ -837,14 +856,16 @@ async function marketSell(newOrder: InitialOrder, id: number) {
         bid.baseAsset,
         bid.quoteAsset,
         remainingSize,
-        bid.side
+        bid.side,
+        bid.price
       );
       await updateBalance(
         newOrder.userId,
         newOrder.baseAsset,
         newOrder.quoteAsset,
         remainingSize,
-        newOrder.side
+        newOrder.side,
+        bid.price
       );
 
       await addHistoricalOrder(
