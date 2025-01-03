@@ -12,6 +12,7 @@ type AddNewOrderProps = {
   amount: string;
   filledAmount: string;
   status: string;
+  orderBook: string;
 };
 
 export async function addNewOrder({
@@ -24,6 +25,7 @@ export async function addNewOrder({
   amount,
   filledAmount,
   status,
+  orderBook,
 }: AddNewOrderProps) {
   const order = await db
     .insert(orders)
@@ -37,6 +39,7 @@ export async function addNewOrder({
       amount: amount,
       filledAmount: filledAmount,
       status: status,
+      orderBook: orderBook,
     })
     .returning({
       id: orders.id,
@@ -49,6 +52,7 @@ export async function addNewOrder({
       amount: orders.amount,
       filledAmount: orders.filledAmount,
       status: orders.status,
+      orderBook: orders.orderBook,
     });
   return order[0];
 }

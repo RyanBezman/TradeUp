@@ -13,6 +13,8 @@ import { addHistoricalOrder } from "@/actions/orders/addHistoricalOrder";
 import { updateBalance } from "@/actions/balance/updateBalance";
 import { completeOrder } from "@/actions/orders/completeOrder";
 import { completeMarketOrder } from "@/actions/orders/completeMarketOrder";
+import { getOneBalance } from "@/actions/balance/getOneBalance";
+import { Init } from "v8";
 const wss = new WebSocketServer({ port: 8080 });
 type InitialOrder = {
   id: number;
@@ -24,21 +26,52 @@ type InitialOrder = {
   price: string;
   amount: string;
   filledAmount: string;
+  orderBook: string;
   status: string;
 };
 let asks: InitialOrder[] = [];
 let bids: InitialOrder[] = [];
-
+const orderBooks: Record<
+  string,
+  { asks: InitialOrder[]; bids: InitialOrder[] }
+> = {
+  "BTC-ETH": { asks: [], bids: [] },
+  "BTC-XRP": { asks: [], bids: [] },
+  "BTC-SOL": { asks: [], bids: [] },
+  "BTC-USD": { asks: [], bids: [] },
+  "ETH-BTC": { asks: [], bids: [] },
+  "ETH-XRP": { asks: [], bids: [] },
+  "ETH-SOL": { asks: [], bids: [] },
+  "ETH-USD": { asks: [], bids: [] },
+  "XRP-BTC": { asks: [], bids: [] },
+  "XRP-ETH": { asks: [], bids: [] },
+  "XRP-SOL": { asks: [], bids: [] },
+  "XRP-USD": { asks: [], bids: [] },
+  "SOL-BTC": { asks: [], bids: [] },
+  "SOL-ETH": { asks: [], bids: [] },
+  "SOL-XRP": { asks: [], bids: [] },
+  "SOL-USD": { asks: [], bids: [] },
+  "USD-BTC": { asks: [], bids: [] },
+  "USD-ETH": { asks: [], bids: [] },
+  "USD-XRP": { asks: [], bids: [] },
+  "USD-SOL": { asks: [], bids: [] },
+};
+type ClientConection = {
+  [id: number]: string;
+};
+const clientConnection: ClientConection = {};
 async function initializeOrderBook() {
   try {
     const allOrders = await getAllOrders();
-    asks = allOrders
-      .filter((order) => order.side === "sell" && order.status === "pending")
-      .sort((a, b) => +a.price - +b.price);
 
-    bids = allOrders
-      .filter((order) => order.side === "buy" && order.status === "pending")
-      .sort((a, b) => +b.price - +a.price);
+    for (const order of allOrders) {
+      const book = order.orderBook;
+      if (order.side === "sell" && order.status === "pending") {
+        orderBooks[book].asks.push(order);
+      } else if (order.side === "buy" && order.status === "pending") {
+        orderBooks[book].bids.push(order);
+      }
+    }
 
     console.log("succefully initialzed orderbook");
   } catch (error) {
@@ -68,7 +101,14 @@ export function preciseAddition(value1: string, value2: string): string {
 initializeOrderBook();
 
 wss.on("connection", (ws: any) => {
-  ws.send(JSON.stringify({ type: "order_book", asks, bids }));
+  // const defaultPair = "BTC-USD";
+  // ws.send(
+  //   JSON.stringify({
+  //     type: "order_book",
+  //     asks: orderBooks[defaultPair].asks,
+  //     bids: orderBooks[defaultPair].bids,
+  //   })
+  // );
 
   ws.on("message", async (message: any) => {
     try {
@@ -82,10 +122,26 @@ wss.on("connection", (ws: any) => {
         baseAsset,
         quoteAsset,
         filledAmount,
+        orderBook,
         status,
       } = data;
+      if (data.type === "subscribe") {
+        const { pair, id } = data;
+        clientConnection[id] = pair;
+        const currPair: string = clientConnection[id];
+        const book = orderBooks[currPair];
 
-      if (data.type === "new_order") {
+        ws.send(
+          JSON.stringify({
+            type: "order_book",
+            asks: book.asks,
+            bids: book.bids,
+          })
+        );
+      } else if (data.type === "new_order") {
+        const quoteAssetBalance = await getOneBalance(id, quoteAsset);
+        const baseAssetBalance = await getOneBalance(id, baseAsset);
+
         const newOrder = await addNewOrder({
           id,
           side,
@@ -96,29 +152,29 @@ wss.on("connection", (ws: any) => {
           amount,
           filledAmount,
           status,
+          orderBook,
         });
         if (orderType === "market") {
           if (side === "buy") {
-            await marketBuy(newOrder);
+            await marketBuy(newOrder, id);
           } else if (side === "sell") {
-            await marketSell(newOrder);
+            await marketSell(newOrder, id);
           }
         } else if (orderType === "limit" && side === "sell") {
           let remainingSize = amount;
-
-          while (bids[0] && bids[0].price >= price && remainingSize > 0) {
-            let bid = bids[0];
+          const currBook = clientConnection[id];
+          const currBids = orderBooks[currBook].bids;
+          while (
+            currBids[0] &&
+            currBids[0].price >= price &&
+            remainingSize > 0
+          ) {
+            let bid = currBids[0];
             const availableAmount = preciseSubtraction(
               bid.amount,
               bid.filledAmount
             );
-            console.log(
-              "RemainingSize:",
-              remainingSize,
-              "Available Amoung:",
-              availableAmount
-            );
-            console.log(availableAmount, remainingSize);
+
             if (availableAmount === remainingSize) {
               await addHistoricalOrder(
                 bid.userId,
@@ -165,19 +221,14 @@ wss.on("connection", (ws: any) => {
               await completeOrder(bid.id);
               await completeOrder(newOrder.id);
 
-              bids.shift();
+              currBids.shift();
               remainingSize = 0;
             } else if (availableAmount > remainingSize) {
               const newFilledAmount = preciseAddition(
                 bid.filledAmount,
                 remainingSize
               );
-              console.log(
-                "New filled amount:",
-                newFilledAmount,
-                "Old filled amount:",
-                bid.filledAmount
-              );
+
               await updateFilledAmount(bid.id, newFilledAmount);
               await updateFilledAmount(newOrder.id, newOrder.amount);
               await handleFills(bid.id, amount, price);
@@ -216,7 +267,6 @@ wss.on("connection", (ws: any) => {
                 availableAmount
               );
               remainingSize = newRemainingSize;
-              console.log(remainingSize);
               const newFilledAmount = preciseSubtraction(
                 newOrder.amount,
                 remainingSize
@@ -251,14 +301,14 @@ wss.on("connection", (ws: any) => {
                 "completed"
               );
               await completeOrder(bid.id);
-              for (const ask of asks) {
+              for (const ask of orderBooks[currBook].asks) {
                 if (ask.id === newOrder.id) {
                   ask.filledAmount = newFilledAmount;
                   break;
                 }
               }
 
-              bids.shift();
+              currBids.shift();
             }
           }
           if (remainingSize > 0) {
@@ -271,15 +321,22 @@ wss.on("connection", (ws: any) => {
               amountFilled
             );
             newOrder.filledAmount = updatedFillAmount;
-            asks.push(newOrder);
+            orderBooks[currBook].asks.push(newOrder);
           } else {
             await completeOrder(newOrder.id);
           }
         } else if (orderType === "limit" && side === "buy") {
           let remainingSize = amount;
-
-          while (asks[0] && asks[0].price <= price && remainingSize > 0) {
-            let ask = asks[0];
+          const currBook = clientConnection[id];
+          console.log(clientConnection);
+          console.log(currBook);
+          const currAsks = orderBooks[currBook].asks;
+          while (
+            currAsks[0] &&
+            currAsks[0].price <= price &&
+            remainingSize > 0
+          ) {
+            let ask = currAsks[0];
 
             const availableAmount = preciseSubtraction(
               ask.amount,
@@ -331,7 +388,7 @@ wss.on("connection", (ws: any) => {
               await completeOrder(ask.id);
               await completeOrder(newOrder.id);
 
-              asks.shift();
+              currAsks.shift();
               remainingSize = 0;
             } else if (availableAmount > remainingSize) {
               const newFilledAmount = preciseAddition(
@@ -411,14 +468,14 @@ wss.on("connection", (ws: any) => {
                 "completed"
               );
               await completeOrder(ask.id);
-              for (const bid of bids) {
+              for (const bid of orderBooks[currBook].bids) {
                 if (bid.id === newOrder.id) {
                   bid.filledAmount = newFilledAmount;
                   break;
                 }
               }
 
-              asks.shift();
+              currAsks.shift();
             }
           }
           if (remainingSize > 0) {
@@ -433,12 +490,12 @@ wss.on("connection", (ws: any) => {
             console.log(amountToAdd);
 
             newOrder.filledAmount = updatedFillAmount;
-            bids.push(newOrder);
+            orderBooks[currBook].bids.push(newOrder);
           } else {
             await completeOrder(newOrder.id);
           }
         }
-        updateOrderBook();
+        updateOrderBook(id);
       }
     } catch (err) {
       console.error("order failed", err);
@@ -446,18 +503,21 @@ wss.on("connection", (ws: any) => {
   });
 });
 
-function sortAsks() {
-  asks.sort((a, b) => +a.price - +b.price);
+function sortAsks(book: string) {
+  const asksToSort = orderBooks[book].asks;
+  asksToSort.sort((a, b) => +a.price - +b.price);
 }
-function sortBids() {
-  bids.sort((a, b) => +b.price - +a.price);
+function sortBids(book: string) {
+  const bidsToSort = orderBooks[book].bids;
+  bidsToSort.sort((a, b) => +b.price - +a.price);
 }
-function showOrderBook() {
+function showOrderBook(book: string) {
+  const asksToShow = orderBooks[book].asks;
+  const bidsToShow = orderBooks[book].bids;
   const message = JSON.stringify({
     type: "order_book",
-    asks,
-    bids,
-    orderMessage,
+    asks: asksToShow,
+    bids: bidsToShow,
   });
 
   wss.clients.forEach((client: WebSocket) => {
@@ -467,16 +527,19 @@ function showOrderBook() {
   });
 }
 
-function updateOrderBook() {
-  sortAsks();
-  sortBids();
-  showOrderBook();
+function updateOrderBook(id: number) {
+  const book = clientConnection[id];
+  sortAsks(book);
+  sortBids(book);
+  showOrderBook(book);
 }
 
-async function marketBuy(newOrder: InitialOrder) {
+async function marketBuy(newOrder: InitialOrder, id: number) {
   let remainingSize = newOrder.amount;
-  while (asks.length > 0 && remainingSize > 0) {
-    const ask = asks[0];
+  const currBook = clientConnection[id];
+  const currAsks = orderBooks[currBook].asks;
+  while (currAsks.length > 0 && remainingSize > 0) {
+    const ask = currAsks[0];
     const availableAmount = preciseSubtraction(ask.amount, ask.filledAmount);
 
     if (availableAmount === remainingSize) {
@@ -527,7 +590,7 @@ async function marketBuy(newOrder: InitialOrder) {
       await completeOrder(ask.id);
       await completeMarketOrder(newOrder.id, ask.price);
 
-      asks.shift();
+      currAsks.shift();
       remainingSize = 0;
     } else if (availableAmount < remainingSize) {
       await handleFills(ask.id, availableAmount, ask.price);
@@ -564,7 +627,7 @@ async function marketBuy(newOrder: InitialOrder) {
 
       await completeOrder(ask.id);
 
-      asks.shift();
+      currAsks.shift();
       const newRemainingSize = preciseSubtraction(
         remainingSize,
         availableAmount
@@ -585,7 +648,7 @@ async function marketBuy(newOrder: InitialOrder) {
           "completed"
         );
         await completeMarketOrder(newOrder.id, ask.price);
-        updateOrderBook();
+        updateOrderBook(id);
       }
       remainingSize = newRemainingSize;
     } else {
@@ -641,14 +704,15 @@ async function marketBuy(newOrder: InitialOrder) {
     throw new Error("Market buy could not be fully fulfilled");
   }
 
-  updateOrderBook();
+  updateOrderBook(id);
 }
 
-async function marketSell(newOrder: InitialOrder) {
+async function marketSell(newOrder: InitialOrder, id: number) {
   let remainingSize = newOrder.amount;
-
-  while (bids.length > 0 && remainingSize > 0) {
-    const bid = bids[0];
+  const currBook = clientConnection[id];
+  const currBids = orderBooks[currBook].bids;
+  while (currBids.length > 0 && remainingSize > 0) {
+    const bid = currBids[0];
     const availableAmount = preciseSubtraction(bid.amount, bid.filledAmount);
 
     if (availableAmount === remainingSize) {
@@ -697,7 +761,7 @@ async function marketSell(newOrder: InitialOrder) {
       await completeOrder(bid.id);
       await completeMarketOrder(newOrder.id, bid.price);
 
-      bids.shift();
+      currBids.shift();
 
       remainingSize = "0";
     } else if (availableAmount < remainingSize) {
@@ -734,7 +798,7 @@ async function marketSell(newOrder: InitialOrder) {
 
       await completeOrder(bid.id);
 
-      bids.shift();
+      currBids.shift();
 
       const newRemainingSize = preciseSubtraction(
         remainingSize,
@@ -756,7 +820,7 @@ async function marketSell(newOrder: InitialOrder) {
           "completed"
         );
         await completeMarketOrder(newOrder.id, bid.price);
-        updateOrderBook();
+        updateOrderBook(id);
       }
       remainingSize = newRemainingSize;
     } else {
@@ -814,5 +878,5 @@ async function marketSell(newOrder: InitialOrder) {
     throw new Error("Market sell could not be fully fulfilled");
   }
 
-  updateOrderBook();
+  updateOrderBook(id);
 }

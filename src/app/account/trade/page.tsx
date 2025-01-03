@@ -44,15 +44,15 @@ export function TradeLayout() {
   const [whenPriceIs, setWhenPriceIs] = useState("");
   const [buyError, setBuyError] = useState<string | null>(null);
   const [sellError, setSellError] = useState<string | null>(null);
-  const [selectedCoin, setSelectedCoin] = useState("BTC");
+  const [selectedBaseAsset, setSelectedBaseAsset] = useState("BTC");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedQuoteAsset, setSelectedQuoteAsset] = useState("USD");
   const [isQuoteAssetDropdownOpen, setIsQuoteAssetDropdownOpen] =
     useState(false);
   const [displayedBalances, setDisplayedBalances] = useState(balances);
 
-  const displayPic = coinPics[selectedCoin as CoinType];
-  const displayName = coinNames[selectedCoin as CoinType];
+  const displayPic = coinPics[selectedBaseAsset as CoinType];
+  const displayName = coinNames[selectedBaseAsset as CoinType];
   const quoteAssetDiplayPic = coinPics[selectedQuoteAsset as CoinType];
   const quoteAssetDisplayName = coinNames[selectedQuoteAsset as CoinType];
   const socketRef = useRef<WebSocket | null>(null);
@@ -63,7 +63,13 @@ export function TradeLayout() {
   };
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8080");
-    ws.onopen = () => console.log("ws open");
+    const firstBook = `${selectedBaseAsset}-${selectedQuoteAsset}`;
+    ws.onopen = () => {
+      ws.send(
+        JSON.stringify({ type: "subscribe", id: user?.id, pair: firstBook })
+      );
+      console.log("ws open");
+    };
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "order_book") {
@@ -73,6 +79,7 @@ export function TradeLayout() {
     };
 
     socketRef.current = ws;
+    console.log(balances);
 
     return () => {
       if (socketRef.current) {
@@ -80,7 +87,22 @@ export function TradeLayout() {
       }
     };
   }, []);
-
+  useEffect(() => {
+    const socket = socketRef.current;
+    const book = `${selectedBaseAsset}-${selectedQuoteAsset}`;
+    const bookData = {
+      type: "subscribe",
+      id: user?.id,
+      pair: book,
+    };
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      try {
+        socket.send(JSON.stringify(bookData));
+      } catch (error) {
+        console.error("Failed to update order book to show", error);
+      }
+    }
+  }, [selectedBaseAsset, selectedQuoteAsset]);
   useEffect(() => {
     if (user?.id) {
       updateBalances(user.id);
@@ -93,18 +115,43 @@ export function TradeLayout() {
 
     const numericPrice = Number(whenPriceIs.replace(/,/g, "")).toString();
     const numericSize = Number(amount.replace(/,/g, "")).toString();
-    if (!user) {
+    if (!user || !balances || !displayedBalances) {
       return;
     }
+    if (orderType === "limit" && +numericPrice <= 0) {
+      setSellError("Please enter a limit price.");
+      return;
+    }
+    for (const balance of displayedBalances) {
+      if (balance.asset === selectedBaseAsset) {
+        const scaleFactor = 10 ** 8;
+        const scaledSize = Math.round(+numericSize * scaleFactor);
+        const scaledBalance = Math.round(+balance.balance * scaleFactor);
+        console.log(scaledSize, scaledBalance);
+        if (scaledSize > scaledBalance) {
+          setSellError("Insufficient Balance: Please try again.");
+          setTimeout(() => {
+            setSellError("");
+          }, 10000);
+          return;
+        }
+      }
+    }
+    if (orderType === "market" && asks.length === 0) {
+      setSellError("There are no current bids available.");
+      return;
+    }
+    const book = `${selectedBaseAsset}-${selectedQuoteAsset}`;
     const orderData = {
       type: "new_order",
       id: user.id,
       side: isSelected,
       orderType,
-      baseAsset: selectedCoin,
+      baseAsset: selectedBaseAsset,
       quoteAsset: selectedQuoteAsset,
       price: numericPrice,
       amount: numericSize,
+      orderBook: book,
       filledAmount: "0",
       status: "pending",
     };
@@ -116,24 +163,28 @@ export function TradeLayout() {
     }
     setAmount("");
     setWhenPriceIs("");
+    setSellError("");
   };
   const placeBuy = async () => {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
     const numericPrice = Number(whenPriceIs.replace(/,/g, "")).toString();
     const numericSize = Number(amount.replace(/,/g, "")).toString();
-    if (!user) {
+    if (!user || !balances || !displayedBalances) {
       return;
     }
+
+    const book = `${selectedBaseAsset}-${selectedQuoteAsset}`;
     const orderData = {
       type: "new_order",
       id: user.id,
       side: isSelected,
       orderType,
-      baseAsset: selectedCoin,
+      baseAsset: selectedBaseAsset,
       quoteAsset: selectedQuoteAsset,
       price: numericPrice,
       amount: numericSize,
+      orderBook: book,
       filledAmount: "0",
       status: "pending",
     };
@@ -237,7 +288,7 @@ export function TradeLayout() {
               </span>
               <StaticInput
                 amount={amount}
-                selectedCoin={selectedCoin}
+                selectedCoin={selectedBaseAsset}
                 setAmount={setAmount}
                 setSellError={setSellError}
                 setBuyError={setBuyError}
@@ -263,7 +314,7 @@ export function TradeLayout() {
               {orderType === "limit" && (
                 <div className="flex flex-col gap-2 ">
                   <span className="font-semibold dark:text-white text-black">
-                    When price reaches
+                    Limit Price
                   </span>
                   <div className="flex items-center">
                     <input
@@ -281,7 +332,7 @@ export function TradeLayout() {
                       }}
                     />
                     <span className="dark:text-white text-gray-400 ml-2 text-xl">
-                      USD
+                      {selectedQuoteAsset}
                     </span>
                   </div>
                 </div>
@@ -293,12 +344,15 @@ export function TradeLayout() {
                 <div className="relative">
                   <button
                     className="flex items-center justify-between w-full p-3 border rounded-md   dark:text-white"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    onClick={() => {
+                      setIsQuoteAssetDropdownOpen(false);
+                      setIsDropdownOpen(!isDropdownOpen);
+                    }}
                   >
                     <div className="flex items-center gap-2">
                       <img
                         src={displayPic}
-                        alt={selectedCoin}
+                        alt={selectedBaseAsset}
                         className="w-6 h-6"
                       />
                       <span>{displayName}</span>
@@ -315,7 +369,7 @@ export function TradeLayout() {
                             key={coin}
                             className="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
                             onClick={() => {
-                              setSelectedCoin(coin);
+                              setSelectedBaseAsset(coin);
                               setIsDropdownOpen(false);
                             }}
                           >
@@ -341,9 +395,10 @@ export function TradeLayout() {
                 <div className="relative">
                   <button
                     className="flex items-center justify-between w-full p-3 border rounded-md   dark:text-white"
-                    onClick={() =>
-                      setIsQuoteAssetDropdownOpen(!isQuoteAssetDropdownOpen)
-                    }
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      setIsQuoteAssetDropdownOpen(!isQuoteAssetDropdownOpen);
+                    }}
                   >
                     <div className="flex items-center gap-2">
                       <img
@@ -385,18 +440,14 @@ export function TradeLayout() {
                 </div>
               </div>
               <span className="text-red-500 text-sm">
-                {orderType === "market" && isSelected === "buy" && buyError}
-                {orderType === "market" && isSelected === "sell" && sellError}
+                {isSelected === "buy" && buyError}
+                {isSelected === "sell" && sellError}
               </span>
             </div>
 
             <button
               onClick={() => {
                 if (isSelected === "sell") {
-                  if (!bids.length && orderType === "market") {
-                    setSellError("There are no current bids available.");
-                    return;
-                  }
                   placeSell();
                 } else if (isSelected === "buy") {
                   if (!asks.length && orderType === "market") {
@@ -421,7 +472,7 @@ export function TradeLayout() {
           </div>
         </div>
         <OrderBook
-          selectedCoin={selectedCoin}
+          selectedBaseAsset={selectedBaseAsset}
           selectedQuoteAsset={selectedQuoteAsset}
           asks={asks}
           bids={bids}

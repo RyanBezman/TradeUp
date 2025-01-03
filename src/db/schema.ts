@@ -49,8 +49,9 @@ export const orders = pgTable("orders", {
   quoteAsset: varchar("quote_asset").notNull(), // what asset youre using to buy
   price: numeric("price").notNull(),
   amount: numeric("amount").notNull(),
-  filledAmount: numeric("filled_amount").notNull().default("0.0"), // how much has been filled
+  filledAmount: numeric("filled_amount").notNull().default("0.0"),
   status: varchar("status", { length: 10 }).default("pending").notNull(),
+  orderBook: varchar("order_book").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
