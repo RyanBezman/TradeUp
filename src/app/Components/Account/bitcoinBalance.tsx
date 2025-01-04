@@ -1,6 +1,6 @@
 "use client";
 
-import { Balance, useAuth } from "@/app/context/AuthContext";
+import { Balance } from "@/app/context/AuthContext";
 type BitcoinBalanceProps = {
   balance: Balance;
 };

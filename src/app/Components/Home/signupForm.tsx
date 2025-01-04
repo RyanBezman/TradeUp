@@ -1,7 +1,7 @@
 "use client";
 import { Loader, X } from "lucide-react";
 import { FormInput } from "./formInput";
-import { FormEvent, HTMLInputTypeAttribute, useState } from "react";
+import { FormEvent, useState } from "react";
 import { addUser } from "@/actions/user/addUser";
 
 type SignupFormProps = {

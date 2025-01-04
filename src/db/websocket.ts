@@ -1,5 +1,6 @@
 "use server";
 // @ts-expect-error websoket improt is broken
+
 import { WebSocketServer } from "ws";
 import { addNewOrder } from "../actions/orders/addNewOrder";
 import { getAllOrders } from "@/actions/orders/getAllOrders";
@@ -24,8 +25,6 @@ type InitialOrder = {
   orderBook: string;
   status: string;
 };
-let asks: InitialOrder[] = [];
-let bids: InitialOrder[] = [];
 
 const orderBooks: Record<
   string,
@@ -135,9 +134,6 @@ wss.on("connection", (ws: any) => {
           })
         );
       } else if (data.type === "new_order") {
-        const quoteAssetBalance = await getOneBalance(id, quoteAsset);
-        const baseAssetBalance = await getOneBalance(id, baseAsset);
-
         const newOrder = await addNewOrder({
           id,
           side,
@@ -551,7 +547,7 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
   let remainingSize = newOrder.amount;
   const currBook = clientConnection[id];
   const currAsks = orderBooks[currBook].asks;
-  for (let i = 0; i < currAsks.length && +remainingSize > 0; ) {
+  for (let i = 0; i < currAsks.length && remainingSize > 0; ) {
     const ask = currAsks[i];
 
     if (ask.userId === newOrder.userId) {
@@ -837,7 +833,7 @@ async function marketSell(newOrder: InitialOrder, id: number) {
         remainingSize,
         availableAmount
       );
-      if (bids.length === 0) {
+      if (currBids.length === 0) {
         const marketFilledAmount = preciseSubtraction(
           newOrder.amount,
           newRemainingSize
