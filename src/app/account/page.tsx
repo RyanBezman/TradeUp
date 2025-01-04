@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-export const sideBarOptions = [
+const sideBarOptions = [
   { label: "Home", icon: Home, url: "/account/home" },
   { label: "My Profile", icon: UserRound, url: "/account/profile" },
   { label: "Trade", icon: DollarSign, url: "/account/trade" },
