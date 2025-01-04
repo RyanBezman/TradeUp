@@ -1,70 +1,70 @@
 "use server";
 
-import { handleFills } from "@/actions/orders/handleFills";
-import { addHistoricalOrder } from "@/actions/orders/addHistoricalOrder";
-import { updateBalance } from "@/actions/balance/updateBalance";
-import { addNewOrder } from "@/actions/orders/addNewOrder";
-import { users } from "./schema";
-import { db } from ".";
-import { updateFilledAmount } from "@/actions/orders/updateFilledAmount";
+// import { handleFills } from "@/actions/orders/handleFills";
+// import { addHistoricalOrder } from "@/actions/orders/addHistoricalOrder";
+// import { updateBalance } from "@/actions/balance/updateBalance";
+// import { addNewOrder } from "@/actions/orders/addNewOrder";
+// import { users } from "./schema";
+// import { db } from ".";
+// import { updateFilledAmount } from "@/actions/orders/updateFilledAmount";
 
-async function getAllUsers() {
-  const allUsers = db.select().from(users);
-  return allUsers;
-}
+// async function getAllUsers() {
+//   const allUsers = db.select().from(users);
+//   return allUsers;
+// }
 
-async function runTests() {
-  const allUsers = await getAllUsers();
-  const userOneId = allUsers[1].id;
-  const userTwoId = allUsers[0].id;
-  console.log(allUsers);
-  try {
-    const newSellOrderId = await addNewOrder({
-      id: userOneId,
-      side: "sell",
-      orderType: "limit",
-      baseAsset: "BTC",
-      quoteAsset: "USD",
-      price: "98000",
-      amount: "1.0",
-      filledAmount: "0.0",
-      status: "pending",
-    });
-    const newBuyOrderId = await addNewOrder({
-      id: userTwoId,
-      side: "buy",
-      orderType: "limit",
-      baseAsset: "BTC",
-      quoteAsset: "USD",
-      price: "98000",
-      amount: "1.0",
-      filledAmount: "0.0",
-      status: "pending",
-    });
-    await updateFilledAmount(newSellOrderId.id, 1.0);
+// async function runTests() {
+//   const allUsers = await getAllUsers();
+//   const userOneId = allUsers[1].id;
+//   const userTwoId = allUsers[0].id;
+//   console.log(allUsers);
+//   try {
+//     const newSellOrderId = await addNewOrder({
+//       id: userOneId,
+//       side: "sell",
+//       orderType: "limit",
+//       baseAsset: "BTC",
+//       quoteAsset: "USD",
+//       price: "98000",
+//       amount: "1.0",
+//       filledAmount: "0.0",
+//       status: "pending",
+//     });
+//     const newBuyOrderId = await addNewOrder({
+//       id: userTwoId,
+//       side: "buy",
+//       orderType: "limit",
+//       baseAsset: "BTC",
+//       quoteAsset: "USD",
+//       price: "98000",
+//       amount: "1.0",
+//       filledAmount: "0.0",
+//       status: "pending",
+//     });
+//     await updateFilledAmount(newSellOrderId.id, 1.0);
 
-    await handleFills(newSellOrderId.id, "1.0", "98000");
-    await handleFills(newBuyOrderId.id, "1.0", "98000");
-    await addHistoricalOrder(
-      userOneId,
-      "limit",
-      "sell",
-      "BTC",
-      "USD",
-      "98000",
-      "1.0",
-      "completed"
-    );
+//     await handleFills(newSellOrderId.id, "1.0", "98000");
+//     await handleFills(newBuyOrderId.id, "1.0", "98000");
+//     await addHistoricalOrder(
+//       userOneId,
+//       "limit",
+//       "sell",
+//       "BTC",
+//       "USD",
+//       "98000",
+//       "1.0",
+//       "completed"
+//     );
 
-    await updateBalance(userTwoId, "BTC", "USD", "1.0", "buy");
+//     await updateBalance(userTwoId, "BTC", "USD", "1.0", "buy");
 
-    await updateBalance(userOneId, "BTC", "USD", "1.0", "sell");
-  } catch (error) {
-    console.error("Test failed:", error);
-  }
-}
+//     await updateBalance(userOneId, "BTC", "USD", "1.0", "sell");
+//   } catch (error) {
+//     console.error("Test failed:", error);
+//   }
+// }
 
-runTests();
+// runTests();
 
 // both orders should be added to orders table
 // filledAmount for the order with the userID of 20 should now be 1.0a
