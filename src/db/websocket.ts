@@ -161,12 +161,15 @@ wss.on("connection", (ws: any) => {
           const currBook = clientConnection[id];
           const currBids = orderBooks[currBook].bids;
 
-          while (
-            currBids[0] &&
-            currBids[0].price >= price &&
-            remainingSize > 0
-          ) {
-            let bid = currBids[0];
+          for (let i = 0; i < currBids.length && remainingSize > 0; ) {
+            let bid = currBids[i];
+            if (+bid.price < +price) {
+              break;
+            }
+            if (bid.userId === newOrder.userId) {
+              i++;
+              continue;
+            }
             const availableAmount = preciseSubtraction(
               bid.amount,
               bid.filledAmount
@@ -220,7 +223,7 @@ wss.on("connection", (ws: any) => {
               await completeOrder(bid.id);
               await completeOrder(newOrder.id);
 
-              currBids.shift();
+              currBids.splice(i, 1);
               remainingSize = 0;
             } else if (availableAmount > remainingSize) {
               const newFilledAmount = preciseAddition(
@@ -311,7 +314,7 @@ wss.on("connection", (ws: any) => {
                 }
               }
 
-              currBids.shift();
+              currBids.splice(i, 1);
             }
           }
           if (remainingSize > 0) {
@@ -331,15 +334,16 @@ wss.on("connection", (ws: any) => {
         } else if (orderType === "limit" && side === "buy") {
           let remainingSize = amount;
           const currBook = clientConnection[id];
-          console.log(clientConnection);
-          console.log(currBook);
           const currAsks = orderBooks[currBook].asks;
-          while (
-            currAsks[0] &&
-            currAsks[0].price <= price &&
-            remainingSize > 0
-          ) {
-            let ask = currAsks[0];
+          for (let i = 0; i < currAsks.length && remainingSize > 0; ) {
+            let ask = currAsks[i];
+            if (+ask.price > +newOrder.price) {
+              break;
+            }
+            if (ask.userId === newOrder.userId) {
+              i++;
+              continue;
+            }
 
             const availableAmount = preciseSubtraction(
               ask.amount,
@@ -393,7 +397,7 @@ wss.on("connection", (ws: any) => {
               await completeOrder(ask.id);
               await completeOrder(newOrder.id);
 
-              currAsks.shift();
+              currAsks.splice(i, 1);
               remainingSize = 0;
             } else if (availableAmount > remainingSize) {
               const newFilledAmount = preciseAddition(
@@ -484,7 +488,7 @@ wss.on("connection", (ws: any) => {
                 }
               }
 
-              currAsks.shift();
+              currAsks.splice(i, 1);
             }
           }
           if (remainingSize > 0) {
@@ -547,8 +551,13 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
   let remainingSize = newOrder.amount;
   const currBook = clientConnection[id];
   const currAsks = orderBooks[currBook].asks;
-  while (currAsks.length > 0 && remainingSize > 0) {
-    const ask = currAsks[0];
+  for (let i = 0; i < currAsks.length && +remainingSize > 0; ) {
+    const ask = currAsks[i];
+
+    if (ask.userId === newOrder.userId) {
+      i++;
+      continue;
+    }
     const availableAmount = preciseSubtraction(ask.amount, ask.filledAmount);
 
     if (availableAmount === remainingSize) {
@@ -601,7 +610,7 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
       await completeOrder(ask.id);
       await completeMarketOrder(newOrder.id, ask.price);
 
-      currAsks.shift();
+      currAsks.splice(i, 1);
       remainingSize = 0;
     } else if (availableAmount < remainingSize) {
       await handleFills(ask.id, availableAmount, ask.price);
@@ -640,12 +649,12 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
 
       await completeOrder(ask.id);
 
-      currAsks.shift();
+      currAsks.splice(i, 1);
       const newRemainingSize = preciseSubtraction(
         remainingSize,
         availableAmount
       );
-      if (asks.length === 0) {
+      if (currAsks.length === 0) {
         const marketFilledAmount = preciseSubtraction(
           newOrder.amount,
           newRemainingSize
@@ -726,8 +735,13 @@ async function marketSell(newOrder: InitialOrder, id: number) {
   let remainingSize = newOrder.amount;
   const currBook = clientConnection[id];
   const currBids = orderBooks[currBook].bids;
-  while (currBids.length > 0 && remainingSize > 0) {
-    const bid = currBids[0];
+  for (let i = 0; i < currBids.length && +remainingSize > 0; ) {
+    const bid = currBids[i];
+
+    if (bid.userId === newOrder.userId) {
+      i++;
+      continue;
+    }
     const availableAmount = preciseSubtraction(bid.amount, bid.filledAmount);
 
     if (availableAmount === remainingSize) {
@@ -778,7 +792,7 @@ async function marketSell(newOrder: InitialOrder, id: number) {
       await completeOrder(bid.id);
       await completeMarketOrder(newOrder.id, bid.price);
 
-      currBids.shift();
+      currBids.splice(i, 1);
 
       remainingSize = "0";
     } else if (availableAmount < remainingSize) {
@@ -817,7 +831,7 @@ async function marketSell(newOrder: InitialOrder, id: number) {
 
       await completeOrder(bid.id);
 
-      currBids.shift();
+      currBids.splice(i, 1);
 
       const newRemainingSize = preciseSubtraction(
         remainingSize,
