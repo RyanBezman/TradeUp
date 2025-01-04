@@ -1,7 +1,7 @@
 "use server";
 // @ts-expect-error websoket improt is broken
 
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 import { addNewOrder } from "../actions/orders/addNewOrder";
 import { getAllOrders } from "@/actions/orders/getAllOrders";
 import { updateFilledAmount } from "@/actions/orders/updateFilledAmount";
@@ -10,7 +10,6 @@ import { addHistoricalOrder } from "@/actions/orders/addHistoricalOrder";
 import { updateBalance } from "@/actions/balance/updateBalance";
 import { completeOrder } from "@/actions/orders/completeOrder";
 import { completeMarketOrder } from "@/actions/orders/completeMarketOrder";
-import { getOneBalance } from "@/actions/balance/getOneBalance";
 const wss = new WebSocketServer({ port: 8080 });
 type InitialOrder = {
   id: number;
@@ -104,8 +103,8 @@ export function preciseMultiplication(value1: string, value2: string): string {
 
 initializeOrderBook();
 
-wss.on("connection", (ws: any) => {
-  ws.on("message", async (message: any) => {
+wss.on("connection", (ws: WebSocket) => {
+  ws.on("message", async (message: WebSocket.RawData) => {
     try {
       const data = JSON.parse(message);
       const {
@@ -158,7 +157,7 @@ wss.on("connection", (ws: any) => {
           const currBids = orderBooks[currBook].bids;
 
           for (let i = 0; i < currBids.length && remainingSize > 0; ) {
-            let bid = currBids[i];
+            const bid = currBids[i];
             if (+bid.price < +price) {
               break;
             }
@@ -262,7 +261,7 @@ wss.on("connection", (ws: any) => {
 
               remainingSize = 0;
             } else {
-              let newRemainingSize = preciseSubtraction(
+              const newRemainingSize = preciseSubtraction(
                 remainingSize,
                 availableAmount
               );
@@ -314,7 +313,7 @@ wss.on("connection", (ws: any) => {
             }
           }
           if (remainingSize > 0) {
-            let amountFilled = preciseSubtraction(
+            const amountFilled = preciseSubtraction(
               newOrder.amount,
               remainingSize
             );
@@ -332,7 +331,7 @@ wss.on("connection", (ws: any) => {
           const currBook = clientConnection[id];
           const currAsks = orderBooks[currBook].asks;
           for (let i = 0; i < currAsks.length && remainingSize > 0; ) {
-            let ask = currAsks[i];
+            const ask = currAsks[i];
             if (+ask.price > +newOrder.price) {
               break;
             }
@@ -436,7 +435,7 @@ wss.on("connection", (ws: any) => {
 
               remainingSize = 0;
             } else {
-              let newRemainingSize = preciseSubtraction(
+              const newRemainingSize = preciseSubtraction(
                 remainingSize,
                 availableAmount
               );
@@ -488,7 +487,7 @@ wss.on("connection", (ws: any) => {
             }
           }
           if (remainingSize > 0) {
-            let amountToAdd = preciseSubtraction(
+            const amountToAdd = preciseSubtraction(
               newOrder.amount,
               remainingSize
             );
@@ -547,7 +546,7 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
   let remainingSize = newOrder.amount;
   const currBook = clientConnection[id];
   const currAsks = orderBooks[currBook].asks;
-  for (let i = 0; i < currAsks.length && remainingSize > 0; ) {
+  for (let i = 0; i < currAsks.length && +remainingSize > 0; ) {
     const ask = currAsks[i];
 
     if (ask.userId === newOrder.userId) {
@@ -607,7 +606,7 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
       await completeMarketOrder(newOrder.id, ask.price);
 
       currAsks.splice(i, 1);
-      remainingSize = 0;
+      remainingSize = "0";
     } else if (availableAmount < remainingSize) {
       await handleFills(ask.id, availableAmount, ask.price);
       await handleFills(newOrder.id, availableAmount, ask.price);
@@ -709,7 +708,7 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
 
       await completeMarketOrder(newOrder.id, ask.price);
       ask.filledAmount = newFilledAmount;
-      remainingSize = 0;
+      remainingSize = "0";
     }
   }
   if (remainingSize >= "0") {
