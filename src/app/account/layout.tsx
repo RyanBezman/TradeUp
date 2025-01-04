@@ -13,6 +13,7 @@ import {
   Home,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 const sideBarOptions = [
   { label: "Home", icon: Home, url: "/account/home" },
@@ -26,9 +27,13 @@ const sideBarOptions = [
 
 export default function Account({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
+  const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   return (
-    <div className="flex flex-col  h-screen max-h-screen overflow-hidden">
-      <Navbar />
+    <div className="flex flex-col h-screen max-h-screen overflow-hidden">
+      <Navbar
+        isHamburgerOpen={isHamburgerOpen}
+        setIsHamburgerOpen={setIsHamburgerOpen}
+      />
       <div className="flex flex-grow overflow-hidden  ">
         <ul className="hidden flex-col gap-2 min-w-[300px] border-t dark:border-gray-600  py-2 px-2 min-[825px]:flex ">
           {sideBarOptions.map((option) => (

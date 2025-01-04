@@ -225,7 +225,7 @@ export default function Orders() {
               <th className="border hidden sm:table-cell border-gray-200 dark:border-[#444444] p-2">
                 Price
               </th>
-              <th className="border hidden sm:table-cell border-gray-200 dark:border-[#444444] p-2">
+              <th className="border hidden min-[891px]:table-cell border-gray-200 dark:border-[#444444] p-2">
                 Status
               </th>
               <th className="border border-gray-200 dark:border-[#444444] p-2">
@@ -258,7 +258,7 @@ export default function Orders() {
                   ${order.price}
                 </td>
                 <td
-                  className={`border hidden sm:table-cell border-gray-200 dark:border-[#444444] p-2 ${changeStatusColor(
+                  className={`border hidden min-[891px]:table-cell border-gray-200 dark:border-[#444444] p-2 ${changeStatusColor(
                     order.status
                   )}`}
                 >

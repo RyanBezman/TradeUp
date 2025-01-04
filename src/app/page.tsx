@@ -15,7 +15,7 @@ export default async function Home() {
     );
   }
   return (
-    <div className=" flex flex-col w-full">
+    <div className="flex flex-col w-full">
       <Navbar />
       <Hero />
     </div>
