@@ -3,6 +3,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import Account from "../page";
 import { getHistoricalOrders } from "@/actions/orders/getHistoricalOrders";
 import { useEffect, useState } from "react";
+import { Loader } from "lucide-react";
 
 type Order = {
   id: number;
@@ -15,17 +16,14 @@ type Order = {
   price: string;
   amount: string;
   status: string;
-  orderBook: string;
 };
 
 type Filter = "buy" | "sell" | "all" | "completed" | "pending";
 
-/** Capitalize the first letter of a string */
 function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-/** Format date to something more readable, e.g., Oct 12, 2023, 5:02 PM */
 function formatDate(dateString: Date): string {
   const date = new Date(dateString);
   return date.toLocaleString("en-US", {
@@ -37,7 +35,6 @@ function formatDate(dateString: Date): string {
   });
 }
 
-/** A small modal component to show order details */
 function OrderModal({ order, onClose }: { order: Order; onClose: () => void }) {
   return (
     <div
@@ -153,7 +150,6 @@ export function OrdersLayout() {
     <div className="bg-white dark:bg-black rounded-xl flex flex-col min-[455px]:p-8 flex-1 overflow-auto">
       <h1 className="text-3xl font-bold mb-6 dark:text-white">Order History</h1>
 
-      {/* Filter Buttons */}
       <div className="bg-gray-300 text-gray-700 dark:bg-zinc-700 dark:text-gray-300 font-semibold mb-6 flex rounded-md max-w-fit">
         <button
           onClick={() => changeFilter("all")}
@@ -182,7 +178,7 @@ export function OrdersLayout() {
       </div>
 
       {loading ? (
-        <p>Loading...</p>
+        <Loader className="animate-spin h-8 w-8 text-gray-500" />
       ) : filteredOrders.length === 0 ? (
         <p>No orders found.</p>
       ) : (
