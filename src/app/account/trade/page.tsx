@@ -1,5 +1,5 @@
 "use client";
-import Account from "../page";
+import Account from "../layout";
 import { OrderBook, OrderData } from "@/app/Components/Orderbook/orderbook";
 import StaticInput from "@/app/Components/Orderbook/staticInput";
 import { useEffect, useRef, useState } from "react";
@@ -26,14 +26,6 @@ const coinNames: Record<CoinType, string> = {
 };
 
 export default function Trade() {
-  return (
-    <Account>
-      <TradeLayout />
-    </Account>
-  );
-}
-
-function TradeLayout() {
   const { balances, user } = useAuth();
 
   const [isSelected, setIsSelected] = useState("buy");

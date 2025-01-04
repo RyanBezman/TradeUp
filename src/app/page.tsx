@@ -1,4 +1,4 @@
-import Account from "./account/page";
+import Account from "./account/layout";
 import { Hero } from "./Components/Home/hero";
 import { Navbar } from "./Components/Home/navbar";
 import { cookies } from "next/headers";
