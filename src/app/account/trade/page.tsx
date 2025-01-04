@@ -33,7 +33,7 @@ export default function Trade() {
   );
 }
 
-export function TradeLayout() {
+function TradeLayout() {
   const { balances, user } = useAuth();
 
   const [isSelected, setIsSelected] = useState("buy");
