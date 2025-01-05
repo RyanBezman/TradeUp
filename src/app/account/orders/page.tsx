@@ -190,7 +190,7 @@ export default function Orders() {
               : "hover:bg-gray-200 dark:hover:bg-[#333333]"
           }`}
         >
-          Buys
+          Buy
         </button>
         <button
           onClick={() => changeFilter("sell")}
@@ -200,7 +200,7 @@ export default function Orders() {
               : "hover:bg-gray-200 dark:hover:bg-[#333333]"
           }`}
         >
-          Sells
+          Sell
         </button>
       </div>
       {loading ? (

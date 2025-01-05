@@ -11,7 +11,7 @@ type NavbarProps = {
 export function Navbar({ isHamburgerOpen, setIsHamburgerOpen }: NavbarProps) {
   return (
     <header className="flex w-full items-center  dark:border-gray-600 border-gray-300 justify-between px-1 min-[825px]:px-8 py-6">
-      <div className="flex gap-2 items-center">
+      <div className="flex  items-end">
         <Link href={"/account/home"}>
           <ChartNoAxesCombined
             className="h-10 w-10 cursor-pointer hidden min-[825px]:block text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400
@@ -21,12 +21,12 @@ export function Navbar({ isHamburgerOpen, setIsHamburgerOpen }: NavbarProps) {
 
         <Menu className="h-10 w-10 min-[825px]:hidden text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400 cursor-pointer" />
         <Link href={"/account/home"}>
-          <h1 className="hidden font-bold min-[505px]:block dark:text-white text-black text-3xl  cursor-pointer">
+          <h1 className=" font-bold min-[505px]:block dark:text-white text-black text-3xl pl-2 cursor-pointer">
             TradeUp
           </h1>
         </Link>
       </div>
-      <div className="gap-12 min-[1220px]:gap-24 hidden min-[1063px]:flex ">
+      <div className="gap-12 min-[1264px]:gap-24 hidden min-[1063px]:flex ">
         {buttons.map((name) => {
           return (
             <button
