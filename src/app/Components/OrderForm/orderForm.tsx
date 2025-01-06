@@ -5,9 +5,7 @@ import { OrderData } from "../Orderbook/orderbook";
 import { CoinBalance, CoinType } from "../Account/coinBalance";
 import { Balance, useAuth } from "@/app/context/AuthContext";
 import { CoinOption } from "./coinOption";
-import { BuyButton } from "./buyButton";
-import { SellButton } from "./sellButton";
-import { OrderTypeButton } from "./orderTypeButton";
+import { OrderTypeToggles } from "./orderTypeToggles";
 type OrderFormProps = {
   asks: OrderData[];
   bids: OrderData[];
@@ -59,7 +57,7 @@ export function OrderForm({
   const [orderType, setOrderType] = useState("market");
   const [amount, setAmount] = useState("");
   const [whenPriceIs, setWhenPriceIs] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isBaseAssetDropdownOpen, setIsBaseAssetDropdownOpen] = useState(false);
   const [isQuoteAssetDropdownOpen, setIsQuoteAssetDropdownOpen] =
     useState(false);
   const displayPic = coinPics[selectedBaseAsset as CoinType];
@@ -182,61 +180,26 @@ export function OrderForm({
   return (
     <div className="border dark:border-gray-600  border-t-0 border-l-0 flex min-w-[320px] w-1/4 flex-col gap-4">
       <ColumnHeader title="Order Form" />
-      <div className="p-4 flex flex-col gap-8">
-        <div className="flex w-full gap-2">
-          <BuyButton
-            handleBuyButtonClick={handleBuyButtonClick}
-            isSelected={isSelected}
-          />
-          <SellButton
-            handleSellButtonClick={handleSellButtonClick}
-            isSelected={isSelected}
-          />
-        </div>
-        <div className="flex w-full justify-center gap-4">
-          <OrderTypeButton
-            toggleOrderType={handleMarketToggle}
-            orderType={orderType}
-            type="market"
-          />
-          <OrderTypeButton
-            toggleOrderType={handleLimitToggle}
-            orderType={orderType}
-            type="limit"
-          />
-        </div>
-
+      <div className="p-4 flex flex-col">
+        <OrderTypeToggles
+          handleBuyButtonClick={handleBuyButtonClick}
+          handleLimitToggle={handleLimitToggle}
+          handleMarketToggle={handleMarketToggle}
+          handleSellButtonClick={handleSellButtonClick}
+          isSelected={isSelected}
+          orderType={orderType}
+        />
         <div className="flex flex-col gap-2">
-          <span className="font-semibold dark:text-white text-black">
-            Amount
-          </span>
           <StaticInput
             amount={amount}
             selectedCoin={selectedBaseAsset}
             setAmount={setAmount}
             setSellError={setSellError}
             setBuyError={setBuyError}
+            label="Amount"
           />
           {orderType === "limit" && (
-            <span className="ml-2 text-xs">
-              USD =
-              {amount &&
-              whenPriceIs &&
-              orderType === "limit" &&
-              amount.length > 1
-                ? " $" +
-                  (
-                    Number(amount.replace(/,/g, "")) *
-                    Number(whenPriceIs.replace(/,/g, ""))
-                  ).toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
-                : ""}
-            </span>
-          )}
-          {orderType === "limit" && (
-            <div className="flex flex-col gap-2 ">
+            <div className="flex flex-col gap-1 ">
               <span className="font-semibold dark:text-white text-black">
                 Limit Price
               </span>
@@ -261,7 +224,7 @@ export function OrderForm({
               </div>
             </div>
           )}
-          <div className="flex flex-col gap-2 mt-2">
+          <div className="flex flex-col gap-1 mt-2">
             <span className="font-semibold dark:text-white text-black">
               Asset
             </span>
@@ -270,7 +233,7 @@ export function OrderForm({
                 className="flex items-center justify-between w-full p-3 border rounded-md   dark:text-white"
                 onClick={() => {
                   setIsQuoteAssetDropdownOpen(false);
-                  setIsDropdownOpen(!isDropdownOpen);
+                  setIsBaseAssetDropdownOpen(!isBaseAssetDropdownOpen);
                 }}
               >
                 <div className="flex items-center gap-2">
@@ -281,9 +244,9 @@ export function OrderForm({
                   />
                   <span>{displayName}</span>
                 </div>
-                <span className=" dark:text-gray-400">&gt;</span>
+                <span className=" dark:text-gray-400 rotate-90">&gt;</span>
               </button>
-              {isDropdownOpen && (
+              {isBaseAssetDropdownOpen && (
                 <ul className="absolute z-10 mt-2 w-full dark:bg-black bg-white dark:border rounded-md shadow-md">
                   {Object.keys(coinPics).map((coin) => {
                     const displayPic = coinPics[coin as CoinType];
@@ -292,7 +255,7 @@ export function OrderForm({
                       <CoinOption
                         key={coin}
                         coin={coin}
-                        closeDropdown={setIsDropdownOpen}
+                        closeDropdown={setIsBaseAssetDropdownOpen}
                         setAsset={setSelectedBaseAsset}
                         displayPic={displayPic}
                         displayName={displayName}
@@ -303,7 +266,7 @@ export function OrderForm({
               )}
             </div>
           </div>
-          <div className="flex flex-col gap-2 mt-2">
+          <div className="flex flex-col gap-1 mt-2">
             <span className="font-semibold dark:text-white text-black">
               {isSelected === "buy" ? "Purchase with" : "Sell for"}
             </span>
@@ -311,7 +274,7 @@ export function OrderForm({
               <button
                 className="flex items-center justify-between w-full p-3 border rounded-md   dark:text-white"
                 onClick={() => {
-                  setIsDropdownOpen(false);
+                  setIsBaseAssetDropdownOpen(false);
                   setIsQuoteAssetDropdownOpen(!isQuoteAssetDropdownOpen);
                 }}
               >
@@ -323,7 +286,7 @@ export function OrderForm({
                   />
                   <span>{quoteAssetDisplayName}</span>
                 </div>
-                <span className=" dark:text-gray-400">&gt;</span>
+                <span className=" dark:text-gray-400 rotate-90">&gt;</span>
               </button>
               {isQuoteAssetDropdownOpen && (
                 <ul className="absolute z-10 mt-2 w-full dark:bg-black bg-white dark:border overflow-y-auto rounded-md shadow-md">
