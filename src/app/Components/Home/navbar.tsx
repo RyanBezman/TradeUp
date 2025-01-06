@@ -1,17 +1,18 @@
 import Link from "next/link";
 import { SignInButton } from "./signInButton";
 import { ToggleTheme } from "./toggleTheme";
-import { ChartNoAxesCombined, Menu } from "lucide-react";
+import { ChartNoAxesCombined } from "lucide-react";
+import { HamburgerMenu } from "./hamburgerMenu";
 
 const buttons = ["Benefits", "Features", "Pricing", "Testimonials", "FAQ's"];
 type NavbarProps = {
   isHamburgerOpen: boolean;
   setIsHamburgerOpen: (param: boolean) => void;
 };
-export function Navbar({ isHamburgerOpen, setIsHamburgerOpen }: NavbarProps) {
+export function Navbar() {
   return (
-    <header className="flex w-full items-center  dark:border-gray-600 border-gray-300 justify-between px-1 min-[825px]:px-8 py-6">
-      <div className="flex  items-end">
+    <header className="flex w-full items-center relative dark:border-gray-600 border-gray-300 justify-between px-1 min-[825px]:px-8 py-6">
+      <div className="flex items-end">
         <Link href={"/account/home"}>
           <ChartNoAxesCombined
             className="h-10 w-10 cursor-pointer hidden min-[825px]:block text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400
@@ -19,9 +20,9 @@ export function Navbar({ isHamburgerOpen, setIsHamburgerOpen }: NavbarProps) {
           />
         </Link>
 
-        <Menu className="h-10 w-10 min-[825px]:hidden text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400 cursor-pointer" />
+        <HamburgerMenu />
         <Link href={"/account/home"}>
-          <h1 className=" font-bold min-[505px]:block dark:text-white text-black text-3xl pl-2 cursor-pointer">
+          <h1 className="font-bold min-[505px]:block dark:text-white text-black text-3xl pl-2 cursor-pointer">
             TradeUp
           </h1>
         </Link>

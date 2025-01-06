@@ -20,7 +20,7 @@ const coinNames: Record<CoinType, string> = {
   USD: "USDC",
 };
 
-export function BitcoinBalance({ balance }: BitcoinBalanceProps) {
+export function CoinBalance({ balance }: BitcoinBalanceProps) {
   const asset = balance?.asset;
   const displayPic = coinPics[asset as CoinType];
   const displayName = coinNames[asset as CoinType];

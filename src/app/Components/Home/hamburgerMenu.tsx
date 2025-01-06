@@ -1,20 +1,20 @@
 "use client";
-import { SideBarOption } from "../Components/Account/sideBarOption";
-import { Navbar } from "../Components/Home/navbar";
-import Link from "next/link";
 
 import {
+  Activity,
+  CreditCard,
+  Divide,
+  DollarSign,
+  Home,
+  Menu,
+  TrendingUp,
   UserRound,
   Wallet,
-  CreditCard,
-  DollarSign,
-  Activity,
-  TrendingUp,
-  Home,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
-
+import { SideBarOption } from "../Account/sideBarOption";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 const sideBarOptions = [
   { label: "Home", icon: Home, url: "/account/home" },
   { label: "My Profile", icon: UserRound, url: "/account/profile" },
@@ -25,13 +25,17 @@ const sideBarOptions = [
   { label: "Trading Dashboard", icon: TrendingUp, url: "/account/dashboard" },
 ];
 
-export default function Account({ children }: { children?: React.ReactNode }) {
+export function HamburgerMenu() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const pathname = usePathname();
   return (
-    <div className="flex flex-col h-screen max-h-screen overflow-hidden">
-      <Navbar />
-      <div className="flex flex-grow overflow-hidden  ">
-        <ul className="hidden flex-col gap-2 min-w-[300px] border-t dark:border-gray-600  py-2 px-2 min-[825px]:flex ">
+    <div
+      className="relative"
+      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+    >
+      <Menu className="h-10 w-10 min-[825px]:hidden text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400 cursor-pointer" />
+      {isDropdownOpen && (
+        <ul className="absolute top-full z-20 rounded-xl bg-white dark:bg-black border">
           {sideBarOptions.map((option) => (
             <Link key={option.label} href={option.url}>
               <SideBarOption
@@ -41,10 +45,7 @@ export default function Account({ children }: { children?: React.ReactNode }) {
             </Link>
           ))}
         </ul>
-        <div className="flex flex-col flex-1 border dark:border-gray-600">
-          {children}
-        </div>
-      </div>
+      )}
     </div>
   );
 }
