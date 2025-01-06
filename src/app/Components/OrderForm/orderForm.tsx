@@ -4,8 +4,9 @@ import StaticInput from "../Orderbook/staticInput";
 import { OrderData } from "../Orderbook/orderbook";
 import { CoinBalance, CoinType } from "../Account/coinBalance";
 import { Balance, useAuth } from "@/app/context/AuthContext";
-import { CoinOption } from "./coinOption";
 import { OrderTypeToggles } from "./orderTypeToggles";
+import { AssetDropdownMenu } from "./assetDropdownMenu";
+import { PlaceOrderButton } from "./placeOrderButton";
 type OrderFormProps = {
   asks: OrderData[];
   bids: OrderData[];
@@ -177,10 +178,23 @@ export function OrderForm({
     setWhenPriceIs("");
     setSellError("");
   };
+  const handlePlaceOrder = () => {
+    if (isSelected === "sell") {
+      placeSell();
+    } else if (isSelected === "buy") {
+      if (!asks.length && orderType === "market") {
+        setBuyError("There are no current asks available.");
+        return;
+      }
+      placeBuy();
+      setAmount("");
+    }
+  };
+
   return (
     <div className="border dark:border-gray-600  border-t-0 border-l-0 flex min-w-[320px] w-1/4 flex-col gap-4">
       <ColumnHeader title="Order Form" />
-      <div className="p-4 flex flex-col">
+      <div className="p-4 flex flex-col gap-4">
         <OrderTypeToggles
           handleBuyButtonClick={handleBuyButtonClick}
           handleLimitToggle={handleLimitToggle}
@@ -206,7 +220,7 @@ export function OrderForm({
               <div className="flex items-center">
                 <input
                   type="text"
-                  className="bg-transparent text-black dark:text-white outline-none text-xl border rounded-md p-2"
+                  className="bg-transparent text-black dark:text-white outline-none text-xl border rounded-md p-2  focus:ring-2 focus:ring-violet-800"
                   value={whenPriceIs}
                   placeholder="0"
                   onChange={(e) => {
@@ -247,22 +261,12 @@ export function OrderForm({
                 <span className=" dark:text-gray-400 rotate-90">&gt;</span>
               </button>
               {isBaseAssetDropdownOpen && (
-                <ul className="absolute z-10 mt-2 w-full dark:bg-black bg-white dark:border rounded-md shadow-md">
-                  {Object.keys(coinPics).map((coin) => {
-                    const displayPic = coinPics[coin as CoinType];
-                    const displayName = coinNames[coin as CoinType];
-                    return (
-                      <CoinOption
-                        key={coin}
-                        coin={coin}
-                        closeDropdown={setIsBaseAssetDropdownOpen}
-                        setAsset={setSelectedBaseAsset}
-                        displayPic={displayPic}
-                        displayName={displayName}
-                      />
-                    );
-                  })}
-                </ul>
+                <AssetDropdownMenu
+                  coinNames={coinNames}
+                  coinPics={coinPics}
+                  closeDropdown={setIsBaseAssetDropdownOpen}
+                  setAsset={setSelectedBaseAsset}
+                />
               )}
             </div>
           </div>
@@ -289,49 +293,23 @@ export function OrderForm({
                 <span className=" dark:text-gray-400 rotate-90">&gt;</span>
               </button>
               {isQuoteAssetDropdownOpen && (
-                <ul className="absolute z-10 mt-2 w-full dark:bg-black bg-white dark:border overflow-y-auto rounded-md shadow-md">
-                  {Object.keys(coinPics).map((coin) => {
-                    const displayPic = coinPics[coin as CoinType];
-                    const displayName = coinNames[coin as CoinType];
-                    return (
-                      <CoinOption
-                        key={coin}
-                        coin={coin}
-                        closeDropdown={setIsQuoteAssetDropdownOpen}
-                        setAsset={setSelectedQuoteAsset}
-                        displayPic={displayPic}
-                        displayName={displayName}
-                      />
-                    );
-                  })}
-                </ul>
+                <AssetDropdownMenu
+                  coinNames={coinNames}
+                  coinPics={coinPics}
+                  closeDropdown={setIsQuoteAssetDropdownOpen}
+                  setAsset={setSelectedQuoteAsset}
+                />
               )}
             </div>
           </div>
-          <span className="text-red-500 text-sm">
-            {isSelected === "buy" && buyError}
-            {isSelected === "sell" && sellError}
-          </span>
         </div>
-
-        <button
-          onClick={() => {
-            if (isSelected === "sell") {
-              placeSell();
-            } else if (isSelected === "buy") {
-              if (!asks.length && orderType === "market") {
-                setBuyError("There are no current asks available.");
-                return;
-              }
-              placeBuy();
-              setAmount("");
-            }
-          }}
-          className="py-3 px-6 rounded-full font-semibold w-full transition-all bg-violet-800 dark:bg-green-700 text-white hover:bg-violet-700"
-        >
-          Place {isSelected === "buy" ? "Buy" : "Sell"} Order
-        </button>
-        <div>
+        <PlaceOrderButton
+          handlePlaceOrder={handlePlaceOrder}
+          isSelected={isSelected}
+          buyError={buyError}
+          sellError={sellError}
+        />
+        <div className="flex flex-col gap-4">
           {displayedBalances?.map(
             (balance: { asset: string; balance: string }) => (
               <CoinBalance key={balance.asset} balance={balance} />

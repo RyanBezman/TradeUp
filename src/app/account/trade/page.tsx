@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { OrderForm } from "@/app/Components/OrderForm/orderForm";
 import { getBalances } from "@/actions/balance/getBalances";
 import { useAuth } from "@/app/context/AuthContext";
+import { Watchlist } from "@/app/Components/Watchlist/watchlist";
 
 export default function Trade() {
   const { balances, user } = useAuth();
@@ -70,7 +71,14 @@ export default function Trade() {
 
   return (
     <div className="bg-white dark:bg-black rounded-xl flex flex-col h-full">
-      <div className="max-h-full h-full flex justify-between">
+      <div className="max-h-full h-full flex justify-end">
+        <Watchlist />
+        <OrderBook
+          selectedBaseAsset={selectedBaseAsset}
+          selectedQuoteAsset={selectedQuoteAsset}
+          asks={asks}
+          bids={bids}
+        />
         <OrderForm
           selectedBaseAsset={selectedBaseAsset}
           selectedQuoteAsset={selectedQuoteAsset}
@@ -78,12 +86,6 @@ export default function Trade() {
           setSelectedQuoteAsset={setSelectedQuoteAsset}
           displayedBalances={displayedBalances}
           socketRef={socketRef}
-          asks={asks}
-          bids={bids}
-        />
-        <OrderBook
-          selectedBaseAsset={selectedBaseAsset}
-          selectedQuoteAsset={selectedQuoteAsset}
           asks={asks}
           bids={bids}
         />

@@ -1,6 +1,5 @@
 "use server";
 // @ts-expect-error websoket improt is broken
-
 import { WebSocketServer, WebSocket } from "ws";
 import { addNewOrder } from "../actions/orders/addNewOrder";
 import { getAllOrders } from "@/actions/orders/getAllOrders";
@@ -121,6 +120,7 @@ wss.on("connection", (ws: WebSocket) => {
       } = data;
       if (data.type === "subscribe") {
         const { pair, id } = data;
+        console.log(pair);
         clientConnection[id] = pair;
         const currPair: string = clientConnection[id];
         const book = orderBooks[currPair];

@@ -25,7 +25,7 @@ export default function StaticInput({
       <div>
         <input
           type="text"
-          className="bg-transparent text-black dark:text-white outline-none text-xl border rounded-md p-2"
+          className="bg-transparent text-black dark:text-white outline-none text-xl border rounded-md p-2  focus:ring-2 focus:ring-violet-800"
           value={amount}
           placeholder="0"
           onChange={(e) => {
