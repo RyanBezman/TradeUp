@@ -1,9 +1,13 @@
 import { RefObject, useState } from "react";
-import { ColumnHeader } from "./columnHeader";
-import StaticInput from "./staticInput";
-import { OrderData } from "./orderbook";
+import { ColumnHeader } from "../Orderbook/columnHeader";
+import StaticInput from "../Orderbook/staticInput";
+import { OrderData } from "../Orderbook/orderbook";
 import { CoinBalance, CoinType } from "../Account/coinBalance";
 import { Balance, useAuth } from "@/app/context/AuthContext";
+import { CoinOption } from "./coinOption";
+import { BuyButton } from "./buyButton";
+import { SellButton } from "./sellButton";
+import { OrderTypeButton } from "./orderTypeButton";
 type OrderFormProps = {
   asks: OrderData[];
   bids: OrderData[];
@@ -79,7 +83,15 @@ export function OrderForm({
     setSellError(null);
     setBuyError(null);
   };
-
+  const handleMarketToggle = () => {
+    setOrderType("market");
+    setAmount("");
+    setWhenPriceIs("");
+  };
+  const handleLimitToggle = () => {
+    setOrderType("limit");
+    setAmount("");
+  };
   const placeBuy = async () => {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
@@ -172,56 +184,26 @@ export function OrderForm({
       <ColumnHeader title="Order Form" />
       <div className="p-4 flex flex-col gap-8">
         <div className="flex w-full gap-2">
-          <button
-            onClick={handleBuyButtonClick}
-            className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all ${
-              isSelected === "buy"
-                ? "bg-violet-800 dark:bg-green-700 text-white shadow-md"
-                : "bg-gray-300 dark:bg-zinc-700 text-gray-700 dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-zinc-600"
-            }`}
-          >
-            Buy
-          </button>
-          <button
-            onClick={handleSellButtonClick}
-            className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all ${
-              isSelected === "sell"
-                ? "bg-violet-800 dark:bg-green-700 text-white shadow-md"
-                : "bg-gray-300 dark:bg-zinc-700 text-gray-700 dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-zinc-600"
-            }`}
-          >
-            Sell
-          </button>
+          <BuyButton
+            handleBuyButtonClick={handleBuyButtonClick}
+            isSelected={isSelected}
+          />
+          <SellButton
+            handleSellButtonClick={handleSellButtonClick}
+            isSelected={isSelected}
+          />
         </div>
-
         <div className="flex w-full justify-center gap-4">
-          <span
-            onClick={() => {
-              setOrderType("market");
-              setAmount("");
-              setWhenPriceIs("");
-            }}
-            className={`cursor-pointer text-2xl ${
-              orderType === "market"
-                ? "border-b-2 text-black border-black dark:text-white dark:border-white font-semibold"
-                : "text-gray-500 dark:text-gray-400"
-            }`}
-          >
-            Market
-          </span>
-          <span
-            onClick={() => {
-              setOrderType("limit");
-              setAmount("");
-            }}
-            className={`cursor-pointer text-2xl ${
-              orderType === "limit"
-                ? "border-b-2 text-black border-black dark:text-white dark:border-white font-semibold "
-                : "text-gray-500 dark:text-gray-400"
-            }`}
-          >
-            Limit
-          </span>
+          <OrderTypeButton
+            toggleOrderType={handleMarketToggle}
+            orderType={orderType}
+            type="market"
+          />
+          <OrderTypeButton
+            toggleOrderType={handleLimitToggle}
+            orderType={orderType}
+            type="limit"
+          />
         </div>
 
         <div className="flex flex-col gap-2">
@@ -307,17 +289,14 @@ export function OrderForm({
                     const displayPic = coinPics[coin as CoinType];
                     const displayName = coinNames[coin as CoinType];
                     return (
-                      <li
+                      <CoinOption
                         key={coin}
-                        className="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
-                        onClick={() => {
-                          setSelectedBaseAsset(coin);
-                          setIsDropdownOpen(false);
-                        }}
-                      >
-                        <img src={displayPic} alt={coin} className="w-6 h-6" />
-                        <span className="dark:text-white">{displayName}</span>
-                      </li>
+                        coin={coin}
+                        closeDropdown={setIsDropdownOpen}
+                        setAsset={setSelectedBaseAsset}
+                        displayPic={displayPic}
+                        displayName={displayName}
+                      />
                     );
                   })}
                 </ul>
@@ -352,17 +331,14 @@ export function OrderForm({
                     const displayPic = coinPics[coin as CoinType];
                     const displayName = coinNames[coin as CoinType];
                     return (
-                      <li
+                      <CoinOption
                         key={coin}
-                        className="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
-                        onClick={() => {
-                          setSelectedQuoteAsset(coin);
-                          setIsQuoteAssetDropdownOpen(false);
-                        }}
-                      >
-                        <img src={displayPic} alt={coin} className="w-6 h-6" />
-                        <span className="dark:text-white">{displayName}</span>
-                      </li>
+                        coin={coin}
+                        closeDropdown={setIsQuoteAssetDropdownOpen}
+                        setAsset={setSelectedQuoteAsset}
+                        displayPic={displayPic}
+                        displayName={displayName}
+                      />
                     );
                   })}
                 </ul>

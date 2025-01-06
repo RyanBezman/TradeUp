@@ -1,7 +1,7 @@
 "use client";
 import { OrderBook, OrderData } from "@/app/Components/Orderbook/orderbook";
 import { useEffect, useRef, useState } from "react";
-import { OrderForm } from "@/app/Components/Orderbook/orderForm";
+import { OrderForm } from "@/app/Components/OrderForm/orderForm";
 import { getBalances } from "@/actions/balance/getBalances";
 import { useAuth } from "@/app/context/AuthContext";
 
