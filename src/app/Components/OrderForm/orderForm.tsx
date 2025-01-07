@@ -172,7 +172,7 @@ export function OrderForm({
     }
     setAmount("");
     setWhenPriceIs("");
-    setSellError("");
+    setSellError(null);
   };
   const handlePlaceOrder = () => {
     if (isSelected === "sell") {
