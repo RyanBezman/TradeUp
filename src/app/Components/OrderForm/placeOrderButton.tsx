@@ -16,7 +16,9 @@ export function PlaceOrderButton({
       <button
         onClick={handlePlaceOrder}
         disabled={isButtonDisabled}
-        className="py-3 px-6 rounded-full font-semibold w-full transition-all bg-violet-800 dark:bg-green-700 text-white hover:bg-violet-700"
+        className={`${
+          isButtonDisabled && "opacity-70"
+        } py-3 px-6 rounded-full font-semibold w-full transition-all bg-violet-800 dark:bg-green-700 text-white hover:bg-violet-700`}
       >
         {isButtonDisabled
           ? "Add funds to continue"

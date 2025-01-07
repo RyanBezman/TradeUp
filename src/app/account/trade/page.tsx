@@ -5,12 +5,15 @@ import { OrderForm } from "@/app/Components/OrderForm/orderForm";
 import { getBalances } from "@/actions/balance/getBalances";
 import { useAuth } from "@/app/context/AuthContext";
 import { Watchlist } from "@/app/Components/Watchlist/watchlist";
+import { TradeHistory } from "@/app/Components/TradeHistory/tradeHistory";
+import { HistoricalOrder } from "@/db/websocket";
 
 export default function Trade() {
   const { balances, user } = useAuth();
 
   const [asks, setAsks] = useState<OrderData[]>([]);
   const [bids, setBids] = useState<OrderData[]>([]);
+  const [tradeHistory, setTradeHistory] = useState<HistoricalOrder[]>([]);
   const [selectedBaseAsset, setSelectedBaseAsset] = useState("BTC");
   const [selectedQuoteAsset, setSelectedQuoteAsset] = useState("USD");
   const [displayedBalances, setDisplayedBalances] = useState(balances);
@@ -35,6 +38,9 @@ export default function Trade() {
       if (data.type === "order_book") {
         setAsks(data.asks);
         setBids(data.bids);
+        if (data.tradeHistory !== undefined) {
+          setTradeHistory(data.tradeHistory);
+        }
       }
     };
 
@@ -75,6 +81,11 @@ export default function Trade() {
         <Watchlist
           setSelectedBaseAsset={setSelectedBaseAsset}
           setSelectedQuoteAsset={setSelectedQuoteAsset}
+        />
+        <TradeHistory
+          selectedBaseAsset={selectedBaseAsset}
+          selectedQuoteAsset={selectedQuoteAsset}
+          tradeHistory={tradeHistory}
         />
         <OrderBook
           selectedBaseAsset={selectedBaseAsset}

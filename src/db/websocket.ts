@@ -9,6 +9,7 @@ import { addHistoricalOrder } from "@/actions/orders/addHistoricalOrder";
 import { updateBalance } from "@/actions/balance/updateBalance";
 import { completeOrder } from "@/actions/orders/completeOrder";
 import { completeMarketOrder } from "@/actions/orders/completeMarketOrder";
+import { getTradeHistory } from "@/actions/orders/getTradeHistory";
 const wss = new WebSocketServer({ port: 8080 });
 type InitialOrder = {
   id: number;
@@ -23,7 +24,18 @@ type InitialOrder = {
   orderBook: string;
   status: string;
 };
-
+export type HistoricalOrder = {
+  id: number;
+  userId: number;
+  side: string;
+  orderType: string;
+  baseAsset: string;
+  quoteAsset: string;
+  price: string;
+  amount: string;
+  createdAt: Date;
+  status: string;
+};
 const orderBooks: Record<
   string,
   { asks: InitialOrder[]; bids: InitialOrder[] }
@@ -49,6 +61,28 @@ const orderBooks: Record<
   "USD-XRP": { asks: [], bids: [] },
   "USD-SOL": { asks: [], bids: [] },
 };
+const tradeHistoryBooks: Record<string, { orders: HistoricalOrder[] }> = {
+  "BTC-ETH": { orders: [] },
+  "BTC-XRP": { orders: [] },
+  "BTC-SOL": { orders: [] },
+  "BTC-USD": { orders: [] },
+  "ETH-BTC": { orders: [] },
+  "ETH-XRP": { orders: [] },
+  "ETH-SOL": { orders: [] },
+  "ETH-USD": { orders: [] },
+  "XRP-BTC": { orders: [] },
+  "XRP-ETH": { orders: [] },
+  "XRP-SOL": { orders: [] },
+  "XRP-USD": { orders: [] },
+  "SOL-BTC": { orders: [] },
+  "SOL-ETH": { orders: [] },
+  "SOL-XRP": { orders: [] },
+  "SOL-USD": { orders: [] },
+  "USD-BTC": { orders: [] },
+  "USD-ETH": { orders: [] },
+  "USD-XRP": { orders: [] },
+  "USD-SOL": { orders: [] },
+};
 type ClientConection = {
   [id: number]: string;
 };
@@ -56,6 +90,7 @@ const clientConnection: ClientConection = {};
 async function initializeOrderBook() {
   try {
     const allOrders = await getAllOrders();
+    const tradeHistory = await getTradeHistory();
 
     for (const order of allOrders) {
       const book = order.orderBook;
@@ -64,6 +99,10 @@ async function initializeOrderBook() {
       } else if (order.side === "buy" && order.status === "pending") {
         orderBooks[book].bids.push(order);
       }
+    }
+    for (const trade of tradeHistory) {
+      const book = `${trade.baseAsset}-${trade.quoteAsset}`;
+      tradeHistoryBooks[book].orders.push(trade);
     }
 
     console.log("succefully initialzed orderbook");
@@ -124,12 +163,14 @@ wss.on("connection", (ws: WebSocket) => {
         clientConnection[id] = pair;
         const currPair: string = clientConnection[id];
         const book = orderBooks[currPair];
+        const tradeHistory = tradeHistoryBooks[currPair].orders;
 
         ws.send(
           JSON.stringify({
             type: "order_book",
             asks: book.asks,
             bids: book.bids,
+            tradeHistory: tradeHistory,
           })
         );
       } else if (data.type === "new_order") {

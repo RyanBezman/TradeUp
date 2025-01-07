@@ -38,6 +38,7 @@ export function OrderBook({
       <LabelHeader
         left={`Amount (${selectedBaseAsset})`}
         right={`Price (${selectedQuoteAsset})`}
+        colThree="MySize"
       />
       <div className="flex flex-col flex-grow overflow-hidden">
         <OrderBookAsks bids={asks} bidsContainerRef={bidsContainerRef} />
