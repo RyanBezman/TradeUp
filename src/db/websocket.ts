@@ -36,6 +36,19 @@ export type HistoricalOrder = {
   createdAt: Date;
   status: string;
 };
+
+type LocalHistoricalOrders = {
+  id?: number;
+  userId?: number;
+  side: string;
+  orderType?: string;
+  baseAsset?: string;
+  quoteAsset?: string;
+  price: string;
+  amount: string;
+  createdAt: Date;
+  status?: string;
+};
 const orderBooks: Record<
   string,
   { asks: InitialOrder[]; bids: InitialOrder[] }
@@ -61,7 +74,7 @@ const orderBooks: Record<
   "USD-XRP": { asks: [], bids: [] },
   "USD-SOL": { asks: [], bids: [] },
 };
-const tradeHistoryBooks: Record<string, { orders: HistoricalOrder[] }> = {
+const tradeHistoryBooks: Record<string, { orders: LocalHistoricalOrders[] }> = {
   "BTC-ETH": { orders: [] },
   "BTC-XRP": { orders: [] },
   "BTC-SOL": { orders: [] },
@@ -229,10 +242,22 @@ wss.on("connection", (ws: WebSocket) => {
                 newOrder.side,
                 newOrder.baseAsset,
                 newOrder.quoteAsset,
-                newOrder.price,
+                bid.price,
                 newOrder.amount,
                 "completed"
               );
+              tradeHistoryBooks[currBook].orders.unshift({
+                amount: bid.amount,
+                price: bid.price,
+                side: bid.side,
+                createdAt: new Date(),
+              });
+              tradeHistoryBooks[currBook].orders.unshift({
+                amount: newOrder.amount,
+                price: bid.price,
+                side: newOrder.side,
+                createdAt: new Date(),
+              });
               await handleFills(bid.id, amount, price);
               await handleFills(newOrder.id, amount, price);
               await updateFilledAmount(newOrder.id, newOrder.amount);
@@ -281,6 +306,12 @@ wss.on("connection", (ws: WebSocket) => {
                 amount,
                 "completed"
               );
+              tradeHistoryBooks[currBook].orders.unshift({
+                amount: amount,
+                price: price,
+                side: side,
+                createdAt: new Date(),
+              });
               await updateBalance(
                 id,
                 baseAsset,
@@ -342,6 +373,12 @@ wss.on("connection", (ws: WebSocket) => {
                 bid.amount,
                 "completed"
               );
+              tradeHistoryBooks[currBook].orders.unshift({
+                amount: bid.amount,
+                price: bid.price,
+                side: bid.side,
+                createdAt: new Date(),
+              });
               await completeOrder(bid.id);
               for (const ask of orderBooks[currBook].asks) {
                 if (ask.id === newOrder.id) {
@@ -396,6 +433,12 @@ wss.on("connection", (ws: WebSocket) => {
                 ask.amount,
                 "completed"
               );
+              tradeHistoryBooks[currBook].orders.unshift({
+                amount: ask.amount,
+                price: ask.price,
+                side: ask.side,
+                createdAt: new Date(),
+              });
 
               await addHistoricalOrder(
                 newOrder.userId,
@@ -403,11 +446,16 @@ wss.on("connection", (ws: WebSocket) => {
                 newOrder.side,
                 newOrder.baseAsset,
                 newOrder.quoteAsset,
-                newOrder.price,
+                ask.price,
                 newOrder.amount,
                 "completed"
               );
-
+              tradeHistoryBooks[currBook].orders.unshift({
+                amount: newOrder.amount,
+                price: ask.price,
+                side: newOrder.side,
+                createdAt: new Date(),
+              });
               await updateBalance(
                 ask.userId,
                 ask.baseAsset,
@@ -455,6 +503,12 @@ wss.on("connection", (ws: WebSocket) => {
                 amount,
                 "completed"
               );
+              tradeHistoryBooks[currBook].orders.unshift({
+                amount: amount,
+                price: price,
+                side: side,
+                createdAt: new Date(),
+              });
               await updateBalance(
                 id,
                 baseAsset,
@@ -516,6 +570,12 @@ wss.on("connection", (ws: WebSocket) => {
                 ask.amount,
                 "completed"
               );
+              tradeHistoryBooks[currBook].orders.unshift({
+                amount: ask.amount,
+                price: ask.price,
+                side: ask.side,
+                createdAt: new Date(),
+              });
               await completeOrder(ask.id);
               for (const bid of orderBooks[currBook].bids) {
                 if (bid.id === newOrder.id) {
@@ -563,10 +623,12 @@ function sortBids(book: string) {
 function showOrderBook(book: string) {
   const asksToShow = orderBooks[book].asks;
   const bidsToShow = orderBooks[book].bids;
+  const tradeHistory = tradeHistoryBooks[book].orders;
   const message = JSON.stringify({
     type: "order_book",
     asks: asksToShow,
     bids: bidsToShow,
+    tradeHistory: tradeHistory,
   });
 
   wss.clients.forEach((client: WebSocket) => {
@@ -642,7 +704,19 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
         newOrder.amount,
         "completed"
       );
-
+      // amount price side date
+      tradeHistoryBooks[currBook].orders.unshift({
+        amount: ask.amount,
+        price: ask.price,
+        side: ask.side,
+        createdAt: new Date(),
+      });
+      tradeHistoryBooks[currBook].orders.unshift({
+        amount: newOrder.amount,
+        price: ask.price,
+        side: newOrder.side,
+        createdAt: new Date(),
+      });
       await completeOrder(ask.id);
       await completeMarketOrder(newOrder.id, ask.price);
 
@@ -682,7 +756,12 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
         ask.amount,
         "completed"
       );
-
+      tradeHistoryBooks[currBook].orders.unshift({
+        amount: ask.amount,
+        price: ask.price,
+        side: ask.side,
+        createdAt: new Date(),
+      });
       await completeOrder(ask.id);
 
       currAsks.splice(i, 1);
@@ -705,6 +784,12 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
           marketFilledAmount,
           "completed"
         );
+        tradeHistoryBooks[currBook].orders.unshift({
+          amount: marketFilledAmount,
+          price: ask.price,
+          side: newOrder.side,
+          createdAt: new Date(),
+        });
         await completeMarketOrder(newOrder.id, ask.price);
         updateOrderBook(id);
       }
@@ -746,6 +831,12 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
         newOrder.amount,
         "completed"
       );
+      tradeHistoryBooks[currBook].orders.unshift({
+        amount: newOrder.amount,
+        price: ask.price,
+        side: newOrder.side,
+        createdAt: new Date(),
+      });
 
       await completeMarketOrder(newOrder.id, ask.price);
       ask.filledAmount = newFilledAmount;
@@ -824,7 +915,18 @@ async function marketSell(newOrder: InitialOrder, id: number) {
         newOrder.amount,
         "completed"
       );
-
+      tradeHistoryBooks[currBook].orders.unshift({
+        amount: bid.amount,
+        price: bid.price,
+        side: bid.side,
+        createdAt: new Date(),
+      });
+      tradeHistoryBooks[currBook].orders.unshift({
+        amount: newOrder.amount,
+        price: bid.price,
+        side: newOrder.side,
+        createdAt: new Date(),
+      });
       await completeOrder(bid.id);
       await completeMarketOrder(newOrder.id, bid.price);
 
@@ -864,7 +966,12 @@ async function marketSell(newOrder: InitialOrder, id: number) {
         bid.amount,
         "completed"
       );
-
+      tradeHistoryBooks[currBook].orders.unshift({
+        amount: bid.amount,
+        price: bid.price,
+        side: bid.side,
+        createdAt: new Date(),
+      });
       await completeOrder(bid.id);
 
       currBids.splice(i, 1);
@@ -888,6 +995,12 @@ async function marketSell(newOrder: InitialOrder, id: number) {
           marketFilledAmount,
           "completed"
         );
+        tradeHistoryBooks[currBook].orders.unshift({
+          amount: newOrder.amount,
+          price: bid.price,
+          side: newOrder.side,
+          createdAt: new Date(),
+        });
         await completeMarketOrder(newOrder.id, bid.price);
         updateOrderBook(id);
       }
@@ -928,7 +1041,12 @@ async function marketSell(newOrder: InitialOrder, id: number) {
         newOrder.amount,
         "completed"
       );
-
+      tradeHistoryBooks[currBook].orders.unshift({
+        amount: newOrder.amount,
+        price: bid.price,
+        side: newOrder.side,
+        createdAt: new Date(),
+      });
       await completeMarketOrder(newOrder.id, bid.price);
 
       bid.filledAmount = newFilledAmount;
