@@ -58,9 +58,7 @@ export function OrderForm({
   const [orderType, setOrderType] = useState("market");
   const [amount, setAmount] = useState("");
   const [whenPriceIs, setWhenPriceIs] = useState("");
-  const [isBaseAssetDropdownOpen, setIsBaseAssetDropdownOpen] = useState(false);
-  const [isQuoteAssetDropdownOpen, setIsQuoteAssetDropdownOpen] =
-    useState(false);
+
   const displayPic = coinPics[selectedBaseAsset as CoinType];
   const displayName = coinNames[selectedBaseAsset as CoinType];
   const quoteAssetDiplayPic = coinPics[selectedQuoteAsset as CoinType];
@@ -143,9 +141,7 @@ export function OrderForm({
         console.log(scaledSize, scaledBalance);
         if (scaledSize > scaledBalance) {
           setSellError("Insufficient Balance: Please try again.");
-          setTimeout(() => {
-            setSellError("");
-          }, 10000);
+
           return;
         }
       }
@@ -192,7 +188,7 @@ export function OrderForm({
   };
 
   return (
-    <div className="border dark:border-gray-600  border-t-0 border-l-0 flex min-w-[320px] w-1/4 flex-col gap-4">
+    <div className="border dark:border-gray-600 border-t-0 border-l-0 flex min-w-[320px] w-1/4 flex-col gap-4">
       <ColumnHeader title="Order Form" />
       <div className="p-4 flex flex-col gap-4">
         <OrderTypeToggles
@@ -203,13 +199,17 @@ export function OrderForm({
           isSelected={isSelected}
           orderType={orderType}
         />
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-6">
           <StaticInput
+            isSelected={isSelected}
+            buyError={buyError}
+            sellError={sellError}
             amount={amount}
             selectedCoin={selectedBaseAsset}
             setAmount={setAmount}
             setSellError={setSellError}
             setBuyError={setBuyError}
+            displayedBalances={displayedBalances}
             label="Amount"
           />
           {orderType === "limit" && (
@@ -238,70 +238,6 @@ export function OrderForm({
               </div>
             </div>
           )}
-          <div className="flex flex-col gap-1 mt-2">
-            <span className="font-semibold dark:text-white text-black">
-              Asset
-            </span>
-            <div className="relative">
-              <button
-                className="flex items-center justify-between w-full p-3 border rounded-md   dark:text-white"
-                onClick={() => {
-                  setIsQuoteAssetDropdownOpen(false);
-                  setIsBaseAssetDropdownOpen(!isBaseAssetDropdownOpen);
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <img
-                    src={displayPic}
-                    alt={selectedBaseAsset}
-                    className="w-6 h-6"
-                  />
-                  <span>{displayName}</span>
-                </div>
-                <span className=" dark:text-gray-400 rotate-90">&gt;</span>
-              </button>
-              {isBaseAssetDropdownOpen && (
-                <AssetDropdownMenu
-                  coinNames={coinNames}
-                  coinPics={coinPics}
-                  closeDropdown={setIsBaseAssetDropdownOpen}
-                  setAsset={setSelectedBaseAsset}
-                />
-              )}
-            </div>
-          </div>
-          <div className="flex flex-col gap-1 mt-2">
-            <span className="font-semibold dark:text-white text-black">
-              {isSelected === "buy" ? "Purchase with" : "Sell for"}
-            </span>
-            <div className="relative">
-              <button
-                className="flex items-center justify-between w-full p-3 border rounded-md   dark:text-white"
-                onClick={() => {
-                  setIsBaseAssetDropdownOpen(false);
-                  setIsQuoteAssetDropdownOpen(!isQuoteAssetDropdownOpen);
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <img
-                    src={quoteAssetDiplayPic}
-                    alt={selectedQuoteAsset}
-                    className="w-6 h-6"
-                  />
-                  <span>{quoteAssetDisplayName}</span>
-                </div>
-                <span className=" dark:text-gray-400 rotate-90">&gt;</span>
-              </button>
-              {isQuoteAssetDropdownOpen && (
-                <AssetDropdownMenu
-                  coinNames={coinNames}
-                  coinPics={coinPics}
-                  closeDropdown={setIsQuoteAssetDropdownOpen}
-                  setAsset={setSelectedQuoteAsset}
-                />
-              )}
-            </div>
-          </div>
         </div>
         <PlaceOrderButton
           handlePlaceOrder={handlePlaceOrder}
@@ -309,7 +245,7 @@ export function OrderForm({
           buyError={buyError}
           sellError={sellError}
         />
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 overflow-auto">
           {displayedBalances?.map(
             (balance: { asset: string; balance: string }) => (
               <CoinBalance key={balance.asset} balance={balance} />

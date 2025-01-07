@@ -1,6 +1,6 @@
 type LabelHeaderProps = {
   left: string;
-  right: string;
+  right?: string;
 };
 export function LabelHeader({ left, right }: LabelHeaderProps) {
   return (

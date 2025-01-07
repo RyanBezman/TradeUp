@@ -72,7 +72,10 @@ export default function Trade() {
   return (
     <div className="bg-white dark:bg-black rounded-xl flex flex-col h-full">
       <div className="max-h-full h-full flex justify-end">
-        <Watchlist />
+        <Watchlist
+          setSelectedBaseAsset={setSelectedBaseAsset}
+          setSelectedQuoteAsset={setSelectedQuoteAsset}
+        />
         <OrderBook
           selectedBaseAsset={selectedBaseAsset}
           selectedQuoteAsset={selectedQuoteAsset}

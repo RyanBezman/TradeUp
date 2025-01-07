@@ -5,10 +5,7 @@ import { ChartNoAxesCombined } from "lucide-react";
 import { HamburgerMenu } from "./hamburgerMenu";
 
 const buttons = ["Benefits", "Features", "Pricing", "Testimonials", "FAQ's"];
-type NavbarProps = {
-  isHamburgerOpen: boolean;
-  setIsHamburgerOpen: (param: boolean) => void;
-};
+
 export function Navbar() {
   return (
     <header className="flex w-full items-center relative dark:border-gray-600 border-gray-300 justify-between px-1 min-[825px]:px-8 py-6">

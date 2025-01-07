@@ -69,3 +69,6 @@ body {
 .start-red {
   --start-color: #ef4444;
 }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

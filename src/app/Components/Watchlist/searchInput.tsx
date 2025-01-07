@@ -9,7 +9,7 @@ export function SearchInput({
   handleInputChange,
 }: SearchInputProps) {
   return (
-    <div className="p-4 flex w-full">
+    <div className="p-4  flex w-full">
       <label
         htmlFor="search-input"
         className="cursor-pointer group bg-transparent text-black dark:text-white outline-none text-lg border rounded-lg w-full p-2 flex items-center gap-2 focus-within:ring-2 focus-within:ring-violet-800"

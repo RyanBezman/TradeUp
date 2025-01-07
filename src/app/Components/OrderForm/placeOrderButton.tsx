@@ -10,18 +10,18 @@ export function PlaceOrderButton({
   buyError,
   sellError,
 }: PlaceOrderButtonProps) {
+  let isButtonDisabled = sellError !== null;
   return (
-    <>
-      <span className="text-red-500 text-sm">
-        {isSelected === "buy" && buyError}
-        {isSelected === "sell" && sellError}
-      </span>
+    <div className="my-6 flex flex-col items-center gap-4">
       <button
         onClick={handlePlaceOrder}
+        disabled={isButtonDisabled}
         className="py-3 px-6 rounded-full font-semibold w-full transition-all bg-violet-800 dark:bg-green-700 text-white hover:bg-violet-700"
       >
-        Place {isSelected === "buy" ? "Buy" : "Sell"} Order
+        {isButtonDisabled
+          ? "Add funds to continue"
+          : `Place ${isSelected === "buy" ? "Buy" : "Sell"} Order`}
       </button>
-    </>
+    </div>
   );
 }

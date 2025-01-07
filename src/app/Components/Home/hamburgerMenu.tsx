@@ -3,7 +3,6 @@
 import {
   Activity,
   CreditCard,
-  Divide,
   DollarSign,
   Home,
   Menu,
