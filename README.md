@@ -4,9 +4,12 @@
 
 Existing Accounts
 Here are the accounts that have already been created:
-Email: a, Password: a
-Email: b, Password: b
-Email: c, Password: c
+| Email | Password |
+|-------|----------|
+| a     | a        |
+| b     | b        |
+| c     | c        |
+
 First, run the development server:
 
 ```bash
