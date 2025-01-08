@@ -23,7 +23,7 @@ export function TradeHistory({
   tradeHistory,
 }: TradeHistoryProps) {
   return (
-    <div className="w-1/4 border border-t-0 border-l-0 min-w-[320px] dark:border-gray-600">
+    <div className="hidden min-[1150px]:flex border border-t-0 border-l-0 flex-1  flex-col dark:border-gray-600">
       <ColumnHeader title="Trade History" />
       <LabelHeader
         left={`Amount (${selectedBaseAsset})`}
@@ -59,7 +59,7 @@ export function Cell({ size, price, type, createdAt }: CellProps) {
   const numSize = +size;
   console.log(typeof createdAt);
   return (
-    <div className="flex justify-end px-2 py-1">
+    <div className="flex flex-srhink justify-end px-2 py-1">
       <span
         className={`w-1/3 flex flex-1 justify-end fade-to-color dark:text-white ${
           type === "sell" ? "start-green" : "start-red"

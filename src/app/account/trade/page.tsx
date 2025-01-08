@@ -82,6 +82,7 @@ export default function Trade() {
           setSelectedBaseAsset={setSelectedBaseAsset}
           setSelectedQuoteAsset={setSelectedQuoteAsset}
         />
+
         <TradeHistory
           selectedBaseAsset={selectedBaseAsset}
           selectedQuoteAsset={selectedQuoteAsset}
@@ -93,6 +94,7 @@ export default function Trade() {
           asks={asks}
           bids={bids}
         />
+
         <OrderForm
           selectedBaseAsset={selectedBaseAsset}
           selectedQuoteAsset={selectedQuoteAsset}

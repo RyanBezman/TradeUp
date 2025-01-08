@@ -30,7 +30,7 @@ export function OrderBook({
   const bidsContainerRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className="flex flex-col w-1/4 min-w-[320px] border border-l-0 border-t-0 dark:border-gray-600 ">
+    <div className=" flex flex-col flex-1 border border-l-0 border-t-0 dark:border-gray-600 ">
       <ColumnHeader
         title="Order Book"
         book={`${selectedBaseAsset} - ${selectedQuoteAsset}`}
@@ -53,7 +53,7 @@ type OrderBookSellsProps = {
   asks: OrderData[];
   asksContainerRef: React.RefObject<HTMLDivElement>;
 };
-function OrderBookBids({ asks, asksContainerRef }: OrderBookSellsProps) {
+export function OrderBookBids({ asks, asksContainerRef }: OrderBookSellsProps) {
   return (
     <div
       className="flex-grow overflow-y-auto no-scrollbar"
@@ -81,7 +81,7 @@ type OrderBookBidsProps = {
   bids: OrderData[];
   bidsContainerRef: React.RefObject<HTMLDivElement>;
 };
-function OrderBookAsks({ bids, bidsContainerRef }: OrderBookBidsProps) {
+export function OrderBookAsks({ bids, bidsContainerRef }: OrderBookBidsProps) {
   return (
     <div
       className="flex-grow overflow-y-auto no-scrollbar rotate-180 "

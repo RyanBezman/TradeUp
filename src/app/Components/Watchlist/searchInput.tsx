@@ -21,7 +21,7 @@ export function SearchInput({
           onChange={handleInputChange}
           id="search-input"
           placeholder="Search for a market"
-          className="outline-none bg-transparent cursor-pointer"
+          className="outline-none text-sm bg-transparent cursor-pointer"
         />
       </label>
     </div>

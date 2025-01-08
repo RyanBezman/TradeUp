@@ -54,7 +54,7 @@ export function Watchlist({
     setOrderBooks(booksToDisplay);
   };
   return (
-    <div className="flex flex-col w-1/4 min-w-[40px] border  border-t-0 dark:border-gray-600">
+    <div className="flex flex-col w-1/4 max-w-[224px] border border-l-0 border-t-0 dark:border-gray-600">
       <ColumnHeader title="Watchlist" />
       <SearchInput
         searchValue={searchValue}

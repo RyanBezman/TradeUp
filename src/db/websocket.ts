@@ -173,6 +173,7 @@ wss.on("connection", (ws: WebSocket) => {
       if (data.type === "subscribe") {
         const { pair, id } = data;
         console.log(pair);
+        ws.subscribedPair = pair;
         clientConnection[id] = pair;
         const currPair: string = clientConnection[id];
         const book = orderBooks[currPair];
@@ -626,13 +627,17 @@ function showOrderBook(book: string) {
   const tradeHistory = tradeHistoryBooks[book].orders;
   const message = JSON.stringify({
     type: "order_book",
+    pair: book,
     asks: asksToShow,
     bids: bidsToShow,
     tradeHistory: tradeHistory,
   });
 
   wss.clients.forEach((client: WebSocket) => {
-    if (client.readyState === WebSocket.OPEN) {
+    if (
+      client.readyState === WebSocket.OPEN &&
+      client.subscribedPair === book
+    ) {
       client.send(message);
     }
   });
@@ -640,6 +645,7 @@ function showOrderBook(book: string) {
 
 function updateOrderBook(id: number) {
   const book = clientConnection[id];
+  console.log(book);
   sortAsks(book);
   sortBids(book);
   showOrderBook(book);
