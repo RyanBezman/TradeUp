@@ -34,7 +34,7 @@ export function HamburgerMenu() {
     console.log(user);
     return (
       <div>
-        <ChartLogo />
+        <TempChartLogo />
         <div
           className="relative"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -65,6 +65,17 @@ function ChartLogo() {
     <Link href={"/account/home"}>
       <ChartNoAxesCombined
         className="h-10 w-10 cursor-pointer text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400
+"
+      />
+    </Link>
+  );
+}
+
+function TempChartLogo() {
+  return (
+    <Link href={"/account/home"}>
+      <ChartNoAxesCombined
+        className="h-10 w-10 cursor-pointer hidden min-[825px]:block text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400
 "
       />
     </Link>
