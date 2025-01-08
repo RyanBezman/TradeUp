@@ -2,6 +2,7 @@
 
 import {
   Activity,
+  ChartNoAxesCombined,
   CreditCard,
   DollarSign,
   Home,
@@ -14,6 +15,7 @@ import { useState } from "react";
 import { SideBarOption } from "../Account/sideBarOption";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
 const sideBarOptions = [
   { label: "Home", icon: Home, url: "/account/home" },
   { label: "My Profile", icon: UserRound, url: "/account/profile" },
@@ -26,25 +28,45 @@ const sideBarOptions = [
 
 export function HamburgerMenu() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { user } = useAuth();
   const pathname = usePathname();
+  if (user) {
+    console.log(user);
+    return (
+      <div>
+        <ChartLogo />
+        <div
+          className="relative"
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+        >
+          <Menu className="h-10 w-10 min-[825px]:hidden text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400 cursor-pointer" />
+          {isDropdownOpen && (
+            <ul className="absolute top-full z-20 rounded-xl bg-white dark:bg-black border">
+              {sideBarOptions.map((option) => (
+                <Link key={option.label} href={option.url}>
+                  <SideBarOption
+                    isActive={pathname === option.url}
+                    option={option}
+                  />
+                </Link>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    );
+  } else {
+    return <ChartLogo />;
+  }
+}
+
+function ChartLogo() {
   return (
-    <div
-      className="relative"
-      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-    >
-      <Menu className="h-10 w-10 min-[825px]:hidden text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400 cursor-pointer" />
-      {isDropdownOpen && (
-        <ul className="absolute top-full z-20 rounded-xl bg-white dark:bg-black border">
-          {sideBarOptions.map((option) => (
-            <Link key={option.label} href={option.url}>
-              <SideBarOption
-                isActive={pathname === option.url}
-                option={option}
-              />
-            </Link>
-          ))}
-        </ul>
-      )}
-    </div>
+    <Link href={"/account/home"}>
+      <ChartNoAxesCombined
+        className="h-10 w-10 cursor-pointer text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400
+"
+      />
+    </Link>
   );
 }
