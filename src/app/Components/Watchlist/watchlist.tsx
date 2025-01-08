@@ -3,7 +3,6 @@ import { ChangeEvent, useState } from "react";
 import { ColumnHeader } from "../Orderbook/columnHeader";
 import { SearchInput } from "./searchInput";
 import { CoinType } from "../Account/coinBalance";
-import { LabelHeader } from "../Orderbook/labelheader";
 const books = [
   "BTC-ETH",
   "BTC-XRP",

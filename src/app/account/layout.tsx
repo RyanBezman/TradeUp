@@ -13,7 +13,6 @@ import {
   Home,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 const sideBarOptions = [
   { label: "Home", icon: Home, url: "/account/home" },

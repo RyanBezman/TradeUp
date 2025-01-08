@@ -672,7 +672,7 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
   const currAsks = orderBooks[currBook].asks;
   let partialFill = false;
 
-  let balanceInfo = await getOneBalance(newOrder.userId, newOrder.quoteAsset);
+  const balanceInfo = await getOneBalance(newOrder.userId, newOrder.quoteAsset);
   if (
     balanceInfo === undefined ||
     balanceInfo?.balance === undefined ||
@@ -696,7 +696,10 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
     const availableAmount = preciseSubtraction(ask.amount, ask.filledAmount);
 
     if (availableAmount === remainingSize) {
-      let transactionCost = +preciseMultiplication(availableAmount, ask.price);
+      const transactionCost = +preciseMultiplication(
+        availableAmount,
+        ask.price
+      );
       if (transactionCost > +currentQuoteAssetBalance) {
         const affordableAmount = preciseDivision(
           currentQuoteAssetBalance.toString(),
@@ -818,7 +821,7 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
         remainingSize = "0";
       }
     } else if (availableAmount < remainingSize) {
-      let transactionCost = preciseMultiplication(availableAmount, ask.price);
+      const transactionCost = preciseMultiplication(availableAmount, ask.price);
       if (currentQuoteAssetBalance < +transactionCost) {
         const affordableAmount = preciseDivision(
           currentQuoteAssetBalance.toString(),
@@ -951,7 +954,7 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
         remainingSize = newRemainingSize;
       }
     } else {
-      let transactionCost = +preciseMultiplication(remainingSize, ask.price);
+      const transactionCost = +preciseMultiplication(remainingSize, ask.price);
       if (currentQuoteAssetBalance < transactionCost) {
         const affordableAmount = preciseDivision(
           currentQuoteAssetBalance.toString(),
