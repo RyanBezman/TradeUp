@@ -12,8 +12,6 @@ type OrderFormProps = {
   bids: OrderData[];
   selectedBaseAsset: string;
   selectedQuoteAsset: string;
-  setSelectedQuoteAsset: (param: string) => void;
-  setSelectedBaseAsset: (param: string) => void;
   displayedBalances: Balance[] | null;
   socketRef: RefObject<WebSocket | null>;
 };
@@ -41,13 +39,20 @@ const handleInputNumber = (value: number | string): string => {
 
   return numberValue.toLocaleString("en-US");
 };
+export function preciseMultiplication(value1: string, value2: string): string {
+  const scaleNumber = Math.pow(10, 8);
+  const answer =
+    (Math.round(parseFloat(value1) * scaleNumber) *
+      Math.round(parseFloat(value2) * scaleNumber)) /
+    Math.pow(scaleNumber, 2);
+
+  return answer.toString();
+}
 export function OrderForm({
   asks,
   bids,
   selectedBaseAsset,
   selectedQuoteAsset,
-  setSelectedQuoteAsset,
-  setSelectedBaseAsset,
   displayedBalances,
   socketRef,
 }: OrderFormProps) {
@@ -58,11 +63,6 @@ export function OrderForm({
   const [orderType, setOrderType] = useState("market");
   const [amount, setAmount] = useState("");
   const [whenPriceIs, setWhenPriceIs] = useState("");
-
-  const displayPic = coinPics[selectedBaseAsset as CoinType];
-  const displayName = coinNames[selectedBaseAsset as CoinType];
-  const quoteAssetDiplayPic = coinPics[selectedQuoteAsset as CoinType];
-  const quoteAssetDisplayName = coinNames[selectedQuoteAsset as CoinType];
 
   const handleBuyButtonClick = () => {
     setIsSelected("buy");
@@ -206,6 +206,8 @@ export function OrderForm({
             sellError={sellError}
             amount={amount}
             selectedCoin={selectedBaseAsset}
+            selectedQuoteAsset={selectedQuoteAsset}
+            whenPriceIs={whenPriceIs}
             setAmount={setAmount}
             setSellError={setSellError}
             setBuyError={setBuyError}
@@ -224,7 +226,23 @@ export function OrderForm({
                   value={whenPriceIs}
                   placeholder="0"
                   onChange={(e) => {
+                    setBuyError(null);
                     const value = e.target.value.replace(/,/g, "");
+                    if (isSelected === "buy" && displayedBalances) {
+                      const amountToOrder = preciseMultiplication(
+                        value,
+                        amount
+                      );
+                      for (const balance of displayedBalances) {
+                        if (balance.asset === selectedQuoteAsset) {
+                          if (balance.balance < amountToOrder) {
+                            setBuyError(
+                              "Insufficient funds, please try again."
+                            );
+                          }
+                        }
+                      }
+                    }
                     if (value.length > 9) {
                       return;
                     }

@@ -98,8 +98,6 @@ export default function Trade() {
         <OrderForm
           selectedBaseAsset={selectedBaseAsset}
           selectedQuoteAsset={selectedQuoteAsset}
-          setSelectedBaseAsset={setSelectedBaseAsset}
-          setSelectedQuoteAsset={setSelectedQuoteAsset}
           displayedBalances={displayedBalances}
           socketRef={socketRef}
           asks={asks}

@@ -1,6 +1,7 @@
 "use client";
 
 import { Balance } from "@/app/context/AuthContext";
+import { preciseMultiplication } from "../OrderForm/orderForm";
 
 type StaticInputProps = {
   amount: string;
@@ -8,7 +9,9 @@ type StaticInputProps = {
   setSellError: (value: string | null) => void;
   setBuyError: (value: string | null) => void;
   selectedCoin: string;
+  selectedQuoteAsset: string;
   label?: string;
+  whenPriceIs: string;
   isSelected: string;
   buyError: string | null;
   sellError: string | null;
@@ -21,6 +24,8 @@ export default function StaticInput({
   setSellError,
   setBuyError,
   selectedCoin,
+  selectedQuoteAsset,
+  whenPriceIs,
   label,
   isSelected,
   buyError,
@@ -50,6 +55,19 @@ export default function StaticInput({
                   if (+balance.balance < +val) {
                     setSellError("Insufficient funds, please try again.");
                     break;
+                  }
+                }
+              }
+            } else if (isSelected === "buy" && displayedBalances) {
+              const newQuote = whenPriceIs.replace(",", "");
+              console.log(newQuote);
+
+              const amountToOrder = preciseMultiplication(val, newQuote);
+              console.log(amountToOrder);
+              for (const balance of displayedBalances) {
+                if (balance.asset === selectedQuoteAsset) {
+                  if (+balance.balance < +amountToOrder) {
+                    setBuyError("Insufficient funds, please try again");
                   }
                 }
               }

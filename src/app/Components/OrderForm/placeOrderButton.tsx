@@ -10,7 +10,7 @@ export function PlaceOrderButton({
   buyError,
   sellError,
 }: PlaceOrderButtonProps) {
-  let isButtonDisabled = sellError !== null;
+  let isButtonDisabled = sellError !== null || buyError !== null;
   return (
     <div className="my-6 flex flex-col items-center gap-4">
       <button
