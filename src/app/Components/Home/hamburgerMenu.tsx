@@ -3,13 +3,10 @@
 import {
   Activity,
   ChartNoAxesCombined,
-  CreditCard,
   DollarSign,
   Home,
   Menu,
-  TrendingUp,
   UserRound,
-  Wallet,
 } from "lucide-react";
 import { useState } from "react";
 import { SideBarOption } from "../Account/sideBarOption";
