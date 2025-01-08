@@ -1,7 +1,12 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
 
 ## Getting Started
 
+Existing Accounts
+Here are the accounts that have already been created:
+Email: a, Password: a
+Email: b, Password: b
+Email: c, Password: c
 First, run the development server:
 
 ```bash
