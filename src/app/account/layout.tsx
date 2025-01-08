@@ -3,15 +3,7 @@ import { SideBarOption } from "../Components/Account/sideBarOption";
 import { Navbar } from "../Components/Home/navbar";
 import Link from "next/link";
 
-import {
-  UserRound,
-  Wallet,
-  CreditCard,
-  DollarSign,
-  Activity,
-  TrendingUp,
-  Home,
-} from "lucide-react";
+import { UserRound, DollarSign, Activity, Home } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 const sideBarOptions = [
