@@ -235,7 +235,7 @@ export function OrderForm({
                       );
                       for (const balance of displayedBalances) {
                         if (balance.asset === selectedQuoteAsset) {
-                          if (balance.balance < amountToOrder) {
+                          if (+balance.balance < +amountToOrder) {
                             setBuyError(
                               "Insufficient funds, please try again."
                             );
