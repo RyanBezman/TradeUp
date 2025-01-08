@@ -2,6 +2,7 @@
 
 import { db } from "@/db";
 import * as schema from "@/db/schema";
+import { orders, users } from "@/db/schema";
 import { pbkdf2Sync, randomBytes } from "crypto";
 
 type AddUserWithBalancesProps = {
@@ -78,7 +79,7 @@ export async function addUserWithBalances({
 }
 
 export async function seedUsers() {
-  const users = [
+  const fakeUsers = [
     {
       firstName: "A",
       lastName: "Test",
@@ -112,20 +113,16 @@ export async function seedUsers() {
       zip: "10003",
       password: "c",
     },
-    // {
-    //   firstName: "UserD",
-    //   lastName: "Test",
-    //   email: "d@icloud.com",
-    //   phone: "4234567890",
-    //   address1: "123 Test St",
-    //   city: "Test City",
-    //   state: "NY",
-    //   zip: "10004",
-    //   password: "dtheking",
-    // },
   ];
 
-  for (const user of users) {
+  await db.delete(schema.historicalOrders);
+  await db.delete(schema.fills);
+  await db.delete(schema.balances);
+  await db.delete(schema.activeUsers);
+  await db.delete(orders);
+  await db.delete(users);
+
+  for (const user of fakeUsers) {
     await addUserWithBalances(user);
   }
   console.log("All users added ");

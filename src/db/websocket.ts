@@ -10,6 +10,49 @@ import { updateBalance } from "@/actions/balance/updateBalance";
 import { completeOrder } from "@/actions/orders/completeOrder";
 import { completeMarketOrder } from "@/actions/orders/completeMarketOrder";
 import { getTradeHistory } from "@/actions/orders/getTradeHistory";
+import { getOneBalance } from "@/actions/balance/getOneBalance";
+
+export function preciseSubtraction(value1: string, value2: string): string {
+  const scaleNumber = Math.pow(10, 8);
+  const answer =
+    (Math.round(parseFloat(value1) * scaleNumber) -
+      Math.round(parseFloat(value2) * scaleNumber)) /
+    scaleNumber;
+
+  return answer.toString();
+}
+export function preciseAddition(value1: string, value2: string): string {
+  const scaleNumber = Math.pow(10, 8);
+  const answer =
+    (Math.round(parseFloat(value1) * scaleNumber) +
+      Math.round(parseFloat(value2) * scaleNumber)) /
+    scaleNumber;
+
+  return answer.toString();
+}
+export function preciseMultiplication(value1: string, value2: string): string {
+  const scaleNumber = Math.pow(10, 8);
+  const answer =
+    (Math.round(parseFloat(value1) * scaleNumber) *
+      Math.round(parseFloat(value2) * scaleNumber)) /
+    Math.pow(scaleNumber, 2);
+
+  return answer.toString();
+}
+export function preciseDivision(value1: string, value2: string): string {
+  const scaleNumber = Math.pow(10, 8);
+  const scaledValue1 = Math.round(parseFloat(value1) * scaleNumber);
+  const scaledValue2 = Math.round(parseFloat(value2) * scaleNumber);
+
+  if (scaledValue2 === 0) {
+    throw new Error("Division by zero is not allowed.");
+  }
+
+  const answer = scaledValue1 / scaledValue2;
+
+  return answer.toString();
+}
+
 const wss = new WebSocketServer({ port: 8080 });
 type InitialOrder = {
   id: number;
@@ -122,34 +165,6 @@ async function initializeOrderBook() {
   } catch (error) {
     console.error("falied to initialize orderbook ", error);
   }
-}
-
-export function preciseSubtraction(value1: string, value2: string): string {
-  const scaleNumber = Math.pow(10, 8);
-  const answer =
-    (Math.round(parseFloat(value1) * scaleNumber) -
-      Math.round(parseFloat(value2) * scaleNumber)) /
-    scaleNumber;
-
-  return answer.toString();
-}
-export function preciseAddition(value1: string, value2: string): string {
-  const scaleNumber = Math.pow(10, 8);
-  const answer =
-    (Math.round(parseFloat(value1) * scaleNumber) +
-      Math.round(parseFloat(value2) * scaleNumber)) /
-    scaleNumber;
-
-  return answer.toString();
-}
-export function preciseMultiplication(value1: string, value2: string): string {
-  const scaleNumber = Math.pow(10, 8);
-  const answer =
-    (Math.round(parseFloat(value1) * scaleNumber) *
-      Math.round(parseFloat(value2) * scaleNumber)) /
-    Math.pow(scaleNumber, 2);
-
-  return answer.toString();
 }
 
 initializeOrderBook();
@@ -655,7 +670,23 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
   let remainingSize = newOrder.amount;
   const currBook = clientConnection[id];
   const currAsks = orderBooks[currBook].asks;
-  for (let i = 0; i < currAsks.length && +remainingSize > 0; ) {
+  let partialFill = false;
+
+  let balanceInfo = await getOneBalance(newOrder.userId, newOrder.quoteAsset);
+  if (
+    balanceInfo === undefined ||
+    balanceInfo?.balance === undefined ||
+    +balanceInfo.balance <= 0
+  ) {
+    return;
+  }
+  let currentQuoteAssetBalance = +balanceInfo.balance;
+  console.log(currentQuoteAssetBalance);
+  for (
+    let i = 0;
+    i < currAsks.length && +remainingSize > 0 && partialFill === false;
+
+  ) {
     const ask = currAsks[i];
 
     if (ask.userId === newOrder.userId) {
@@ -665,120 +696,35 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
     const availableAmount = preciseSubtraction(ask.amount, ask.filledAmount);
 
     if (availableAmount === remainingSize) {
-      await handleFills(ask.id, availableAmount, ask.price);
-      await handleFills(newOrder.id, availableAmount, ask.price);
+      let transactionCost = +preciseMultiplication(availableAmount, ask.price);
+      if (transactionCost > +currentQuoteAssetBalance) {
+        const affordableAmount = preciseDivision(
+          currentQuoteAssetBalance.toString(),
+          ask.price
+        );
+        const newFilledAmount = preciseAddition(
+          ask.filledAmount,
+          affordableAmount
+        );
+        await handleFills(ask.id, affordableAmount, ask.price);
+        await handleFills(newOrder.id, affordableAmount, ask.price);
+        await updateFilledAmount(ask.id, newFilledAmount);
+        await updateBalance(
+          ask.userId,
+          ask.baseAsset,
+          ask.quoteAsset,
+          affordableAmount,
+          ask.side,
+          ask.price
+        );
 
-      await updateFilledAmount(ask.id, ask.amount);
-      await updateFilledAmount(newOrder.id, newOrder.amount);
-
-      await updateBalance(
-        ask.userId,
-        ask.baseAsset,
-        ask.quoteAsset,
-        availableAmount,
-        ask.side,
-        ask.price
-      );
-
-      await updateBalance(
-        newOrder.userId,
-        newOrder.baseAsset,
-        newOrder.quoteAsset,
-        availableAmount,
-        newOrder.side,
-        ask.price
-      );
-
-      await addHistoricalOrder(
-        ask.userId,
-        ask.orderType,
-        ask.side,
-        ask.baseAsset,
-        ask.quoteAsset,
-        ask.price,
-        ask.amount,
-        "completed"
-      );
-
-      await addHistoricalOrder(
-        newOrder.userId,
-        newOrder.orderType,
-        newOrder.side,
-        newOrder.baseAsset,
-        newOrder.quoteAsset,
-        ask.price,
-        newOrder.amount,
-        "completed"
-      );
-      // amount price side date
-      tradeHistoryBooks[currBook].orders.unshift({
-        amount: ask.amount,
-        price: ask.price,
-        side: ask.side,
-        createdAt: new Date(),
-      });
-      tradeHistoryBooks[currBook].orders.unshift({
-        amount: newOrder.amount,
-        price: ask.price,
-        side: newOrder.side,
-        createdAt: new Date(),
-      });
-      await completeOrder(ask.id);
-      await completeMarketOrder(newOrder.id, ask.price);
-
-      currAsks.splice(i, 1);
-      remainingSize = "0";
-    } else if (availableAmount < remainingSize) {
-      await handleFills(ask.id, availableAmount, ask.price);
-      await handleFills(newOrder.id, availableAmount, ask.price);
-
-      await updateFilledAmount(ask.id, ask.amount);
-
-      await updateBalance(
-        ask.userId,
-        ask.baseAsset,
-        ask.quoteAsset,
-        availableAmount,
-        ask.side,
-        ask.price
-      );
-
-      await updateBalance(
-        newOrder.userId,
-        newOrder.baseAsset,
-        newOrder.quoteAsset,
-        availableAmount,
-        newOrder.side,
-        ask.price
-      );
-
-      await addHistoricalOrder(
-        ask.userId,
-        ask.orderType,
-        ask.side,
-        ask.baseAsset,
-        ask.quoteAsset,
-        ask.price,
-        ask.amount,
-        "completed"
-      );
-      tradeHistoryBooks[currBook].orders.unshift({
-        amount: ask.amount,
-        price: ask.price,
-        side: ask.side,
-        createdAt: new Date(),
-      });
-      await completeOrder(ask.id);
-
-      currAsks.splice(i, 1);
-      const newRemainingSize = preciseSubtraction(
-        remainingSize,
-        availableAmount
-      );
-      if (currAsks.length === 0) {
-        const marketFilledAmount = preciseSubtraction(
-          newOrder.amount,
-          newRemainingSize
+        await updateBalance(
+          newOrder.userId,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          affordableAmount,
+          newOrder.side,
+          ask.price
         );
         await addHistoricalOrder(
           newOrder.userId,
@@ -787,77 +733,345 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
           newOrder.baseAsset,
           newOrder.quoteAsset,
           ask.price,
-          marketFilledAmount,
+          affordableAmount,
           "completed"
         );
         tradeHistoryBooks[currBook].orders.unshift({
-          amount: marketFilledAmount,
+          amount: affordableAmount,
           price: ask.price,
           side: newOrder.side,
           createdAt: new Date(),
         });
         await completeMarketOrder(newOrder.id, ask.price);
-        updateOrderBook(id);
+
+        const finalFilledAmount = preciseAddition(
+          newOrder.filledAmount,
+          affordableAmount
+        );
+        await updateFilledAmount(newOrder.id, finalFilledAmount);
+        ask.filledAmount = newFilledAmount;
+        partialFill = true;
+        return;
+      } else {
+        await handleFills(ask.id, availableAmount, ask.price);
+        await handleFills(newOrder.id, availableAmount, ask.price);
+
+        await updateFilledAmount(ask.id, ask.amount);
+        await updateFilledAmount(newOrder.id, newOrder.amount);
+
+        await updateBalance(
+          ask.userId,
+          ask.baseAsset,
+          ask.quoteAsset,
+          availableAmount,
+          ask.side,
+          ask.price
+        );
+
+        await updateBalance(
+          newOrder.userId,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          availableAmount,
+          newOrder.side,
+          ask.price
+        );
+
+        await addHistoricalOrder(
+          ask.userId,
+          ask.orderType,
+          ask.side,
+          ask.baseAsset,
+          ask.quoteAsset,
+          ask.price,
+          ask.amount,
+          "completed"
+        );
+
+        await addHistoricalOrder(
+          newOrder.userId,
+          newOrder.orderType,
+          newOrder.side,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          ask.price,
+          newOrder.amount,
+          "completed"
+        );
+        // amount price side date
+        tradeHistoryBooks[currBook].orders.unshift({
+          amount: ask.amount,
+          price: ask.price,
+          side: ask.side,
+          createdAt: new Date(),
+        });
+        tradeHistoryBooks[currBook].orders.unshift({
+          amount: newOrder.amount,
+          price: ask.price,
+          side: newOrder.side,
+          createdAt: new Date(),
+        });
+        await completeOrder(ask.id);
+        await completeMarketOrder(newOrder.id, ask.price);
+
+        currAsks.splice(i, 1);
+        remainingSize = "0";
       }
-      remainingSize = newRemainingSize;
+    } else if (availableAmount < remainingSize) {
+      let transactionCost = preciseMultiplication(availableAmount, ask.price);
+      if (currentQuoteAssetBalance < +transactionCost) {
+        const affordableAmount = preciseDivision(
+          currentQuoteAssetBalance.toString(),
+          ask.price
+        );
+        const newFilledAmount = preciseAddition(
+          ask.filledAmount,
+          affordableAmount
+        );
+        await handleFills(ask.id, affordableAmount, ask.price);
+        await handleFills(newOrder.id, affordableAmount, ask.price);
+        await updateFilledAmount(ask.id, affordableAmount);
+        await updateBalance(
+          ask.userId,
+          ask.baseAsset,
+          ask.quoteAsset,
+          affordableAmount,
+          ask.side,
+          ask.price
+        );
+
+        await updateBalance(
+          newOrder.userId,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          affordableAmount,
+          newOrder.side,
+          ask.price
+        );
+        await addHistoricalOrder(
+          newOrder.userId,
+          newOrder.orderType,
+          newOrder.side,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          ask.price,
+          affordableAmount,
+          "completed"
+        );
+        tradeHistoryBooks[currBook].orders.unshift({
+          amount: affordableAmount,
+          price: ask.price,
+          side: newOrder.side,
+          createdAt: new Date(),
+        });
+        await completeMarketOrder(newOrder.id, ask.price);
+        const finalFilledAmount = preciseAddition(
+          newOrder.filledAmount,
+          affordableAmount
+        );
+        await updateFilledAmount(newOrder.id, finalFilledAmount);
+        ask.filledAmount = newFilledAmount;
+        partialFill = true;
+        return;
+      } else {
+        await handleFills(ask.id, availableAmount, ask.price);
+        await handleFills(newOrder.id, availableAmount, ask.price);
+
+        await updateFilledAmount(ask.id, ask.amount);
+
+        await updateBalance(
+          ask.userId,
+          ask.baseAsset,
+          ask.quoteAsset,
+          availableAmount,
+          ask.side,
+          ask.price
+        );
+
+        await updateBalance(
+          newOrder.userId,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          availableAmount,
+          newOrder.side,
+          ask.price
+        );
+
+        await addHistoricalOrder(
+          ask.userId,
+          ask.orderType,
+          ask.side,
+          ask.baseAsset,
+          ask.quoteAsset,
+          ask.price,
+          ask.amount,
+          "completed"
+        );
+        tradeHistoryBooks[currBook].orders.unshift({
+          amount: ask.amount,
+          price: ask.price,
+          side: ask.side,
+          createdAt: new Date(),
+        });
+        await completeOrder(ask.id);
+
+        currAsks.splice(i, 1);
+        const newRemainingSize = preciseSubtraction(
+          remainingSize,
+          availableAmount
+        );
+        if (currAsks.length === 0) {
+          const marketFilledAmount = preciseSubtraction(
+            newOrder.amount,
+            newRemainingSize
+          );
+          await addHistoricalOrder(
+            newOrder.userId,
+            newOrder.orderType,
+            newOrder.side,
+            newOrder.baseAsset,
+            newOrder.quoteAsset,
+            ask.price,
+            marketFilledAmount,
+            "completed"
+          );
+          tradeHistoryBooks[currBook].orders.unshift({
+            amount: marketFilledAmount,
+            price: ask.price,
+            side: newOrder.side,
+            createdAt: new Date(),
+          });
+          await completeMarketOrder(newOrder.id, ask.price);
+          updateOrderBook(id);
+        }
+        currentQuoteAssetBalance = +preciseSubtraction(
+          currentQuoteAssetBalance.toString(),
+          transactionCost
+        );
+        remainingSize = newRemainingSize;
+      }
     } else {
-      const newFilledAmount = preciseAddition(ask.filledAmount, remainingSize);
+      let transactionCost = +preciseMultiplication(remainingSize, ask.price);
+      if (currentQuoteAssetBalance < transactionCost) {
+        const affordableAmount = preciseDivision(
+          currentQuoteAssetBalance.toString(),
+          ask.price
+        );
+        const newFilledAmount = preciseAddition(
+          ask.filledAmount,
+          affordableAmount
+        );
 
-      await handleFills(ask.id, remainingSize, ask.price);
-      await handleFills(newOrder.id, remainingSize, ask.price);
+        await handleFills(ask.id, affordableAmount, ask.price);
+        await handleFills(newOrder.id, affordableAmount, ask.price);
+        await updateFilledAmount(ask.id, newFilledAmount);
+        await updateFilledAmount(newOrder.id, affordableAmount);
+        await updateBalance(
+          ask.userId,
+          ask.baseAsset,
+          ask.quoteAsset,
+          affordableAmount,
+          ask.side,
+          ask.price
+        );
 
-      await updateFilledAmount(ask.id, newFilledAmount);
-      await updateFilledAmount(newOrder.id, newOrder.amount);
+        await updateBalance(
+          newOrder.userId,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          affordableAmount,
+          newOrder.side,
+          ask.price
+        );
+        await addHistoricalOrder(
+          newOrder.userId,
+          newOrder.orderType,
+          newOrder.side,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          ask.price,
+          affordableAmount,
+          "completed"
+        );
+        tradeHistoryBooks[currBook].orders.unshift({
+          amount: affordableAmount,
+          price: ask.price,
+          side: newOrder.side,
+          createdAt: new Date(),
+        });
 
-      await updateBalance(
-        ask.userId,
-        ask.baseAsset,
-        ask.quoteAsset,
-        remainingSize,
-        ask.side,
-        ask.price
-      );
+        await completeMarketOrder(newOrder.id, ask.price);
+        const finalFilledAmount = preciseAddition(
+          newOrder.filledAmount,
+          affordableAmount
+        );
+        await updateFilledAmount(newOrder.id, finalFilledAmount);
+        ask.filledAmount = newFilledAmount;
+        partialFill = true;
+        return;
+      } else {
+        const newFilledAmount = preciseAddition(
+          ask.filledAmount,
+          remainingSize
+        );
 
-      await updateBalance(
-        newOrder.userId,
-        newOrder.baseAsset,
-        newOrder.quoteAsset,
-        remainingSize,
-        newOrder.side,
-        ask.price
-      );
+        await handleFills(ask.id, remainingSize, ask.price);
+        await handleFills(newOrder.id, remainingSize, ask.price);
 
-      await addHistoricalOrder(
-        newOrder.userId,
-        newOrder.orderType,
-        newOrder.side,
-        newOrder.baseAsset,
-        newOrder.quoteAsset,
-        ask.price,
-        newOrder.amount,
-        "completed"
-      );
-      tradeHistoryBooks[currBook].orders.unshift({
-        amount: newOrder.amount,
-        price: ask.price,
-        side: newOrder.side,
-        createdAt: new Date(),
-      });
+        await updateFilledAmount(ask.id, newFilledAmount);
+        await updateFilledAmount(newOrder.id, newOrder.amount);
 
-      await completeMarketOrder(newOrder.id, ask.price);
-      ask.filledAmount = newFilledAmount;
-      remainingSize = "0";
+        await updateBalance(
+          ask.userId,
+          ask.baseAsset,
+          ask.quoteAsset,
+          remainingSize,
+          ask.side,
+          ask.price
+        );
+
+        await updateBalance(
+          newOrder.userId,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          remainingSize,
+          newOrder.side,
+          ask.price
+        );
+
+        await addHistoricalOrder(
+          newOrder.userId,
+          newOrder.orderType,
+          newOrder.side,
+          newOrder.baseAsset,
+          newOrder.quoteAsset,
+          ask.price,
+          newOrder.amount,
+          "completed"
+        );
+        tradeHistoryBooks[currBook].orders.unshift({
+          amount: newOrder.amount,
+          price: ask.price,
+          side: newOrder.side,
+          createdAt: new Date(),
+        });
+
+        await completeMarketOrder(newOrder.id, ask.price);
+        ask.filledAmount = newFilledAmount;
+        remainingSize = "0";
+      }
     }
   }
-  if (remainingSize >= "0") {
+  if (remainingSize >= "0" && partialFill === false) {
     const finalFilledAmount = preciseSubtraction(
       newOrder.amount,
       remainingSize
     );
+
     await updateFilledAmount(newOrder.id, finalFilledAmount);
   }
 
-  if (parseFloat(remainingSize) > 0) {
+  if (parseFloat(remainingSize) > 0 && partialFill === false) {
     throw new Error("Market buy could not be fully fulfilled");
   }
 
