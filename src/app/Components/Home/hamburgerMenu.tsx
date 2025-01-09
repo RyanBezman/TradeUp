@@ -9,7 +9,6 @@ import {
   UserRound,
 } from "lucide-react";
 import { useState } from "react";
-import { SideBarOption } from "../Account/sideBarOption";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
@@ -38,10 +37,10 @@ export function HamburgerMenu() {
         >
           <Menu className="h-10 w-10 min-[825px]:hidden text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400 cursor-pointer" />
           {isDropdownOpen && (
-            <ul className="absolute top-full z-20 rounded-xl bg-white dark:bg-black border">
+            <ul className="absolute top-full z-20 min-[825px]:hidden rounded-xl bg-white dark:bg-black border">
               {sideBarOptions.map((option) => (
                 <Link key={option.label} href={option.url}>
-                  <SideBarOption
+                  <DropDownOption
                     isActive={pathname === option.url}
                     option={option}
                   />
@@ -76,5 +75,34 @@ function TempChartLogo() {
 "
       />
     </Link>
+  );
+}
+
+import { LucideProps } from "lucide-react";
+
+type DropdownOption = {
+  label: string;
+  icon: React.ForwardRefExoticComponent<
+    Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
+  >;
+};
+type DropdownOptionProps = {
+  option: DropdownOption;
+  isActive?: boolean;
+};
+function DropDownOption({ option, isActive }: DropdownOptionProps) {
+  const { icon: Icon, label } = option;
+  return (
+    <li
+      key={label}
+      title={label}
+      className={`dark:text-gray-400 text-black hover:dark:text-white hover:bg-violet-100 hover:text-violet-600 dark:hover:bg-zinc-900 font-semibold  p-5 cursor-pointer rounded-xl ${
+        isActive &&
+        "bg-violet-100 text-violet-600 dark:bg-zinc-900 dark:text-white"
+      } flex items-center gap-4`}
+    >
+      <Icon className="w-5 h-5" />
+      <span className="text-nowrap">{label}</span>
+    </li>
   );
 }

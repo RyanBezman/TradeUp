@@ -2,7 +2,6 @@
 import { SideBarOption } from "../Components/Account/sideBarOption";
 import { Navbar } from "../Components/Home/navbar";
 import Link from "next/link";
-
 import { UserRound, DollarSign, Activity, Home } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -32,7 +31,7 @@ export default function Account({ children }: { children?: React.ReactNode }) {
             </Link>
           ))}
         </ul>
-        <div className="flex flex-col flex-1 border dark:border-gray-600">
+        <div className="flex flex-col border-t flex-1 min-[825px]:border dark:border-gray-600">
           {children}
         </div>
       </div>

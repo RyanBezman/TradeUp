@@ -6,6 +6,7 @@ type TradeHistoryProps = {
   selectedBaseAsset: string;
   selectedQuoteAsset: string;
   tradeHistory: HistoricalOrder[];
+  isHeaderDisplayed: boolean;
 };
 function formatDate(dateString: Date): string {
   const date = new Date(dateString);
@@ -21,10 +22,12 @@ export function TradeHistory({
   selectedBaseAsset,
   selectedQuoteAsset,
   tradeHistory,
+  isHeaderDisplayed,
 }: TradeHistoryProps) {
   return (
-    <div className="hidden min-[1150px]:flex border border-t-0 border-l-0 flex-1  flex-col dark:border-gray-600">
-      <ColumnHeader title="Trade History" />
+    <div className="flex border border-t-0 border-l-0 flex-1  flex-col dark:border-gray-600">
+      {isHeaderDisplayed && <ColumnHeader title="Trade History" />}
+
       <LabelHeader
         left={`Amount (${selectedBaseAsset})`}
         right={`Price (${selectedQuoteAsset})`}

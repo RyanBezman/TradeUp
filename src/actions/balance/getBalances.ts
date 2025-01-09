@@ -7,7 +7,8 @@ export async function getBalances(id: number) {
   const balance = await db
     .select({ asset: balances.asset, balance: balances.balance })
     .from(balances)
-    .where(eq(balances.userId, id));
+    .where(eq(balances.userId, id))
+    .orderBy(balances.asset);
 
   return balance.length > 0 ? balance : null;
 }

@@ -7,6 +7,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { Watchlist } from "@/app/Components/Watchlist/watchlist";
 import { TradeHistory } from "@/app/Components/TradeHistory/tradeHistory";
 import { HistoricalOrder } from "@/db/websocket";
+import { ColumnHeader } from "@/app/Components/Orderbook/columnHeader";
 
 export default function Trade() {
   const { balances, user } = useAuth();
@@ -17,6 +18,7 @@ export default function Trade() {
   const [selectedBaseAsset, setSelectedBaseAsset] = useState("BTC");
   const [selectedQuoteAsset, setSelectedQuoteAsset] = useState("USD");
   const [displayedBalances, setDisplayedBalances] = useState(balances);
+  const [currentDisplay, setCurrentDisplay] = useState("Order Book");
   const socketRef = useRef<WebSocket | null>(null);
 
   const updateBalances = async (userId: number) => {
@@ -82,18 +84,67 @@ export default function Trade() {
           setSelectedBaseAsset={setSelectedBaseAsset}
           setSelectedQuoteAsset={setSelectedQuoteAsset}
         />
-
-        <TradeHistory
-          selectedBaseAsset={selectedBaseAsset}
-          selectedQuoteAsset={selectedQuoteAsset}
-          tradeHistory={tradeHistory}
-        />
-        <OrderBook
-          selectedBaseAsset={selectedBaseAsset}
-          selectedQuoteAsset={selectedQuoteAsset}
-          asks={asks}
-          bids={bids}
-        />
+        <div className="hidden flex-1 min-[1270px]:flex flex-row ">
+          <TradeHistory
+            selectedBaseAsset={selectedBaseAsset}
+            selectedQuoteAsset={selectedQuoteAsset}
+            tradeHistory={tradeHistory}
+            isHeaderDisplayed={true}
+          />
+          <OrderBook
+            selectedBaseAsset={selectedBaseAsset}
+            selectedQuoteAsset={selectedQuoteAsset}
+            asks={asks}
+            bids={bids}
+            isHeaderDisplayed={true}
+          />
+        </div>
+        <div className="flex flex-1 flex-col min-[1270px]:hidden">
+          <div className="bg-violet-800 text-white py-4 px-6 w-full dark:bg-zinc-900 border-r">
+            <h2 className="font-semibold flex gap-2">
+              <span
+                className={`cursor-pointer transition-all duration-100 ${
+                  currentDisplay === "Order Book"
+                    ? "shadow-[inset_0_-2px_0_0_currentColor]"
+                    : ""
+                }`}
+                onClick={() => {
+                  setCurrentDisplay("Order Book");
+                }}
+              >
+                Order Book
+              </span>
+              <span
+                className={`cursor-pointer transition-all duration-100 ${
+                  currentDisplay === "Trade History"
+                    ? "shadow-[inset_0_-2px_0_0_currentColor]"
+                    : ""
+                }`}
+                onClick={() => {
+                  setCurrentDisplay("Trade History");
+                }}
+              >
+                Trade History
+              </span>
+            </h2>
+          </div>
+          {currentDisplay === "Order Book" ? (
+            <OrderBook
+              selectedBaseAsset={selectedBaseAsset}
+              selectedQuoteAsset={selectedQuoteAsset}
+              asks={asks}
+              bids={bids}
+              isHeaderDisplayed={false}
+            />
+          ) : (
+            <TradeHistory
+              selectedBaseAsset={selectedBaseAsset}
+              selectedQuoteAsset={selectedQuoteAsset}
+              tradeHistory={tradeHistory}
+              isHeaderDisplayed={false}
+            />
+          )}
+        </div>
 
         <OrderForm
           selectedBaseAsset={selectedBaseAsset}

@@ -18,6 +18,7 @@ type OrderBookProps = {
   bids: OrderData[];
   selectedBaseAsset: string;
   selectedQuoteAsset: string;
+  isHeaderDisplayed: boolean;
 };
 
 export function OrderBook({
@@ -25,16 +26,19 @@ export function OrderBook({
   bids,
   selectedBaseAsset,
   selectedQuoteAsset,
+  isHeaderDisplayed,
 }: OrderBookProps) {
   const asksContainerRef = useRef<HTMLDivElement | null>(null);
   const bidsContainerRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <div className=" flex flex-col flex-1 border border-l-0 border-t-0 dark:border-gray-600 ">
-      <ColumnHeader
-        title="Order Book"
-        book={`${selectedBaseAsset} - ${selectedQuoteAsset}`}
-      />
+      {isHeaderDisplayed && (
+        <ColumnHeader
+          title="Order Book"
+          book={`${selectedBaseAsset} - ${selectedQuoteAsset}`}
+        />
+      )}
       <LabelHeader
         left={`Amount (${selectedBaseAsset})`}
         right={`Price (${selectedQuoteAsset})`}
