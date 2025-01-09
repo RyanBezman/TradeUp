@@ -7,7 +7,6 @@ import { useAuth } from "@/app/context/AuthContext";
 import { Watchlist } from "@/app/Components/Watchlist/watchlist";
 import { TradeHistory } from "@/app/Components/TradeHistory/tradeHistory";
 import { HistoricalOrder } from "@/db/websocket";
-import { ColumnHeader } from "@/app/Components/Orderbook/columnHeader";
 
 export default function Trade() {
   const { balances, user } = useAuth();
