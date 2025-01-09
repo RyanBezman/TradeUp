@@ -99,7 +99,7 @@ export default function Trade() {
           />
         </div>
         <div className="flex flex-1 flex-col min-[1270px]:hidden">
-          <div className="bg-violet-800 text-white py-4 px-6 w-full dark:bg-zinc-900 border-r">
+          <div className="bg-violet-800 text-white py-4 px-6 w-full dark:bg-zinc-900 border-r dark:border-gray-600 ">
             <h2 className="font-semibold flex gap-2">
               <span
                 className={`cursor-pointer transition-all duration-100 ${
