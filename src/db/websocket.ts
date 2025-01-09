@@ -31,7 +31,7 @@ export function preciseAddition(value1: string, value2: string): string {
   return answer.toString();
 }
 export function preciseMultiplication(value1: string, value2: string): string {
-  const scaleNumber = Math.pow(10, 8);
+  const scaleNumber = Math.pow(10, 20);
   const answer =
     (Math.round(parseFloat(value1) * scaleNumber) *
       Math.round(parseFloat(value2) * scaleNumber)) /
@@ -40,7 +40,7 @@ export function preciseMultiplication(value1: string, value2: string): string {
   return answer.toString();
 }
 export function preciseDivision(value1: string, value2: string): string {
-  const scaleNumber = Math.pow(10, 8);
+  const scaleNumber = Math.pow(10, 20);
   const scaledValue1 = Math.round(parseFloat(value1) * scaleNumber);
   const scaledValue2 = Math.round(parseFloat(value2) * scaleNumber);
 
@@ -424,6 +424,22 @@ wss.on("connection", (ws: WebSocket) => {
           let remainingSize = amount;
           const currBook = clientConnection[id];
           const currAsks = orderBooks[currBook].asks;
+
+          const currentQuoteAssetBalance = await getOneBalance(
+            newOrder.userId,
+            newOrder.quoteAsset
+          );
+          const expectedPurchaseAmount = +preciseMultiplication(
+            newOrder.amount,
+            newOrder.price
+          );
+          if (currentQuoteAssetBalance === null) {
+            return;
+          }
+
+          if (+currentQuoteAssetBalance < expectedPurchaseAmount) {
+            return;
+          }
           for (let i = 0; i < currAsks.length && remainingSize > 0; ) {
             const ask = currAsks[i];
             if (+ask.price > +newOrder.price) {
@@ -964,7 +980,11 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
           ask.filledAmount,
           affordableAmount
         );
-
+        const amountProcessed = preciseSubtraction(
+          newOrder.amount,
+          remainingSize
+        );
+        const totalFill = preciseAddition(amountProcessed, affordableAmount);
         await handleFills(ask.id, affordableAmount, ask.price);
         await handleFills(newOrder.id, affordableAmount, ask.price);
         await updateFilledAmount(ask.id, newFilledAmount);
@@ -993,11 +1013,11 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
           newOrder.baseAsset,
           newOrder.quoteAsset,
           ask.price,
-          affordableAmount,
+          totalFill,
           "completed"
         );
         tradeHistoryBooks[currBook].orders.unshift({
-          amount: affordableAmount,
+          amount: totalFill,
           price: ask.price,
           side: newOrder.side,
           createdAt: new Date(),
@@ -1085,6 +1105,14 @@ async function marketSell(newOrder: InitialOrder, id: number) {
   let remainingSize = newOrder.amount;
   const currBook = clientConnection[id];
   const currBids = orderBooks[currBook].bids;
+  const usersBalance = await getOneBalance(newOrder.userId, newOrder.baseAsset);
+  if (usersBalance === null) {
+    return;
+  }
+  if (+newOrder.amount > +usersBalance) {
+    return;
+  }
+
   for (let i = 0; i < currBids.length && +remainingSize > 0; ) {
     const bid = currBids[i];
 
