@@ -25,7 +25,7 @@ export function SignInButton() {
             {user.firstName[0].toUpperCase()}
           </button>
           <button
-            className="bg-violet-800 dark:bg-white text-white dark:text-black py-4 px-6 rounded-xl font-semibold hover:bg-violet-700 dark:hover:bg-gray-200 "
+            className="bg-violet-800 dark:bg-white text-white dark:text-black py-3 px-5 min-[856px]:py-4 min-[856px]:px-6 rounded-xl font-semibold hover:bg-violet-700 dark:hover:bg-gray-200 "
             onClick={() => setIsConfirmingSignOut(true)}
           >
             Sign out
@@ -39,7 +39,7 @@ export function SignInButton() {
           onClick={() => {
             setIsFormOpen(!isFormOpen);
           }}
-          className="bg-violet-800 dark:bg-white text-white dark:text-black py-4 px-8 rounded-xl font-semibold hover:bg-violet-700 dark:hover:bg-gray-200"
+          className="bg-violet-800 dark:bg-white text-white dark:text-black py-3 px-5 min-[856px]:py-4 min-[856px]:px-6 rounded-xl font-semibold hover:bg-violet-700 dark:hover:bg-gray-200"
         >
           Sign In
         </button>

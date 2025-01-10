@@ -7,7 +7,7 @@ const buttons = ["Benefits", "Features", "Pricing", "Testimonials", "FAQ's"];
 
 export function Navbar() {
   return (
-    <header className="flex w-full items-center relative dark:border-gray-600 border-gray-300 justify-between px-1 min-[856px]:px-5 py-6">
+    <header className="flex w-full items-center relative dark:border-gray-600 border-gray-300 justify-between px-1 min-[856px]:px-5 py-2 min-[856px]:py-6">
       <div className="flex items-end">
         <HamburgerMenu />
         <Link href={"/account/home"}>

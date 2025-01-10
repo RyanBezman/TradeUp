@@ -7,6 +7,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { Watchlist } from "@/app/Components/Watchlist/watchlist";
 import { TradeHistory } from "@/app/Components/TradeHistory/tradeHistory";
 import { HistoricalOrder } from "@/db/websocket";
+import { MobileWatchlist } from "@/app/Components/Watchlist/mobileWatchlist";
 
 function preciseSubtraction(value1: string, value2: string): string {
   const scaleNumber = Math.pow(10, 8);
@@ -31,6 +32,7 @@ export default function Trade() {
   const [spread, setSpread] = useState(0);
 
   const socketRef = useRef<WebSocket | null>(null);
+  const currentBook = `${selectedBaseAsset}-${selectedQuoteAsset}`;
 
   const updateBalances = async (userId: number) => {
     const newBalances = await getBalances(userId);
@@ -99,7 +101,7 @@ export default function Trade() {
 
   return (
     <div className="bg-white dark:bg-black rounded-xl flex flex-col h-full">
-      <div className="max-h-full h-full flex">
+      <div className="max-h-full h-full flex flex-col min-[505px]:flex-row">
         <Watchlist
           setSelectedBaseAsset={setSelectedBaseAsset}
           setSelectedQuoteAsset={setSelectedQuoteAsset}
@@ -122,10 +124,10 @@ export default function Trade() {
           />
         </div>
         <div className="flex flex-grow flex-col min-[1270px]:hidden overflow-hidden">
-          <div className="bg-violet-800 text-white py-4 px-6 w-full dark:bg-zinc-900 border-r dark:border-gray-600 ">
+          <div className="bg-violet-800 text-white py-4 px-6 w-full dark:bg-zinc-900 border-r dark:border-gray-600 flex justify-between">
             <h2 className="font-semibold flex gap-3">
               <span
-                className={`cursor-pointer transition-all duration-100 text-nowrap ${
+                className={` cursor-pointer transition-all duration-100 text-nowrap ${
                   currentDisplay === "Order Book"
                     ? "shadow-[inset_0_-2px_0_0_currentColor]"
                     : ""
@@ -139,7 +141,7 @@ export default function Trade() {
               <span
                 className={`cursor-pointer transition-all duration-100 text-nowrap ${
                   currentDisplay === "Trade History"
-                    ? "shadow-[inset_0_-2px_0_0_currentColor]"
+                    ? " shadow-[inset_0_-2px_0_0_currentColor]"
                     : ""
                 }`}
                 onClick={() => {
@@ -149,6 +151,11 @@ export default function Trade() {
                 Trade History
               </span>
             </h2>
+            <MobileWatchlist
+              setSelectedBaseAsset={setSelectedBaseAsset}
+              setSelectedQuoteAsset={setSelectedQuoteAsset}
+              currentBook={currentBook}
+            />
           </div>
           <div className="flex flex-grow overflow-hidden">
             {currentDisplay === "Order Book" ? (
