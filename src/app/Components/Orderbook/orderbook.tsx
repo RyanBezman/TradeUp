@@ -19,6 +19,7 @@ type OrderBookProps = {
   selectedBaseAsset: string;
   selectedQuoteAsset: string;
   isHeaderDisplayed: boolean;
+  spread: number;
 };
 
 export function OrderBook({
@@ -27,12 +28,13 @@ export function OrderBook({
   selectedBaseAsset,
   selectedQuoteAsset,
   isHeaderDisplayed,
+  spread,
 }: OrderBookProps) {
   const asksContainerRef = useRef<HTMLDivElement | null>(null);
   const bidsContainerRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className=" flex flex-col flex-1 border border-l-0 border-t-0 dark:border-gray-600 ">
+    <div className=" flex flex-col flex-1 min-h-full border border-l-0 border-t-0 dark:border-gray-600 ">
       {isHeaderDisplayed && (
         <ColumnHeader
           title="Order Book"
@@ -46,7 +48,7 @@ export function OrderBook({
       />
       <div className="flex flex-col flex-grow overflow-hidden">
         <OrderBookAsks bids={asks} bidsContainerRef={bidsContainerRef} />
-        <Divider />
+        <Divider selectedQuoteAsset={selectedQuoteAsset} spread={spread} />
         <OrderBookBids asks={bids} asksContainerRef={asksContainerRef} />
       </div>
     </div>
@@ -60,7 +62,7 @@ type OrderBookSellsProps = {
 export function OrderBookBids({ asks, asksContainerRef }: OrderBookSellsProps) {
   return (
     <div
-      className="flex-grow overflow-y-auto no-scrollbar"
+      className="flex-grow overflow-y-auto no-scrollbar h-1/2"
       ref={asksContainerRef}
     >
       {asks.map((ask: OrderData) => {
@@ -88,7 +90,7 @@ type OrderBookBidsProps = {
 export function OrderBookAsks({ bids, bidsContainerRef }: OrderBookBidsProps) {
   return (
     <div
-      className="flex-grow overflow-y-auto no-scrollbar rotate-180 "
+      className="flex-grow overflow-y-auto no-scrollbar rotate-180 h-1/2"
       ref={bidsContainerRef}
     >
       {bids.map((bid: OrderData) => {

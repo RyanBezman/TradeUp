@@ -1320,3 +1320,85 @@ async function marketSell(newOrder: InitialOrder, id: number) {
 
   updateOrderBook(id);
 }
+
+// --------------------------------------------------------------------------------
+// ADD OR REMOVE RANDOM BTC-USD ORDER EVERY 100ms
+// --------------------------------------------------------------------------------
+
+function getRandomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getRandomFloat(min: number, max: number, decimals = 2): string {
+  const rand = Math.random() * (max - min) + min;
+  return rand.toFixed(decimals);
+}
+
+// Only need these two possible sides
+const possibleSides = ["buy", "sell"];
+
+setInterval(() => {
+  const pair = "BTC-USD";
+
+  // 1. Pick a random side (buy or sell).
+  const sideIndex = getRandomInt(0, possibleSides.length - 1);
+  const side = possibleSides[sideIndex];
+
+  // 2. Generate a random price and amount.
+  const randomPrice = getRandomFloat(1, 100, 3); // e.g., price between 1 - 100
+  const randomAmount = getRandomFloat(0.01, 2, 4); // e.g., amount between 0.01 - 2
+
+  // 3. Generate a random userId.
+  const randomUserId = getRandomInt(1, 1000);
+
+  // 4. Create the new order object.
+  //    (Base is BTC, quote is USD in the BTC-USD pair)
+  const newOrder: InitialOrder = {
+    id: getRandomInt(1, 999999999),
+    userId: randomUserId,
+    side: "buy", // 'buy' or 'sell'
+    orderType: "limit", // For demonstration only
+    baseAsset: "BTC",
+    quoteAsset: "USD",
+    price: randomPrice,
+    amount: randomAmount,
+    filledAmount: "0",
+    orderBook: pair,
+    status: "pending",
+  };
+  const newOrderTwo: InitialOrder = {
+    id: getRandomInt(1, 999999999),
+    userId: randomUserId,
+    side: "sell", // 'buy' or 'sell'
+    orderType: "limit", // For demonstration only
+    baseAsset: "BTC",
+    quoteAsset: "USD",
+    price: randomPrice,
+    amount: randomAmount,
+    filledAmount: "0",
+    orderBook: pair,
+    status: "pending",
+  };
+
+  // 5. Push the order into either the bids or the asks, depending on side.
+
+  orderBooks[pair].asks.unshift(newOrder);
+  orderBooks[pair].bids.unshift(newOrderTwo);
+
+  // 6. Also add a simplified historical log to the same BTC-USD tradeHistory.
+  tradeHistoryBooks[pair].orders.unshift({
+    side: newOrder.side,
+    price: newOrder.price,
+    amount: newOrder.amount,
+    createdAt: new Date(),
+  });
+  tradeHistoryBooks[pair].orders.unshift({
+    side: newOrderTwo.side,
+    price: newOrderTwo.price,
+    amount: newOrderTwo.amount,
+    createdAt: new Date(),
+  });
+  // 8. Sort & broadcast the updated book
+
+  showOrderBook(pair);
+}, 500);

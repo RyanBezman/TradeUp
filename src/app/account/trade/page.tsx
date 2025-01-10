@@ -7,6 +7,15 @@ import { useAuth } from "@/app/context/AuthContext";
 import { Watchlist } from "@/app/Components/Watchlist/watchlist";
 import { TradeHistory } from "@/app/Components/TradeHistory/tradeHistory";
 import { HistoricalOrder } from "@/db/websocket";
+export function preciseSubtraction(value1: string, value2: string): string {
+  const scaleNumber = Math.pow(10, 8);
+  const answer =
+    (Math.round(parseFloat(value1) * scaleNumber) -
+      Math.round(parseFloat(value2) * scaleNumber)) /
+    scaleNumber;
+
+  return answer.toString();
+}
 
 export default function Trade() {
   const { balances, user } = useAuth();
@@ -18,6 +27,8 @@ export default function Trade() {
   const [selectedQuoteAsset, setSelectedQuoteAsset] = useState("USD");
   const [displayedBalances, setDisplayedBalances] = useState(balances);
   const [currentDisplay, setCurrentDisplay] = useState("Order Book");
+  const [spread, setSpread] = useState(0);
+
   const socketRef = useRef<WebSocket | null>(null);
 
   const updateBalances = async (userId: number) => {
@@ -74,15 +85,25 @@ export default function Trade() {
     if (user?.id) {
       updateBalances(user.id);
     }
+
+    if (asks.length > 0 && bids.length > 0) {
+      const bestAsk = asks[0].price;
+      const bestBid = bids[0].price;
+      const newSpread = +preciseSubtraction(bestAsk, bestBid);
+      setSpread(newSpread);
+    } else {
+      setSpread(0);
+    }
   }, [asks, bids]);
 
   return (
     <div className="bg-white dark:bg-black rounded-xl flex flex-col h-full">
-      <div className="max-h-full h-full flex justify-end">
+      <div className="max-h-full h-full flex">
         <Watchlist
           setSelectedBaseAsset={setSelectedBaseAsset}
           setSelectedQuoteAsset={setSelectedQuoteAsset}
         />
+
         <div className="hidden flex-1 min-[1270px]:flex flex-row ">
           <TradeHistory
             selectedBaseAsset={selectedBaseAsset}
@@ -96,13 +117,14 @@ export default function Trade() {
             asks={asks}
             bids={bids}
             isHeaderDisplayed={true}
+            spread={spread}
           />
         </div>
-        <div className="flex flex-1 flex-col min-[1270px]:hidden">
+        <div className="flex flex-grow flex-col min-[1270px]:hidden overflow-hidden">
           <div className="bg-violet-800 text-white py-4 px-6 w-full dark:bg-zinc-900 border-r dark:border-gray-600 ">
-            <h2 className="font-semibold flex gap-2">
+            <h2 className="font-semibold flex gap-3">
               <span
-                className={`cursor-pointer transition-all duration-100 ${
+                className={`cursor-pointer transition-all duration-100 text-nowrap ${
                   currentDisplay === "Order Book"
                     ? "shadow-[inset_0_-2px_0_0_currentColor]"
                     : ""
@@ -114,7 +136,7 @@ export default function Trade() {
                 Order Book
               </span>
               <span
-                className={`cursor-pointer transition-all duration-100 ${
+                className={`cursor-pointer transition-all duration-100 text-nowrap ${
                   currentDisplay === "Trade History"
                     ? "shadow-[inset_0_-2px_0_0_currentColor]"
                     : ""
@@ -127,32 +149,48 @@ export default function Trade() {
               </span>
             </h2>
           </div>
-          {currentDisplay === "Order Book" ? (
-            <OrderBook
-              selectedBaseAsset={selectedBaseAsset}
-              selectedQuoteAsset={selectedQuoteAsset}
-              asks={asks}
-              bids={bids}
-              isHeaderDisplayed={false}
-            />
-          ) : (
-            <TradeHistory
-              selectedBaseAsset={selectedBaseAsset}
-              selectedQuoteAsset={selectedQuoteAsset}
-              tradeHistory={tradeHistory}
-              isHeaderDisplayed={false}
-            />
-          )}
+          <div className="flex flex-grow overflow-hidden">
+            {currentDisplay === "Order Book" ? (
+              <OrderBook
+                selectedBaseAsset={selectedBaseAsset}
+                selectedQuoteAsset={selectedQuoteAsset}
+                asks={asks}
+                bids={bids}
+                isHeaderDisplayed={false}
+                spread={spread}
+              />
+            ) : (
+              <TradeHistory
+                selectedBaseAsset={selectedBaseAsset}
+                selectedQuoteAsset={selectedQuoteAsset}
+                tradeHistory={tradeHistory}
+                isHeaderDisplayed={false}
+              />
+            )}
+          </div>
+          <div className="flex w-full p-2 py-4 min-[885px]:hidden flex-shrink-0 gap-1">
+            <button
+              className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all bg-green-700 text-white`}
+            >
+              Buy
+            </button>
+            <button
+              className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all bg-red-700 text-white`}
+            >
+              Sell
+            </button>
+          </div>
         </div>
-
-        <OrderForm
-          selectedBaseAsset={selectedBaseAsset}
-          selectedQuoteAsset={selectedQuoteAsset}
-          displayedBalances={displayedBalances}
-          socketRef={socketRef}
-          asks={asks}
-          bids={bids}
-        />
+        <div className="hidden min-[885px]:flex">
+          <OrderForm
+            selectedBaseAsset={selectedBaseAsset}
+            selectedQuoteAsset={selectedQuoteAsset}
+            displayedBalances={displayedBalances}
+            socketRef={socketRef}
+            asks={asks}
+            bids={bids}
+          />
+        </div>
       </div>
     </div>
   );

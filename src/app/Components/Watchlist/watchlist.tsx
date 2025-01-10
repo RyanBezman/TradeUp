@@ -53,7 +53,7 @@ export function Watchlist({
     setOrderBooks(booksToDisplay);
   };
   return (
-    <div className="flex flex-col w-1/4 max-w-[224px] border border-l-0 border-t-0 dark:border-gray-600">
+    <div className="hidden min-[885px]:flex flex-col max-w-[224px] min-w-[177px] border border-l-0 border-t-0 dark:border-gray-600">
       <ColumnHeader title="Watchlist" />
       <SearchInput
         searchValue={searchValue}
@@ -75,7 +75,7 @@ export function Watchlist({
               className={`dark:text-gray-400 transition-all text-black hover:dark:text-white hover:bg-violet-100 hover:text-violet-600 dark:hover:bg-zinc-900 font-semibold flex justify-between py-5 px-8 cursor-pointer  ${
                 activeBook === book &&
                 "bg-violet-100 text-violet-600 dark:bg-zinc-900 dark:text-white"
-              } flex items-center gap-4`}
+              } flex items-center`}
               onClick={() => {
                 setActiveBook(book);
                 setSelectedBaseAsset(coinOne);

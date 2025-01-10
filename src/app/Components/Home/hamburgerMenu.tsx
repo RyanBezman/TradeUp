@@ -35,9 +35,9 @@ export function HamburgerMenu() {
           className="relative"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
-          <Menu className="h-10 w-10 min-[825px]:hidden text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400 cursor-pointer" />
+          <Menu className="h-10 w-10 min-[856px]:hidden text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400 cursor-pointer" />
           {isDropdownOpen && (
-            <ul className="absolute top-full z-20 min-[825px]:hidden rounded-xl bg-white dark:bg-black border">
+            <ul className="absolute top-full z-20 min-[856px]:hidden rounded-xl bg-white dark:bg-black border">
               {sideBarOptions.map((option) => (
                 <Link key={option.label} href={option.url}>
                   <DropDownOption
@@ -71,7 +71,7 @@ function TempChartLogo() {
   return (
     <Link href={"/account/home"}>
       <ChartNoAxesCombined
-        className="h-10 w-10 cursor-pointer hidden min-[825px]:block text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400
+        className="h-10 w-10 cursor-pointer hidden min-[856px]:block text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400
 "
       />
     </Link>
