@@ -35,7 +35,7 @@ export default function StaticInput({
   const decimalRegex = /^\d*\.?\d*$/;
 
   return (
-    <div className="flex flex-col gap-1 relative">
+    <div className="flex flex-col gap-1  relative">
       <span className="font-semibold dark:text-white text-black">{label}</span>
       <div>
         <input

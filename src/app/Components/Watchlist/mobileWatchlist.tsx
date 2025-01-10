@@ -70,7 +70,7 @@ export function MobileWatchlist({
         }`}
       />
       {isDropwdownOpen && (
-        <ul className="absolute mt-1 z-20 bg-white text-black dark:bg-zinc-900 dark:text-white overflow-y-scroll max-h-48 top-full w-full right-0 shadow-md ">
+        <ul className="absolute mt-1 z-20 bg-white text-black dark:bg-zinc-900 dark:text-white overflow-y-scroll max-h-48 top-full w-full right-0 shadow-md rounded-sm">
           {books.map((book) => {
             const coinOne = book.slice(0, 3);
             const coinTwo = book.slice(4, 7);
@@ -80,7 +80,7 @@ export function MobileWatchlist({
                   handleChange(book);
                 }}
                 key={book}
-                className={`py-2 flex items-center gap-2 justify-center text-xs border-b hover:bg-violet-100 hover:text-violet-600 hover:dark:bg-zinc-900 hover:dark:text-white ${
+                className={`py-2 flex items-center gap-2 justify-center cursor-pointer text-xs border-b hover:bg-violet-100 hover:text-violet-600 hover:dark:bg-zinc-900 hover:dark:text-white ${
                   activeBook === book &&
                   "bg-violet-100 text-violet-600 dark:bg-zinc-900 dark:text-white"
                 }`}

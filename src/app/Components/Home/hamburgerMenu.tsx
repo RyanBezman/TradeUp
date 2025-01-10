@@ -7,6 +7,7 @@ import {
   Home,
   Menu,
   UserRound,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
@@ -32,7 +33,7 @@ export function HamburgerMenu() {
       <div>
         <TempChartLogo />
         <div
-          className="relative"
+          className="relative "
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
           <Menu className="h-10 w-10 min-[856px]:hidden text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400 cursor-pointer" />

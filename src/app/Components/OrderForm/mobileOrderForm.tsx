@@ -1,12 +1,12 @@
 "use client";
-import { RefObject, useEffect, useState } from "react";
-import { ColumnHeader } from "../Orderbook/columnHeader";
+import { RefObject, useState } from "react";
 import StaticInput from "../Orderbook/staticInput";
 import { OrderData } from "../Orderbook/orderbook";
 import { CoinBalance } from "../Account/coinBalance";
 import { Balance, useAuth } from "@/app/context/AuthContext";
 import { OrderTypeToggles } from "./orderTypeToggles";
 import { PlaceOrderButton } from "./placeOrderButton";
+import { X } from "lucide-react";
 type OrderFormProps = {
   asks: OrderData[];
   bids: OrderData[];
@@ -14,6 +14,7 @@ type OrderFormProps = {
   selectedQuoteAsset: string;
   displayedBalances: Balance[] | null;
   socketRef: RefObject<WebSocket | null>;
+  closeModal: () => void;
 };
 
 const handleInputNumber = (value: number | string): string => {
@@ -35,13 +36,15 @@ export function preciseMultiplication(value1: string, value2: string): string {
 
   return answer.toString();
 }
-export function OrderForm({
+
+export function MobileOrderForm({
   asks,
   bids,
   selectedBaseAsset,
   selectedQuoteAsset,
   displayedBalances,
   socketRef,
+  closeModal,
 }: OrderFormProps) {
   const { balances, user } = useAuth();
   const [buyError, setBuyError] = useState<string | null>(null);
@@ -51,10 +54,6 @@ export function OrderForm({
   const [amount, setAmount] = useState("");
   const [whenPriceIs, setWhenPriceIs] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    console.log("Loading:", loading);
-  }, [loading]);
 
   const handleBuyButtonClick = () => {
     setIsSelected("buy");
@@ -209,7 +208,6 @@ export function OrderForm({
     } else if (isSelected === "buy") {
       if (!asks.length && orderType === "market") {
         setBuyError("There are no current asks available.");
-        setLoading(false);
         return;
       }
       placeBuy();
@@ -218,9 +216,16 @@ export function OrderForm({
   };
 
   return (
-    <div className=" dark:border-gray-600 border-t-0 border-l-0 flex min-w-[320px]  flex-col gap-4">
-      <ColumnHeader title="Order Form" />
-      <div className="p-4 flex flex-col gap-4">
+    <div className="absolute inset-0 z-30 dark:border-gray-600 dark:bg-black w-full bg-white flex flex-col gap-4 min-[885px]:hidden">
+      <div className="bg-violet-800 text-white py-4 px-6 dark:bg-zinc-900">
+        <h2 className="font-semibold flex justify-between">
+          <span>Order Form</span>
+          <span>
+            <X onClick={closeModal} />
+          </span>
+        </h2>
+      </div>
+      <div className="px-4 flex flex-col gap-2">
         <OrderTypeToggles
           handleBuyButtonClick={handleBuyButtonClick}
           handleLimitToggle={handleLimitToggle}
@@ -229,7 +234,7 @@ export function OrderForm({
           isSelected={isSelected}
           orderType={orderType}
         />
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col items-center gap-4">
           <StaticInput
             isSelected={isSelected}
             buyError={buyError}
@@ -245,11 +250,11 @@ export function OrderForm({
             label="Amount"
           />
           {orderType === "limit" && (
-            <div className="flex flex-col gap-1 ">
+            <div className="flex flex-col gap-1">
               <span className="font-semibold dark:text-white text-black">
                 Limit Price
               </span>
-              <div className="flex items-center">
+              <div className="flex items-center ">
                 <input
                   type="text"
                   className="bg-transparent text-black dark:text-white outline-none text-xl border rounded-md p-2  focus:ring-2 focus:ring-violet-800"
@@ -257,7 +262,6 @@ export function OrderForm({
                   placeholder="0"
                   onChange={(e) => {
                     setBuyError(null);
-                    setSellError(null);
                     const value = e.target.value.replace(/,/g, "");
                     if (isSelected === "buy" && displayedBalances) {
                       const amountToOrder = preciseMultiplication(
@@ -295,7 +299,7 @@ export function OrderForm({
           sellError={sellError}
           loading={loading}
         />
-        <div className="flex flex-col gap-4 overflow-auto">
+        <div className="flex flex-col gap-1 overflow-auto">
           {displayedBalances?.map(
             (balance: { asset: string; balance: string }) => (
               <CoinBalance key={balance.asset} balance={balance} />

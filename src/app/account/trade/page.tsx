@@ -8,6 +8,7 @@ import { Watchlist } from "@/app/Components/Watchlist/watchlist";
 import { TradeHistory } from "@/app/Components/TradeHistory/tradeHistory";
 import { HistoricalOrder } from "@/db/websocket";
 import { MobileWatchlist } from "@/app/Components/Watchlist/mobileWatchlist";
+import { MobileOrderForm } from "@/app/Components/OrderForm/mobileOrderForm";
 
 function preciseSubtraction(value1: string, value2: string): string {
   const scaleNumber = Math.pow(10, 8);
@@ -21,7 +22,6 @@ function preciseSubtraction(value1: string, value2: string): string {
 
 export default function Trade() {
   const { balances, user } = useAuth();
-
   const [asks, setAsks] = useState<OrderData[]>([]);
   const [bids, setBids] = useState<OrderData[]>([]);
   const [tradeHistory, setTradeHistory] = useState<HistoricalOrder[]>([]);
@@ -30,15 +30,18 @@ export default function Trade() {
   const [displayedBalances, setDisplayedBalances] = useState(balances);
   const [currentDisplay, setCurrentDisplay] = useState("Order Book");
   const [spread, setSpread] = useState(0);
+  const [isMobileTransactionActive, setIsMobileTransactionActive] =
+    useState(false);
 
   const socketRef = useRef<WebSocket | null>(null);
   const currentBook = `${selectedBaseAsset}-${selectedQuoteAsset}`;
-
+  const startTransaction = (side: string) => {
+    setIsMobileTransactionActive(true);
+  };
   const updateBalances = async (userId: number) => {
     const newBalances = await getBalances(userId);
     setDisplayedBalances(newBalances);
   };
-
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8080");
     const firstBook = `${selectedBaseAsset}-${selectedQuoteAsset}`;
@@ -100,7 +103,7 @@ export default function Trade() {
   }, [asks, bids]);
 
   return (
-    <div className="bg-white dark:bg-black rounded-xl flex flex-col h-full">
+    <div className="bg-white dark:bg-black rounded-xl flex flex-col h-full ">
       <div className="max-h-full h-full flex flex-col min-[505px]:flex-row">
         <Watchlist
           setSelectedBaseAsset={setSelectedBaseAsset}
@@ -123,14 +126,13 @@ export default function Trade() {
             spread={spread}
           />
         </div>
-        <div className="flex flex-grow flex-col min-[1270px]:hidden overflow-hidden">
+        <div className="flex flex-grow flex-col min-[1270px]:hidden overflow-hidden relative">
           <div className="bg-violet-800 text-white py-4 px-6 w-full dark:bg-zinc-900 border-r dark:border-gray-600 flex justify-between">
             <h2 className="font-semibold flex gap-3">
               <span
-                className={` cursor-pointer transition-all duration-100 text-nowrap ${
-                  currentDisplay === "Order Book"
-                    ? "shadow-[inset_0_-2px_0_0_currentColor]"
-                    : ""
+                className={`cursor-pointer transition-all duration-100 text-nowrap ${
+                  currentDisplay === "Order Book" &&
+                  "shadow-[inset_0_-2px_0_0_currentColor]"
                 }`}
                 onClick={() => {
                   setCurrentDisplay("Order Book");
@@ -140,9 +142,8 @@ export default function Trade() {
               </span>
               <span
                 className={`cursor-pointer transition-all duration-100 text-nowrap ${
-                  currentDisplay === "Trade History"
-                    ? " shadow-[inset_0_-2px_0_0_currentColor]"
-                    : ""
+                  currentDisplay === "Trade History" &&
+                  "shadow-[inset_0_-2px_0_0_currentColor]"
                 }`}
                 onClick={() => {
                   setCurrentDisplay("Trade History");
@@ -178,16 +179,33 @@ export default function Trade() {
           </div>
           <div className="flex w-full p-2 py-4 min-[885px]:hidden flex-shrink-0 gap-1">
             <button
+              onClick={() => {
+                startTransaction("buy");
+              }}
               className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all bg-green-700 text-white`}
             >
               Buy
             </button>
             <button
+              onClick={() => {
+                startTransaction("sell");
+              }}
               className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all bg-red-700 text-white`}
             >
               Sell
             </button>
           </div>
+          {isMobileTransactionActive && (
+            <MobileOrderForm
+              selectedBaseAsset={selectedBaseAsset}
+              selectedQuoteAsset={selectedQuoteAsset}
+              displayedBalances={displayedBalances}
+              socketRef={socketRef}
+              asks={asks}
+              bids={bids}
+              closeModal={() => setIsMobileTransactionActive(false)}
+            />
+          )}
         </div>
         <div className="hidden min-[885px]:flex">
           <OrderForm
