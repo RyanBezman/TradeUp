@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="bg-white dark:bg-black text-black dark:text-white w-full min-h-screen flex flex-col">
+    <div className="bg-white dark:bg-black text-black dark:text-white w-full min-h-screen flex flex-col overflow-y-auto">
       <section className="  text-center py-16 px-6">
         <h1 className="text-5xl font-semibold text-violet-800 dark:text-white mb-4">
           Welcome Back to TradeUp
