@@ -7,7 +7,8 @@ import { useAuth } from "@/app/context/AuthContext";
 import { Watchlist } from "@/app/Components/Watchlist/watchlist";
 import { TradeHistory } from "@/app/Components/TradeHistory/tradeHistory";
 import { HistoricalOrder } from "@/db/websocket";
-export function preciseSubtraction(value1: string, value2: string): string {
+
+function preciseSubtraction(value1: string, value2: string): string {
   const scaleNumber = Math.pow(10, 8);
   const answer =
     (Math.round(parseFloat(value1) * scaleNumber) -
