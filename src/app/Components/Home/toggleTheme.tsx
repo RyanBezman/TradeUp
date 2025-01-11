@@ -9,7 +9,7 @@ export function ToggleTheme() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-full bg-violet-300 dark:bg-zinc-700 hidden min-[505px]:block"
+      className="p-2 rounded-full bg-violet-300 dark:bg-zinc-700"
     >
       <SunIcon
         className={`h-5 w-5 text-violet-800 ${
