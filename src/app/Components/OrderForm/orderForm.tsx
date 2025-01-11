@@ -1,5 +1,5 @@
 "use client";
-import { RefObject, useEffect, useState } from "react";
+import { RefObject, useState } from "react";
 import { ColumnHeader } from "../Orderbook/columnHeader";
 import StaticInput from "../Orderbook/staticInput";
 import { OrderData } from "../Orderbook/orderbook";
