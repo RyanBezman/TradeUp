@@ -4,6 +4,8 @@ import { Navbar } from "../Components/Home/navbar";
 import Link from "next/link";
 import { UserRound, DollarSign, Activity, Home } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useRef } from "react";
+import { useClickOutside } from "../hooks/useClickOutside";
 
 const sideBarOptions = [
   { label: "Home", icon: Home, url: "/account/home" },

@@ -37,6 +37,7 @@ export function TradeHistory({
         {tradeHistory.length > 0 &&
           tradeHistory.map((trade, i) => {
             const date = formatDate(trade.createdAt);
+            const isAnimated = i <= 3;
             return (
               <Cell
                 key={date + trade.amount + i}
@@ -44,6 +45,7 @@ export function TradeHistory({
                 price={trade.price}
                 type={trade.side}
                 createdAt={date}
+                isAnimated={isAnimated}
               />
             );
           })}
@@ -57,16 +59,17 @@ type CellProps = {
   price: string;
   type: string;
   createdAt: string;
+  isAnimated: boolean;
 };
-export function Cell({ size, price, type, createdAt }: CellProps) {
+export function Cell({ size, price, type, createdAt, isAnimated }: CellProps) {
   const numSize = +size;
   console.log(typeof createdAt);
   return (
-    <div className="flex flex-srhink justify-end px-2 py-1">
+    <div className="flex  justify-end px-2 py-1">
       <span
-        className={`w-1/3 flex flex-1 justify-end fade-to-color dark:text-white ${
-          type === "sell" ? "start-green" : "start-red"
-        }`}
+        className={`w-1/3 flex flex-1 justify-end  dark:text-white ${
+          type === "sell" && isAnimated && "fade-to-color start-green"
+        } ${type === "buy" && isAnimated && "fade-to-color start-red"}`}
       >
         {numSize.toFixed(8)}
       </span>

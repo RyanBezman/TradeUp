@@ -1,5 +1,4 @@
 "use client";
-
 import { useRef } from "react";
 import { ColumnHeader } from "./columnHeader";
 import { LabelHeader } from "./labelheader";
@@ -12,7 +11,6 @@ export type OrderData = {
   filledAmount: string;
   orderBook: string;
 };
-
 type OrderBookProps = {
   asks: OrderData[];
   bids: OrderData[];
@@ -65,17 +63,18 @@ export function OrderBookBids({ asks, asksContainerRef }: OrderBookSellsProps) {
       className="flex-grow overflow-y-auto no-scrollbar h-1/2"
       ref={asksContainerRef}
     >
-      {asks.map((ask: OrderData) => {
+      {asks.map((ask: OrderData, i) => {
         const { price, amount, filledAmount } = ask;
         const size = (+amount - +filledAmount).toFixed(4);
         const randomNum = Math.random() * 10000000;
-        console.log(amount, price);
+        const isAnimated = i <= 3;
         return (
           <Cell
             key={`sell-${size + price + randomNum}`}
             size={size}
             price={price}
             type="sell"
+            isAnimated={isAnimated}
           />
         );
       })}
@@ -93,17 +92,18 @@ export function OrderBookAsks({ bids, bidsContainerRef }: OrderBookBidsProps) {
       className="flex-grow overflow-y-auto no-scrollbar rotate-180 h-1/2"
       ref={bidsContainerRef}
     >
-      {bids.map((bid: OrderData) => {
+      {bids.map((bid: OrderData, i) => {
         const { price, amount, filledAmount } = bid;
         const size = (parseFloat(amount) - parseFloat(filledAmount)).toFixed(4);
-        console.log(bid);
         const getRandomNum = Math.random() * 10000000;
+        const isAnimated = i <= 3;
         return (
           <Cell
             key={`bid-${size + price + getRandomNum}`}
             size={size}
             price={price}
             type="bid"
+            isAnimated={isAnimated}
           />
         );
       })}

@@ -1,7 +1,8 @@
 "use client";
-import { ChangeEvent, useState } from "react";
+import { useRef, useState } from "react";
 import { CoinType } from "../Account/coinBalance";
 import { ChevronDown } from "lucide-react";
+import { useClickOutside } from "@/app/hooks/useClickOutside";
 
 const books = [
   "BTC-ETH",
@@ -47,6 +48,8 @@ export function MobileWatchlist({
 }: WatchlistProps) {
   const [activeBook, setActiveBook] = useState(currentBook);
   const [isDropwdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  useClickOutside(dropdownRef, isDropwdownOpen, () => setIsDropdownOpen(false));
 
   const handleChange = (book: string) => {
     const selectedBook = book;
@@ -70,7 +73,10 @@ export function MobileWatchlist({
         }`}
       />
       {isDropwdownOpen && (
-        <ul className="absolute mt-1 z-20 bg-white text-black dark:bg-zinc-900 dark:text-white overflow-y-scroll max-h-48 top-full w-full right-0 shadow-md rounded-sm">
+        <ul
+          ref={dropdownRef}
+          className="absolute mt-1 z-20 bg-white text-black dark:bg-zinc-900 dark:text-white overflow-y-scroll max-h-48 top-full w-full right-0 shadow-md rounded-sm"
+        >
           {books.map((book) => {
             const coinOne = book.slice(0, 3);
             const coinTwo = book.slice(4, 7);

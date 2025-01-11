@@ -9,7 +9,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
@@ -25,8 +25,10 @@ const sideBarOptions = [
 
 export function HamburgerMenu() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const { user } = useAuth();
   const pathname = usePathname();
+  useClickOutside(dropdownRef, isDropdownOpen, () => setIsDropdownOpen(false));
   if (user) {
     console.log(user);
     return (
@@ -38,7 +40,10 @@ export function HamburgerMenu() {
         >
           <Menu className="h-10 w-10 min-[856px]:hidden text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400 cursor-pointer" />
           {isDropdownOpen && (
-            <ul className="absolute top-full z-20 min-[856px]:hidden rounded-xl bg-white dark:bg-black border">
+            <ul
+              ref={dropdownRef}
+              className="absolute top-full z-20 min-[856px]:hidden rounded-xl bg-white dark:bg-black border"
+            >
               {sideBarOptions.map((option) => (
                 <Link key={option.label} href={option.url}>
                   <DropDownOption
@@ -80,6 +85,7 @@ function TempChartLogo() {
 }
 
 import { LucideProps } from "lucide-react";
+import { useClickOutside } from "@/app/hooks/useClickOutside";
 
 type DropdownOption = {
   label: string;

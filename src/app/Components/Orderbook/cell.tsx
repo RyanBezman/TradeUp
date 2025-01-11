@@ -2,16 +2,17 @@ type CellProps = {
   size: string;
   price: string;
   type: "sell" | "bid";
+  isAnimated: boolean;
 };
-export function Cell({ size, price, type }: CellProps) {
+export function Cell({ size, price, type, isAnimated }: CellProps) {
   return (
     <div
       className={`flex justify-end px-2 ${type !== "sell" && "rotate-180"} `}
     >
       <span
-        className={`w-1/3  flex justify-end fade-to-color dark:text-white ${
-          type === "sell" ? "start-green" : "start-red"
-        }`}
+        className={`w-1/3  flex justify-end  dark:text-white ${
+          type === "sell" && isAnimated && "fade-to-color start-green"
+        } ${isAnimated && type === "bid" && "fade-to-color start-red"}`}
       >
         {size}
       </span>
