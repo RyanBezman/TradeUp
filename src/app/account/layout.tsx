@@ -10,9 +10,6 @@ const sideBarOptions = [
   { label: "Trade", icon: DollarSign, url: "/account/trade" },
   { label: "Order History", icon: Activity, url: "/account/orders" },
   { label: "My Profile", icon: UserRound, url: "/account/profile" },
-  // { label: "Manage Wallets", icon: Wallet, url: "/account/wallet" },
-  // { label: "Withdraw Funds", icon: CreditCard, url: "/account/withdraw" },
-  // { label: "Trading Dashboard", icon: TrendingUp, url: "/account/dashboard" },
 ];
 
 export default function Account({ children }: { children?: React.ReactNode }) {
@@ -31,7 +28,7 @@ export default function Account({ children }: { children?: React.ReactNode }) {
             </Link>
           ))}
         </ul>
-        <div className="flex flex-col border-t flex-1 min-[600px]:border dark:border-gray-600">
+        <div className="flex flex-col border-t flex-1 min-[600px]:border min-[505px]:dark:border-gray-600">
           {children}
         </div>
       </div>
