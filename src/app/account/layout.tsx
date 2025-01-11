@@ -18,7 +18,7 @@ const sideBarOptions = [
 export default function Account({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
   return (
-    <div className="flex flex-col h-screen max-h-screen overflow-hidden transition-all">
+    <div className="flex flex-col h-dvh max-h-dvh overflow-hidden transition-all">
       <Navbar />
       <div className="flex flex-grow overflow-hidden  ">
         <ul className="hidden flex-col gap-2  border-t dark:border-gray-600  py-2 px-2 min-[600px]:flex ">
