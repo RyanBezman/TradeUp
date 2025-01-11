@@ -4,8 +4,6 @@ import { Navbar } from "../Components/Home/navbar";
 import Link from "next/link";
 import { UserRound, DollarSign, Activity, Home } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useRef } from "react";
-import { useClickOutside } from "../hooks/useClickOutside";
 
 const sideBarOptions = [
   { label: "Home", icon: Home, url: "/account/home" },
@@ -20,7 +18,7 @@ const sideBarOptions = [
 export default function Account({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
   return (
-    <div className="flex flex-col h-screen max-h-screen overflow-hidden">
+    <div className="flex flex-col h-screen max-h-screen overflow-hidden transition-all">
       <Navbar />
       <div className="flex flex-grow overflow-hidden  ">
         <ul className="hidden flex-col gap-2  border-t dark:border-gray-600  py-2 px-2 min-[600px]:flex ">

@@ -5,7 +5,7 @@ type LabelHeaderProps = {
 };
 export function LabelHeader({ left, right, colThree }: LabelHeaderProps) {
   return (
-    <div className="bg-violet-500 dark:bg-zinc-700 text-white  max-[1392px]:text-sm flex justify-between  py-1 px-2">
+    <div className="bg-violet-500 dark:bg-zinc-700 text-white  max-[1392px]:text-sm flex justify-between  py-1 px-2 transition">
       <label className=" w-1/3 text-end text-nowrap">{left}</label>
       <label className="w-1/3 text-end text-nowrap">{right}</label>
       <label className="w-1/3 text-end">{colThree}</label>

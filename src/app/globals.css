@@ -72,3 +72,12 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+.nextjs-static-indicator-toast-icons {
+  display: none;
+}
+.nextjs-static-indicator-toast-icon {
+  display: none;
+}
+.nextjs-static-indicator-toast-icon {
+  display: none;
+}

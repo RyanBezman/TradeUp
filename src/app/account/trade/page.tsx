@@ -35,7 +35,7 @@ export default function Trade() {
 
   const socketRef = useRef<WebSocket | null>(null);
   const currentBook = `${selectedBaseAsset}-${selectedQuoteAsset}`;
-  const startTransaction = (side: string) => {
+  const startTransaction = () => {
     setIsMobileTransactionActive(true);
   };
   const updateBalances = async (userId: number) => {
@@ -180,7 +180,7 @@ export default function Trade() {
           <div className="flex w-full p-2 py-4 min-[885px]:hidden flex-shrink-0 gap-1">
             <button
               onClick={() => {
-                startTransaction("buy");
+                startTransaction();
               }}
               className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all bg-green-700 text-white`}
             >
@@ -188,7 +188,7 @@ export default function Trade() {
             </button>
             <button
               onClick={() => {
-                startTransaction("sell");
+                startTransaction();
               }}
               className={`py-2 px-4 rounded-full font-semibold flex-1 transition-all bg-red-700 text-white`}
             >
