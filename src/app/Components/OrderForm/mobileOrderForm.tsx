@@ -155,7 +155,6 @@ export function MobileOrderForm({
         const scaleFactor = 10 ** 8;
         const scaledSize = Math.round(+numericSize * scaleFactor);
         const scaledBalance = Math.round(+balance.balance * scaleFactor);
-        console.log(scaledSize, scaledBalance);
         if (scaledSize > scaledBalance) {
           setTimeout(() => {
             setLoading(false);

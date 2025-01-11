@@ -5,7 +5,6 @@ import { activeUsers, users } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function validateUserSession(email: string, sessionToken: string) {
-  console.log("in server func");
   const result = await db
     .select({
       sessionToken: activeUsers.sessionToken,

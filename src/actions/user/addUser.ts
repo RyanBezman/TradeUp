@@ -56,11 +56,6 @@ export async function addUser({
     console.log("user added succesfully");
 
     if (user) {
-      // await db.insert(schema.balances).values({
-      //   userId: user.id,
-      //   asset: "BTC",
-      //   balance: "1.0",
-      // });
       await db.insert(schema.balances).values([
         { userId: user.id, asset: "BTC", balance: "10.0" },
         { userId: user.id, asset: "ETH", balance: "50.0" },
@@ -68,8 +63,6 @@ export async function addUser({
         { userId: user.id, asset: "XRP", balance: "4.0" },
         { userId: user.id, asset: "SOL", balance: "2.0" },
       ]);
-
-      console.log("Bitcoin balance added succesfully");
     } else {
       throw new Error("Falied to insert user");
     }

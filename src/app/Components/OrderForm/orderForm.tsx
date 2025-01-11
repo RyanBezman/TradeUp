@@ -52,10 +52,6 @@ export function OrderForm({
   const [whenPriceIs, setWhenPriceIs] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    console.log("Loading:", loading);
-  }, [loading]);
-
   const handleBuyButtonClick = () => {
     setIsSelected("buy");
     setOrderType("market");
@@ -156,7 +152,6 @@ export function OrderForm({
         const scaleFactor = 10 ** 8;
         const scaledSize = Math.round(+numericSize * scaleFactor);
         const scaledBalance = Math.round(+balance.balance * scaleFactor);
-        console.log(scaledSize, scaledBalance);
         if (scaledSize > scaledBalance) {
           setTimeout(() => {
             setLoading(false);

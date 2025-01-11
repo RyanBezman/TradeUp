@@ -161,7 +161,7 @@ async function initializeOrderBook() {
       tradeHistoryBooks[book].orders.push(trade);
     }
 
-    console.log("succefully initialzed orderbook");
+    console.log("Initialized Orderbook");
   } catch (error) {
     console.error("falied to initialize orderbook ", error);
   }
@@ -187,7 +187,6 @@ wss.on("connection", (ws: WebSocket) => {
       } = data;
       if (data.type === "subscribe") {
         const { pair, id } = data;
-        console.log(pair);
         ws.subscribedPair = pair;
         clientConnection[id] = pair;
         const currPair: string = clientConnection[id];
@@ -628,7 +627,6 @@ wss.on("connection", (ws: WebSocket) => {
               newOrder.filledAmount,
               amountToAdd
             );
-            console.log(amountToAdd);
 
             newOrder.filledAmount = updatedFillAmount;
             orderBooks[currBook].bids.push(newOrder);
@@ -676,7 +674,6 @@ function showOrderBook(book: string) {
 
 function updateOrderBook(id: number) {
   const book = clientConnection[id];
-  console.log(book);
   sortAsks(book);
   sortBids(book);
   showOrderBook(book);
@@ -697,7 +694,6 @@ async function marketBuy(newOrder: InitialOrder, id: number) {
     return;
   }
   let currentQuoteAssetBalance = +balanceInfo.balance;
-  console.log(currentQuoteAssetBalance);
   for (
     let i = 0;
     i < currAsks.length && +remainingSize > 0 && partialFill === false;

@@ -33,7 +33,6 @@ export default function DynamicInput() {
             return;
           }
           const newValue = handleInputNumber(value);
-          console.log(newValue.length);
           setInput(newValue);
 
           const length = value.length;

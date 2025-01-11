@@ -17,7 +17,6 @@ const createRandomString = () => {
   return randomString;
 };
 export async function authorizeUser(email: string, password: string) {
-  console.log("we are here");
   try {
     const user = await db
       .select({
@@ -52,7 +51,6 @@ export async function authorizeUser(email: string, password: string) {
       id,
       job,
     } = user[0];
-    console.log(user[0]);
     const hashedPassword = pbkdf2Sync(
       password,
       salt,

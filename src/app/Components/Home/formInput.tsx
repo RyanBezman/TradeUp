@@ -25,7 +25,6 @@ export function FormInput({
       </label>
       <input
         ref={inputRef}
-        onFocus={(e) => console.log(e)}
         type="text"
         placeholder={placeholder}
         className="border p-2 outline-none rounded-lg bg-white dark:bg-zinc-600 text-black dark:text-white border-gray-300 dark:border-zinc-600 placeholder-gray-500 dark:placeholder-gray-400 focus:border-violet-600 focus:ring-2 focus:ring-violet-600"

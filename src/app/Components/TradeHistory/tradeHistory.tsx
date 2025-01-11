@@ -63,7 +63,6 @@ type CellProps = {
 };
 export function Cell({ size, price, type, createdAt, isAnimated }: CellProps) {
   const numSize = +size;
-  console.log(typeof createdAt);
   return (
     <div className="flex  justify-end px-2 py-1">
       <span

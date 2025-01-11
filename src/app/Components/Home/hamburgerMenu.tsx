@@ -17,9 +17,6 @@ const sideBarOptions = [
   { label: "My Profile", icon: UserRound, url: "/account/profile" },
   { label: "Trade", icon: DollarSign, url: "/account/trade" },
   { label: "Order History", icon: Activity, url: "/account/orders" },
-  // { label: "Manage Wallets", icon: Wallet, url: "/account/wallet" },
-  // { label: "Withdraw Funds", icon: CreditCard, url: "/account/withdraw" },
-  // { label: "Trading Dashboard", icon: TrendingUp, url: "/account/dashboard" },
 ];
 
 export function HamburgerMenu() {
@@ -29,7 +26,6 @@ export function HamburgerMenu() {
   const pathname = usePathname();
   useClickOutside(dropdownRef, isDropdownOpen, () => setIsDropdownOpen(false));
   if (user) {
-    console.log(user);
     return (
       <div>
         <TempChartLogo />

@@ -60,10 +60,8 @@ export default function StaticInput({
               }
             } else if (isSelected === "buy" && displayedBalances) {
               const newQuote = whenPriceIs.replace(",", "");
-              console.log(newQuote);
 
               const amountToOrder = preciseMultiplication(val, newQuote);
-              console.log(amountToOrder);
               for (const balance of displayedBalances) {
                 if (balance.asset === selectedQuoteAsset) {
                   if (+balance.balance < +amountToOrder) {

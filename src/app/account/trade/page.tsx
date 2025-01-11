@@ -63,7 +63,6 @@ export default function Trade() {
     };
 
     socketRef.current = ws;
-    console.log(balances);
 
     return () => {
       if (socketRef.current) {
