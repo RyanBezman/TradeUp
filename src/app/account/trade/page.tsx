@@ -55,6 +55,7 @@ export default function Trade() {
       const data = JSON.parse(event.data);
       if (data.type === "order_book") {
         setAsks(data.asks);
+        console.log(asks);
         setBids(data.bids);
         if (data.tradeHistory !== undefined) {
           setTradeHistory(data.tradeHistory);
