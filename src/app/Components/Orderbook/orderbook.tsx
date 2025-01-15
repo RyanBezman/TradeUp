@@ -32,7 +32,7 @@ export function OrderBook({
   const bidsContainerRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className=" flex flex-col flex-1 min-h-full min-[505px]:border border-l-0 border-t-0 dark:border-gray-600 ">
+    <div className=" flex flex-col flex-1 min-h-full  dark:border-gray-600 ">
       {isHeaderDisplayed && (
         <ColumnHeader
           title="Order Book"

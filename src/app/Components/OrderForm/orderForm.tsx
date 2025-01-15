@@ -213,7 +213,7 @@ export function OrderForm({
   };
 
   return (
-    <div className=" dark:border-gray-600 border-t-0 border-l-0 flex min-w-[320px]  flex-col gap-4">
+    <div className=" dark:border-gray-600 border border-t-0 border-r-0 flex min-w-[320px]  flex-col gap-4">
       <ColumnHeader title="Order Form" />
       <div className="p-4 flex flex-col gap-4">
         <OrderTypeToggles
