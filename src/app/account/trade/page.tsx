@@ -127,7 +127,7 @@ export default function Trade() {
           />
         </div>
         <div className="flex flex-grow flex-col min-[1270px]:hidden overflow-hidden relative">
-          <div className="bg-violet-800 text-white py-4 px-6 w-full dark:bg-zinc-900 min-[505px]:border-r dark:border-gray-600 flex justify-between">
+          <div className="bg-violet-800 text-white py-4 px-6 w-full dark:bg-zinc-900  border-r-0 dark:border-gray-600 flex justify-between">
             <h2 className="font-semibold flex gap-3">
               <span
                 className={`cursor-pointer transition-all duration-100 text-nowrap ${
@@ -158,7 +158,7 @@ export default function Trade() {
               currentBook={currentBook}
             />
           </div>
-          <div className="flex flex-grow overflow-hidden">
+          <div className="flex flex-grow overflow-hidden ">
             {currentDisplay === "Order Book" ? (
               <OrderBook
                 selectedBaseAsset={selectedBaseAsset}
