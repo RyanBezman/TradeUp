@@ -3,6 +3,8 @@ services:
     build:
       context: ./
       dockerfile: ./web.Dockerfile
+      args:
+        DATABASE_URL: postgresql://MaintainMeDB_owner:mDVZRvr1Ff6t@ep-empty-hat-a5dkajbq.us-east-2.aws.neon.tech/MaintainMeDB?sslmode=require
     environment:
       DATABASE_URL: postgresql://MaintainMeDB_owner:mDVZRvr1Ff6t@ep-empty-hat-a5dkajbq.us-east-2.aws.neon.tech/MaintainMeDB?sslmode=require
     ports:
