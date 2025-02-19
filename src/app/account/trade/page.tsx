@@ -43,7 +43,7 @@ export default function Trade() {
     setDisplayedBalances(newBalances);
   };
   useEffect(() => {
-    const ws = new WebSocket(`wss://${window.location.hostname}:8080`);
+    const ws = new WebSocket(`wss://${window.location.host}:8080`);
     const firstBook = `${selectedBaseAsset}-${selectedQuoteAsset}`;
     ws.onopen = () => {
       ws.send(
