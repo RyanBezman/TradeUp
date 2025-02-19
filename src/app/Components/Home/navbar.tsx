@@ -12,7 +12,7 @@ export function Navbar() {
         <HamburgerMenu />
         <Link href={"/account/home"}>
           <h1 className="font-bold min-[505px]:block dark:text-white text-black text-3xl pl-2 cursor-pointer">
-            TradeUp
+            random test
           </h1>
         </Link>
       </div>
