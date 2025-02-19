@@ -53,7 +53,7 @@ export function preciseDivision(value1: string, value2: string): string {
   return answer.toString();
 }
 
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: 8443 });
 type InitialOrder = {
   id: number;
   userId: number;
