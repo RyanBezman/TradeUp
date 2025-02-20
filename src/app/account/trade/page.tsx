@@ -43,10 +43,9 @@ export default function Trade() {
     setDisplayedBalances(newBalances);
   };
   useEffect(() => {
-    const ws = new WebSocket(`wss://${window.location.host}`);
+    const ws = new WebSocket(`wss://${window.location.host}:8443`);
     const firstBook = `${selectedBaseAsset}-${selectedQuoteAsset}`;
     ws.onopen = () => {
-      console.log("Connnected to websocket");
       ws.send(
         JSON.stringify({ type: "subscribe", id: user?.id, pair: firstBook })
       );
@@ -63,7 +62,7 @@ export default function Trade() {
         }
       }
     };
-    ws.onerror = (err) => console.error("Websocket error:", err);
+
     socketRef.current = ws;
 
     return () => {
