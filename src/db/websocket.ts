@@ -54,7 +54,7 @@ export function preciseDivision(value1: string, value2: string): string {
   return answer.toString();
 }
 
-const wss = new WebSocketServer({ port: 8443 });
+const wss = new WebSocketServer({ port: 443 });
 console.log("Websocket server started on ws://localhost:8443");
 type InitialOrder = {
   id: number;
