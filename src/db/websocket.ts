@@ -54,8 +54,7 @@ export function preciseDivision(value1: string, value2: string): string {
   return answer.toString();
 }
 
-const wss = new WebSocketServer({ port: 8443 });
-console.log("Websocket server started on ws://localhost:8443");
+const wss = new WebSocketServer({ port: 3000 });
 type InitialOrder = {
   id: number;
   userId: number;
@@ -172,8 +171,8 @@ async function initializeOrderBook() {
 initializeOrderBook();
 
 wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
-  console.log(`🔌 New WebSocket connection from: ${req.socket.remoteAddress}`);
-  console.log(`🌐 Requested URL: ${req.url}`);
+  console.log(`New WebSocket connection from: ${req.socket.remoteAddress}`);
+  console.log(`Requested URL: ${req.url}`);
 
   ws.send("Hello from WebSocket server!");
   ws.on("message", async (message: WebSocket.RawData) => {
