@@ -11,8 +11,7 @@ import { completeOrder } from "@/actions/orders/completeOrder";
 import { completeMarketOrder } from "@/actions/orders/completeMarketOrder";
 import { getTradeHistory } from "@/actions/orders/getTradeHistory";
 import { getOneBalance } from "@/actions/balance/getOneBalance";
-import { IncomingMessage } from "http";
-
+import http from "http";
 export function preciseSubtraction(value1: string, value2: string): string {
   const scaleNumber = Math.pow(10, 8);
   const answer =
@@ -53,8 +52,8 @@ export function preciseDivision(value1: string, value2: string): string {
 
   return answer.toString();
 }
-
-const wss = new WebSocketServer({ port: 8443 });
+const server = http.createServer();
+const wss = new WebSocketServer({ server });
 console.log("Websocket server started on ws://localhost:8443");
 type InitialOrder = {
   id: number;
@@ -171,10 +170,7 @@ async function initializeOrderBook() {
 
 initializeOrderBook();
 
-wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
-  console.log(`New WebSocket connection from: ${req.socket.remoteAddress}`);
-  console.log(`Requested URL: ${req.url}`);
-
+wss.on("connection", (ws: WebSocket) => {
   ws.send("Hello from WebSocket server!");
   ws.on("message", async (message: WebSocket.RawData) => {
     try {
