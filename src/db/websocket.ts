@@ -171,7 +171,6 @@ async function initializeOrderBook() {
 initializeOrderBook();
 
 wss.on("connection", (ws: WebSocket) => {
-  ws.send("Hello from WebSocket server!");
   ws.on("message", async (message: WebSocket.RawData) => {
     try {
       const data = JSON.parse(message);
