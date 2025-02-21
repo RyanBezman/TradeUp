@@ -49,7 +49,6 @@ export default function Trade() {
       ws.send(
         JSON.stringify({ type: "subscribe", id: user?.id, pair: firstBook })
       );
-      console.log("ws open");
     };
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
