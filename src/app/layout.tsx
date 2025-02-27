@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     url: "https://ryanbez.dev",
     images: [
       {
-        url: "/Images/ogImage.png",
+        url: "https://ryanbez.dev/Images/ogImage.png",
         width: 1200,
         height: 630,
         alt: "TradeUp - Safe and User-Friendly Trading",
