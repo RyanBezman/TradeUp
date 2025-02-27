@@ -20,6 +20,20 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "TradeUp",
   description: "Trade safely on a user friendly app.",
+  openGraph: {
+    title: "TradeUp",
+    description: "Trade safely on a user-friendly app.",
+    type: "website",
+    url: "https://ryanbez.dev",
+    images: [
+      {
+        url: "/Images/ogImage.png",
+        width: 1200,
+        height: 630,
+        alt: "TradeUp - Safe and User-Friendly Trading",
+      },
+    ],
+  },
 };
 
 export default async function RootLayout({
