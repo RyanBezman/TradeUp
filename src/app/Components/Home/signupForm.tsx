@@ -7,7 +7,7 @@ import { addUser } from "@/actions/user/addUser";
 type SignupFormProps = {
   setIsFormOpen: (arg: boolean) => void;
   setIsLoginOpen: (arg: boolean) => void;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 };
 export type SignupData = {
   firstName: string;
