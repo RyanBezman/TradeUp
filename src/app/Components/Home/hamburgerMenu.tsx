@@ -21,7 +21,7 @@ const sideBarOptions = [
 
 export function HamburgerMenu() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLUListElement>(null);
   const { user } = useAuth();
   const pathname = usePathname();
   useClickOutside(dropdownRef, isDropdownOpen, () => setIsDropdownOpen(false));
