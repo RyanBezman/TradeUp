@@ -1,4 +1,3 @@
-\"use client\";
 import { authorizeUser } from "@/actions/auth/authorizeUser";
 import { useAuth } from "@/app/context/AuthContext";
 import { FormEvent, useEffect, useRef, useState } from "react";

@@ -1,4 +1,3 @@
-"use client";
 import { SignupData } from "./signupForm";
 
 type FormInputProps = {
