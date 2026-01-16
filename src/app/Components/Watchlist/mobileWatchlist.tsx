@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import Image from "next/image";
 import { CoinType } from "../Account/coinBalance";
 import { ChevronDown } from "lucide-react";
 import { useClickOutside } from "@/app/hooks/useClickOutside";
@@ -92,15 +93,19 @@ export function MobileWatchlist({
                 }`}
               >
                 <div className="relative w-fit flex">
-                  <img
-                    className="w-3 h-3 z-10"
+                  <Image
+                    className="z-10"
                     src={coinPics[coinOne as CoinType]}
                     alt={coinOne}
+                    width={12}
+                    height={12}
                   />
-                  <img
-                    className="w-3 h-3 absolute left-1"
+                  <Image
+                    className="absolute left-1"
                     src={coinPics[coinTwo as CoinType]}
-                    alt={coinOne}
+                    alt={coinTwo}
+                    width={12}
+                    height={12}
                   />
                 </div>
                 <span className="text-nowrap">{book}</span>

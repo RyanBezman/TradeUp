@@ -55,7 +55,7 @@ export function OrderBook({
 
 type OrderBookSellsProps = {
   asks: OrderData[];
-  asksContainerRef: React.RefObject<HTMLDivElement>;
+  asksContainerRef: React.RefObject<HTMLDivElement | null>;
 };
 export function OrderBookBids({ asks, asksContainerRef }: OrderBookSellsProps) {
   return (
@@ -84,7 +84,7 @@ export function OrderBookBids({ asks, asksContainerRef }: OrderBookSellsProps) {
 
 type OrderBookBidsProps = {
   bids: OrderData[];
-  bidsContainerRef: React.RefObject<HTMLDivElement>;
+  bidsContainerRef: React.RefObject<HTMLDivElement | null>;
 };
 export function OrderBookAsks({ bids, bidsContainerRef }: OrderBookBidsProps) {
   return (

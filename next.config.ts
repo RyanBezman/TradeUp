@@ -4,7 +4,11 @@ const nextConfig: NextConfig = {
   /* config options here */
 
   images: {
-    domains: ["i.imgur.com"],
+    domains: [
+      "i.imgur.com",
+      "dynamic-assets.coinbase.com",
+      "asset-metadata-service-production.s3.amazonaws.com",
+    ],
   },
 };
 

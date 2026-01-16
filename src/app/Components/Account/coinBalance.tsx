@@ -1,6 +1,7 @@
 "use client";
 
 import { Balance } from "@/app/context/AuthContext";
+import Image from "next/image";
 type BitcoinBalanceProps = {
   balance: Balance;
 };
@@ -27,7 +28,7 @@ export function CoinBalance({ balance }: BitcoinBalanceProps) {
   return (
     <div className="px-4 py-2 flex items-center justify-between w-full">
       <div className="flex gap-2 cursor-pointer dark:text-white">
-        <img className="max-h-8" src={displayPic} />
+        <Image src={displayPic} alt={displayName} width={32} height={32} />
         <div className="flex flex-col">
           <span className="font-semibold">{displayName}</span>
           <span className="text-ssm text-gray-500">{balance?.asset}</span>

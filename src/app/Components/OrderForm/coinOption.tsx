@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type CoinOptionProps = {
   coin: string;
   setAsset: (param: string) => void;
@@ -20,7 +22,7 @@ export function CoinOption({
         closeDropdown(false);
       }}
     >
-      <img src={displayPic} alt={coin} className="w-6 h-6" />
+      <Image src={displayPic} alt={coin} width={24} height={24} />
       <span className="dark:text-white">{displayName}</span>
     </li>
   );

@@ -3,6 +3,7 @@ import { ChangeEvent, useState } from "react";
 import { ColumnHeader } from "../Orderbook/columnHeader";
 import { SearchInput } from "./searchInput";
 import { CoinType } from "../Account/coinBalance";
+import Image from "next/image";
 const books = [
   "BTC-ETH",
   "BTC-XRP",
@@ -83,15 +84,19 @@ export function Watchlist({
               }}
             >
               <div className="relative w-fit flex">
-                <img
-                  className="w-6 h-6 z-10"
+                <Image
+                  className="z-10"
                   src={coinPics[coinOne as CoinType]}
                   alt={coinOne}
+                  width={24}
+                  height={24}
                 />
-                <img
-                  className="w-6 h-6 absolute left-4"
+                <Image
+                  className="absolute left-4"
                   src={coinPics[coinTwo as CoinType]}
-                  alt={coinOne}
+                  alt={coinTwo}
+                  width={24}
+                  height={24}
                 />
               </div>
               <div>{book}</div>
