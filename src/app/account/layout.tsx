@@ -4,6 +4,9 @@ import { Navbar } from "../Components/Home/navbar";
 import Link from "next/link";
 import { UserRound, DollarSign, Activity, Home } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useAuth } from "@/app/context/AuthContext";
 
 const sideBarOptions = [
   { label: "Home", icon: Home, url: "/account/home" },
@@ -14,6 +17,23 @@ const sideBarOptions = [
 
 export default function Account({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      router.replace("/how-to-use");
+    }
+  }, [user, router]);
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white text-black dark:bg-black dark:text-white">
+        <Navbar />
+        <div className="p-8">Redirecting…</div>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col h-dvh max-h-dvh overflow-hidden transition-all">
       <Navbar />

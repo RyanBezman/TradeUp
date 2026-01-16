@@ -59,7 +59,7 @@ export function HamburgerMenu() {
 
 function ChartLogo() {
   return (
-    <Link href={"/account/home"}>
+    <Link href={"/"}>
       <ChartNoAxesCombined
         className="h-10 w-10 cursor-pointer text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400
 "
@@ -70,7 +70,7 @@ function ChartLogo() {
 
 function TempChartLogo() {
   return (
-    <Link href={"/account/home"}>
+    <Link href={"/"}>
       <ChartNoAxesCombined
         className="h-10 w-10 cursor-pointer hidden min-[856px]:block text-violet-800 dark:text-white hover:text-violet-600 dark:hover:text-gray-400
 "
